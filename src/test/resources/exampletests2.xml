@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+  <testsuite name="TestSuite1" tests="2" assertions="1" failures="1" errors="0" time="16.524625">
+    <testsuite name="EncryptedPdfTest" file="test1.php" tests="2" assertions="10" failures="0" errors="0" time="0.896205">
+      <testcase name="testShouldDetectEncryptedPdf" class="EncryptedPdfTest" file="test1.php" line="7" assertions="5" time="0.234727"/>
+      <testcase name="testShouldDetectUnencryptedPdf" class="EncryptedPdfTest" file="test1.php" line="18" assertions="5" time="0.661478"/>
+    </testsuite>
+  </testsuite>
+</testsuites>
