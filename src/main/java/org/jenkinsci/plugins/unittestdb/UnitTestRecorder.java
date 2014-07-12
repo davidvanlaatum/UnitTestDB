@@ -41,6 +41,7 @@ public class UnitTestRecorder {
   protected SortedMap<String, UnitTest> unittestlist;
   protected Build buildObj;
   protected Node node;
+  protected int unittests_processed = 0;
 
   public UnitTestRecorder ( AbstractBuild<?, ?> build, Launcher launcher,
                             BuildListener listener ) {
@@ -79,12 +80,13 @@ public class UnitTestRecorder {
   protected void recordUnitTest ( TestResult test ) {
     if ( test instanceof TabulatedResult && ( (TabulatedResult) test )
             .hasChildren () ) {
-      LOG.log ( Level.INFO, "Decending into {0}", test.getFullName () );
+      LOG.log ( Level.FINE, "Decending into {0}", test.getFullName () );
       for ( TestResult subtest : ( (TabulatedResult) test )
               .getChildren () ) {
         recordUnitTest ( subtest );
       }
     } else {
+      unittests_processed++;
       UnitTest t = unittestlist.get ( test.getFullName () );
       if ( t == null ) {
         t = UnitTest.findByJobAndName ( job, test.getFullName (), em, true );
@@ -133,6 +135,9 @@ public class UnitTestRecorder {
         f.setLastBuild ( buildObj );
         f.setState ( FailureState.Fixed );
       }
+      if ( unittests_processed % 1000 == 0 ) {
+        LOG.log ( Level.INFO, "Processed {0} unit tests", unittests_processed );
+      }
     }
   }
 
@@ -160,6 +165,10 @@ public class UnitTestRecorder {
       job.setLastrun ( build.getTime () );
       job.setLastBuild ( buildObj );
       em.getTransaction ().commit ();
+
+      LOG.log ( Level.INFO, "Processed {0} unit tests and {1} failed",
+                new Object[]{ unittests_processed, failurelist != null
+                                                   ? failurelist.size () : 0 } );
     } catch ( SQLException ex ) {
       LOG.log ( Level.SEVERE, null, ex );
     } catch ( NullPointerException ex ) {

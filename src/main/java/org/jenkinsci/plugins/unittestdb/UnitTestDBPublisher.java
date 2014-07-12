@@ -13,7 +13,7 @@ public class UnitTestDBPublisher extends Recorder {
 
   @Extension
   public static final DescriptorImpl DESCRIPTOR = new DescriptorImpl ();
-  public static final String PUBLISHER_DISPLAYNAME = "Unit Test DB";
+  public static final String PUBLISHER_DISPLAYNAME = "Publish Unit Tests to DB";
 
   @DataBoundConstructor
   public UnitTestDBPublisher () {
@@ -32,13 +32,6 @@ public class UnitTestDBPublisher extends Recorder {
     UnitTestRecorder recorder
             = new UnitTestRecorder ( build, launcher, listener );
     recorder.record ();
-    return true;
-  }
-
-  @Override
-  public boolean prebuild ( AbstractBuild<?, ?> build, BuildListener listener ) {
-    UnitTestBuildCreator creator = new UnitTestBuildCreator ( build, listener );
-    creator.create ();
     return true;
   }
 

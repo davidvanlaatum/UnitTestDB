@@ -225,7 +225,7 @@ public class Build extends DBObject implements Serializable {
             if ( rt == null ) {
               throw ex2;
             }
-          } catch ( Throwable ex2 ) {
+          } catch ( Exception ex2 ) {
             em.getTransaction ().rollback ();
             throw ex2;
           }

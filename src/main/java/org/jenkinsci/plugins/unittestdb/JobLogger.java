@@ -4,7 +4,6 @@ import java.io.PrintStream;
 import java.text.MessageFormat;
 import java.util.logging.Handler;
 import java.util.logging.LogRecord;
-import org.slf4j.helpers.MessageFormatter;
 
 /**
  *

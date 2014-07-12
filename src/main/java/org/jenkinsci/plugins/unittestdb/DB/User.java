@@ -106,7 +106,7 @@ public class User extends DBObject implements Serializable {
   }
 
   public static User findByUsername ( String name, EntityManager em,
-                                         boolean create ) {
+                                      boolean create ) {
     requireNonNull ( em, "No EntityManager passed in" );
     if ( Strings.isNullOrEmpty ( name ) ) {
       throw new IllegalArgumentException ( "Name is null or empty" );
@@ -119,12 +119,21 @@ public class User extends DBObject implements Serializable {
       rt = (User) q.getSingleResult ();
     } catch ( NoResultException ex ) {
       if ( create ) {
+        em.getTransaction ().begin ();
         rt = new User ();
         rt.setUsername ( name );
         try {
           em.persist ( rt );
-        } catch ( EntityExistsException ex2 ) {
+          em.getTransaction ().commit ();
+        } catch ( PersistenceException ex2 ) {
+          em.getTransaction ().rollback ();
           rt = findByUsername ( name, em, false );
+          if ( rt == null ) {
+            throw ex2;
+          }
+        } catch ( Exception ex2 ) {
+          em.getTransaction ().rollback ();
+          throw ex2;
         }
       }
     }
