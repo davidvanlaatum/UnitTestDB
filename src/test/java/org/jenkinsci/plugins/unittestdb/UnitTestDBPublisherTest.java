@@ -13,10 +13,10 @@ import java.sql.PreparedStatement;
 import javax.persistence.EntityManager;
 import org.jenkinsci.plugins.database.mysql.MySQLDatabase;
 import org.junit.*;
+import org.jvnet.hudson.test.FakeChangeLogSCM;
 import org.jvnet.hudson.test.JenkinsRule;
 import org.jvnet.hudson.test.TestBuilder;
 
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNotNull;
 
 /**
@@ -27,6 +27,8 @@ public class UnitTestDBPublisherTest {
 
   @Rule
   public JenkinsRule j = new JenkinsRule ();
+
+  public static final String UNITTESTUSER = "unittestuser";
 
   @Test
   public void testSingle () throws Exception {
@@ -45,6 +47,11 @@ public class UnitTestDBPublisherTest {
       try ( PreparedStatement stmt = conn.prepareStatement (
               "DELETE FROM jobs WHERE name = ?" ) ) {
         stmt.setString ( 1, "FreeStyle" );
+        stmt.execute ();
+      }
+      try ( PreparedStatement stmt = conn.prepareStatement (
+              "DELETE FROM users WHERE username = ?" ) ) {
+        stmt.setString ( 1, UNITTESTUSER );
         stmt.execute ();
       }
     }
@@ -75,7 +82,12 @@ public class UnitTestDBPublisherTest {
       }
     };
 
-    project.setScm ( new UnitTestSCM () );
+    FakeChangeLogSCM fakeSCM = new FakeChangeLogSCM ();
+
+    fakeSCM.addChange ().withAuthor ( UNITTESTUSER )
+            .withMsg ( "A Test Commit" );
+
+    project.setScm ( fakeSCM );
     JUnitResultArchiver jUnitResultArchiver
             = new JUnitResultArchiver ( "tests.xml", true, null );
     project.getPublishersList ().add ( jUnitResultArchiver );
@@ -92,6 +104,12 @@ public class UnitTestDBPublisherTest {
 
     assertNotNull ( job );
     assertNotNull ( job.getLastBuild () );
+
+    org.jenkinsci.plugins.unittestdb.DB.User user
+            = org.jenkinsci.plugins.unittestdb.DB.User.
+            findByUsername ( UNITTESTUSER, em, false );
+
+    assertNotNull ( "No User", user );
 
     build = project.scheduleBuild2 ( 0 ).get ();
     j.assertBuildStatus ( Result.UNSTABLE, build );
@@ -132,7 +150,9 @@ public class UnitTestDBPublisherTest {
                                                                         "4", "5",
                                                                         "6", "7" } ) ) ) );
 
-    project.setScm ( new UnitTestSCM () );
+    FakeChangeLogSCM fakeSCM = new FakeChangeLogSCM ();
+
+    project.setScm ( fakeSCM );
     project.getPublishersList ().add ( new UnitTestDBPublisher () );
 
     MatrixBuild build = j.buildAndAssertSuccess ( project );
