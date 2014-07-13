@@ -122,7 +122,7 @@ public class UnitTestDBPublisherTest {
 
   @Test
   public void testMatrix () throws Exception {
-    String UNITTESTUSER = "unittestuser2";
+    final String UNITTESTUSER = "unittestuser2";
     GlobalConfig config = j.getInstance ().getInjector ().getInstance (
             GlobalConfig.class );
     assertNotNull ( config );
@@ -149,7 +149,7 @@ public class UnitTestDBPublisherTest {
     DumbSlave slave = j.createOnlineSlave ();
     MatrixProject project = j.createMatrixProject ( "Matrix" );
 
-    FakeChangeLogSCM fakeSCM = new FakeChangeLogSCM ();
+    final FakeChangeLogSCM fakeSCM = new FakeChangeLogSCM ();
 
     fakeSCM.addChange ().withAuthor ( UNITTESTUSER )
             .withMsg ( "A Test Commit" );
@@ -162,6 +162,9 @@ public class UnitTestDBPublisherTest {
                                Launcher launcher,
                                BuildListener listener ) throws
               InterruptedException, IOException {
+        // for some reason adding a change log entry here makes it work with matrix builds
+        fakeSCM.addChange ().withAuthor ( UNITTESTUSER )
+                .withMsg ( "A Test Commit" );
         build.getWorkspace ().child ( "tests.xml" ).copyFrom ( getClass ()
                 .getClassLoader ().getResource ( "exampletests" + build
                         .getBuildVariableResolver ().resolve ( "TEST" ) + ".xml" ) );

@@ -36,7 +36,7 @@ public class UnitTestRecorder {
   protected GlobalConfig config;
   protected EntityManager em;
   protected Job job;
-  protected List<User> users = new ArrayList<> ();
+  protected Map<String, User> users = new HashMap<String, User> ();
   protected SortedMap<Integer, Failure> failurelist;
   protected SortedMap<String, UnitTest> unittestlist;
   protected Build buildObj;
@@ -59,7 +59,7 @@ public class UnitTestRecorder {
         ChangeLogSet.Entry change = (ChangeLogSet.Entry) i;
         User user = User.findByUsername ( change.getAuthor ().getId (), em,
                                           true );
-        users.add ( user );
+        users.put ( user.getUsername (), user );
       } else if ( i != null ) {
         LOG.log ( Level.WARNING, "Unkown SCM object type {0}", i.getClass ()
                   .getName () );
@@ -127,7 +127,7 @@ public class UnitTestRecorder {
           f.setJob ( job );
           f.setState ( FailureState.Failed );
           em.persist ( f );
-          for ( User u : users ) {
+          for ( User u : users.values () ) {
             FailureUser fu = new FailureUser ();
             fu.setUser ( u );
             fu.setState ( FailureUserState.Maybe );
