@@ -106,7 +106,7 @@ public class Node extends DBObject implements Serializable {
   }
 
   public static Node findByName ( String name, EntityManager em,
-                                      boolean create ) {
+                                  boolean create ) {
     requireNonNull ( em, "No EntityManager passed in" );
     requireNonNull ( name, "Name is null" );
     Query q = em.createNamedQuery ( "Node.findByName" );
@@ -118,20 +118,21 @@ public class Node extends DBObject implements Serializable {
     } catch ( NoResultException ex ) {
       if ( create ) {
         em.getTransaction ().begin ();
-        rt = new Node ();
-        rt.setName ( name.isEmpty () ? "master" : name );
-        try {
-          em.persist ( rt );
-          em.getTransaction ().commit ();
-        } catch ( PersistenceException ex2 ) {
-          em.getTransaction ().rollback ();
-          rt = findByName ( name, em, false );
-          if ( rt == null ) {
+        Createlocks lock = Createlocks.getLockObject ( em, "node" );
+        em.lock ( lock, LockModeType.PESSIMISTIC_WRITE );
+        rt = findByName ( name, em, false );
+        if ( rt == null ) {
+          rt = new Node ();
+          rt.setName ( name.isEmpty () ? "master" : name );
+          try {
+            em.persist ( rt );
+            em.getTransaction ().commit ();
+          } catch ( Throwable ex2 ) {
+            em.getTransaction ().rollback ();
             throw ex2;
           }
-        } catch ( Throwable ex2 ) {
+        } else {
           em.getTransaction ().rollback ();
-          throw ex2;
         }
       }
     }

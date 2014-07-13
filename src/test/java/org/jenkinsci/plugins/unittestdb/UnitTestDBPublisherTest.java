@@ -31,6 +31,7 @@ public class UnitTestDBPublisherTest {
   @Test
   public void testSingle () throws Exception {
     String UNITTESTUSER = "unittestuser";
+    String PROJECTNAME = "FreeStyle";
     GlobalConfig config = j.getInstance ().getInjector ().getInstance (
             GlobalConfig.class );
     assertNotNull ( config );
@@ -45,7 +46,7 @@ public class UnitTestDBPublisherTest {
             .getConnection () ) {
       try ( PreparedStatement stmt = conn.prepareStatement (
               "DELETE FROM jobs WHERE name = ?" ) ) {
-        stmt.setString ( 1, "FreeStyle" );
+        stmt.setString ( 1, PROJECTNAME );
         stmt.execute ();
       }
       try ( PreparedStatement stmt = conn.prepareStatement (
@@ -55,7 +56,7 @@ public class UnitTestDBPublisherTest {
       }
     }
 
-    FreeStyleProject project = j.createFreeStyleProject ( "FreeStyle" );
+    FreeStyleProject project = j.createFreeStyleProject ( PROJECTNAME );
 
     TestBuilder builder1 = new TestBuilder () {
       @Override
@@ -123,6 +124,7 @@ public class UnitTestDBPublisherTest {
   @Test
   public void testMatrix () throws Exception {
     final String UNITTESTUSER = "unittestuser2";
+    final String PROJECTNAME = "Matrix";
     GlobalConfig config = j.getInstance ().getInjector ().getInstance (
             GlobalConfig.class );
     assertNotNull ( config );
@@ -136,7 +138,7 @@ public class UnitTestDBPublisherTest {
             .getConnection () ) {
       try ( PreparedStatement stmt = conn.prepareStatement (
               "DELETE FROM jobs WHERE name = ?" ) ) {
-        stmt.setString ( 1, "Matrix" );
+        stmt.setString ( 1, PROJECTNAME );
         stmt.execute ();
       }
       try ( PreparedStatement stmt = conn.prepareStatement (
@@ -146,8 +148,8 @@ public class UnitTestDBPublisherTest {
       }
     }
 
-    DumbSlave slave = j.createOnlineSlave ();
-    MatrixProject project = j.createMatrixProject ( "Matrix" );
+    j.createOnlineSlave ();
+    MatrixProject project = j.createMatrixProject ( PROJECTNAME );
 
     final FakeChangeLogSCM fakeSCM = new FakeChangeLogSCM ();
 

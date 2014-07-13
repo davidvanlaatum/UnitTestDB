@@ -185,6 +185,10 @@ public class UnitTestRecorder {
       }
     } finally {
       if ( em != null ) {
+        if ( em.getTransaction ().isActive () ) {
+          em.getTransaction ().commit ();
+          throw new IllegalStateException ( "Transaction still open!" );
+        }
         em.close ();
       }
     }

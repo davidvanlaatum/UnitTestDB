@@ -29,6 +29,9 @@ import static java.util.Objects.requireNonNull;
                 = "SELECT u FROM User u WHERE u.username = :username" ) } )
 public class User extends DBObject implements Serializable {
 
+  private static final Logger LOG = Logger.getLogger ( User.class.getName () );
+  private static final Object lock = new Object ();
+
   private static final long serialVersionUID = 1L;
   @Id
   @GeneratedValue ( strategy = GenerationType.IDENTITY )
@@ -121,30 +124,29 @@ public class User extends DBObject implements Serializable {
       rt = (User) q.getSingleResult ();
     } catch ( NoResultException ex ) {
       if ( create ) {
-        LOG.log ( Level.INFO, "Creating user {0}", name );
-        em.getTransaction ().begin ();
-        rt = new User ();
-        rt.setUsername ( name );
-        try {
-          em.persist ( rt );
-          em.getTransaction ().commit ();
-        } catch ( PersistenceException ex2 ) {
-          em.getTransaction ().rollback ();
-          rt = findByUsername ( name, em, false );
-          if ( rt == null ) {
+        synchronized ( lock ) {
+          try {
+            em.getTransaction ().begin ();
+            Createlocks lock = Createlocks.getLockObject ( em, "user" );
+            em.lock ( lock, LockModeType.PESSIMISTIC_WRITE );
+            rt = findByUsername ( name, em, false );
+            if ( rt == null ) {
+              LOG.log ( Level.INFO, "Creating user {0}", name );
+              rt = new User ();
+              rt.setUsername ( name );
+              em.persist ( rt );
+            }
+            em.getTransaction ().commit ();
+          } catch ( Exception ex2 ) {
+            em.getTransaction ().rollback ();
             LOG.log ( Level.SEVERE, null, ex2 );
             throw ex2;
           }
-        } catch ( Exception ex2 ) {
-          em.getTransaction ().rollback ();
-          LOG.log ( Level.SEVERE, null, ex2 );
-          throw ex2;
         }
       }
     }
 
     return rt;
   }
-  private static final Logger LOG = Logger.getLogger ( User.class.getName () );
 
 }

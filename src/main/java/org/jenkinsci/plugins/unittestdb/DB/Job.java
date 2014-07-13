@@ -33,6 +33,7 @@ import static java.util.Objects.requireNonNull;
 public class Job extends DBObject implements Serializable {
 
   private static final Logger LOG = Logger.getLogger ( Job.class.getName () );
+  private static final Object lock = new Object ();
 
   private static final long serialVersionUID = 1L;
   @Id
@@ -178,26 +179,38 @@ public class Job extends DBObject implements Serializable {
       rt = (Job) q.getSingleResult ();
     } catch ( NoResultException ex ) {
       if ( create ) {
-        LOG.log ( Level.INFO, "Creating job {0}", name );
-        em.getTransaction ().begin ();
-        rt = new Job ();
-        rt.setName ( name );
-        try {
-          em.persist ( rt );
-          em.getTransaction ().commit ();
-        } catch ( PersistenceException ex2 ) {
-          em.getTransaction ().rollback ();
-          rt = findByName ( name, em, false );
-          if ( rt == null ) {
+        if ( em.getTransaction ().isActive () ) {
+          throw new IllegalStateException ( "Already in a transaction" );
+        }
+        synchronized ( lock ) {
+          try {
+            em.getTransaction ().begin ();
+            Createlocks lock = Createlocks.getLockObject ( em, "job" );
+            em.lock ( lock, LockModeType.PESSIMISTIC_WRITE );
+            rt = findByName ( name, em, false );
+            if ( rt == null ) {
+              LOG.log ( Level.INFO, "Creating job {0}", name );
+              rt = new Job ();
+              rt.setName ( name );
+              em.persist ( rt );
+            }
+            em.getTransaction ().commit ();
+          } catch ( Exception ex2 ) {
+            em.getTransaction ().rollback ();
             LOG.log ( Level.SEVERE, null, ex2 );
             throw ex2;
           }
-        } catch ( Throwable ex2 ) {
-          em.getTransaction ().rollback ();
-          LOG.log ( Level.SEVERE, null, ex2 );
-          throw ex2;
         }
       }
+    }
+
+    if ( create ) {
+      requireNonNull ( rt, "Somehow with create on we still returned null" );
+    }
+
+    if ( rt != null && !em.contains ( rt ) ) {
+      throw new IllegalStateException (
+              "Somehow the job we are returning is not in the entity manager" );
     }
 
     return rt;
