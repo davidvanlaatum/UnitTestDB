@@ -4,6 +4,8 @@ import com.google.common.base.Strings;
 import hudson.Extension;
 import java.io.Serializable;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.persistence.*;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
@@ -119,6 +121,7 @@ public class User extends DBObject implements Serializable {
       rt = (User) q.getSingleResult ();
     } catch ( NoResultException ex ) {
       if ( create ) {
+        LOG.log ( Level.INFO, "Creating user {0}", name );
         em.getTransaction ().begin ();
         rt = new User ();
         rt.setUsername ( name );
@@ -129,10 +132,12 @@ public class User extends DBObject implements Serializable {
           em.getTransaction ().rollback ();
           rt = findByUsername ( name, em, false );
           if ( rt == null ) {
+            LOG.log ( Level.SEVERE, null, ex2 );
             throw ex2;
           }
         } catch ( Exception ex2 ) {
           em.getTransaction ().rollback ();
+          LOG.log ( Level.SEVERE, null, ex2 );
           throw ex2;
         }
       }
@@ -140,5 +145,6 @@ public class User extends DBObject implements Serializable {
 
     return rt;
   }
+  private static final Logger LOG = Logger.getLogger ( User.class.getName () );
 
 }

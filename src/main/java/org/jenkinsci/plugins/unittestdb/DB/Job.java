@@ -5,6 +5,8 @@ import hudson.Extension;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.persistence.*;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
@@ -29,6 +31,8 @@ import static java.util.Objects.requireNonNull;
   @NamedQuery ( name = "Job.findByLastrun", query
                 = "SELECT j FROM Job j WHERE j.lastrun = :lastrun" ) } )
 public class Job extends DBObject implements Serializable {
+
+  private static final Logger LOG = Logger.getLogger ( Job.class.getName () );
 
   private static final long serialVersionUID = 1L;
   @Id
@@ -174,6 +178,7 @@ public class Job extends DBObject implements Serializable {
       rt = (Job) q.getSingleResult ();
     } catch ( NoResultException ex ) {
       if ( create ) {
+        LOG.log ( Level.INFO, "Creating job {0}", name );
         em.getTransaction ().begin ();
         rt = new Job ();
         rt.setName ( name );
@@ -184,10 +189,12 @@ public class Job extends DBObject implements Serializable {
           em.getTransaction ().rollback ();
           rt = findByName ( name, em, false );
           if ( rt == null ) {
+            LOG.log ( Level.SEVERE, null, ex2 );
             throw ex2;
           }
         } catch ( Throwable ex2 ) {
           em.getTransaction ().rollback ();
+          LOG.log ( Level.SEVERE, null, ex2 );
           throw ex2;
         }
       }

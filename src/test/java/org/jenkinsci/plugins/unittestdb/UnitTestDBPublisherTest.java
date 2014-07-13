@@ -28,10 +28,9 @@ public class UnitTestDBPublisherTest {
   @Rule
   public JenkinsRule j = new JenkinsRule ();
 
-  public static final String UNITTESTUSER = "unittestuser";
-
   @Test
   public void testSingle () throws Exception {
+    String UNITTESTUSER = "unittestuser";
     GlobalConfig config = j.getInstance ().getInjector ().getInstance (
             GlobalConfig.class );
     assertNotNull ( config );
@@ -77,7 +76,7 @@ public class UnitTestDBPublisherTest {
                                BuildListener listener ) throws
               InterruptedException, IOException {
         build.getWorkspace ().child ( "tests.xml" ).copyFrom ( getClass ()
-                .getClassLoader ().getResource ( "exampletests2.xml" ) );
+                .getClassLoader ().getResource ( "exampletests1.xml" ) );
         return true;
       }
     };
@@ -102,8 +101,8 @@ public class UnitTestDBPublisherTest {
             = org.jenkinsci.plugins.unittestdb.DB.Job.findByName ( project
                     .getName (), em, false );
 
-    assertNotNull ( job );
-    assertNotNull ( job.getLastBuild () );
+    assertNotNull ( "No job", job );
+    assertNotNull ( "No last build", job.getLastBuild () );
 
     org.jenkinsci.plugins.unittestdb.DB.User user
             = org.jenkinsci.plugins.unittestdb.DB.User.
@@ -123,6 +122,7 @@ public class UnitTestDBPublisherTest {
 
   @Test
   public void testMatrix () throws Exception {
+    String UNITTESTUSER = "unittestuser2";
     GlobalConfig config = j.getInstance ().getInjector ().getInstance (
             GlobalConfig.class );
     assertNotNull ( config );
@@ -139,22 +139,64 @@ public class UnitTestDBPublisherTest {
         stmt.setString ( 1, "Matrix" );
         stmt.execute ();
       }
+      try ( PreparedStatement stmt = conn.prepareStatement (
+              "DELETE FROM users WHERE username = ?" ) ) {
+        stmt.setString ( 1, UNITTESTUSER );
+        stmt.execute ();
+      }
     }
 
     DumbSlave slave = j.createOnlineSlave ();
     MatrixProject project = j.createMatrixProject ( "Matrix" );
 
+    FakeChangeLogSCM fakeSCM = new FakeChangeLogSCM ();
+
+    fakeSCM.addChange ().withAuthor ( UNITTESTUSER )
+            .withMsg ( "A Test Commit" );
+
+    project.setScm ( fakeSCM );
+
+    TestBuilder builder = new TestBuilder () {
+      @Override
+      public boolean perform ( AbstractBuild<?, ?> build,
+                               Launcher launcher,
+                               BuildListener listener ) throws
+              InterruptedException, IOException {
+        build.getWorkspace ().child ( "tests.xml" ).copyFrom ( getClass ()
+                .getClassLoader ().getResource ( "exampletests" + build
+                        .getBuildVariableResolver ().resolve ( "TEST" ) + ".xml" ) );
+        return true;
+      }
+    };
+
     project.setAxes ( new AxisList ( new Axis ( "TEST", Lists
                                                 .asList ( "1",
                                                           new String[]{ "2", "3",
                                                                         "4", "5",
-                                                                        "6", "7" } ) ) ) );
+                                                                        "6", "7",
+                                                                        "8" } ) ) ) );
 
-    FakeChangeLogSCM fakeSCM = new FakeChangeLogSCM ();
-
-    project.setScm ( fakeSCM );
+    project.getBuildersList ().add ( builder );
+    JUnitResultArchiver jUnitResultArchiver
+            = new JUnitResultArchiver ( "tests.xml", true, null );
+    project.getPublishersList ().add ( jUnitResultArchiver );
     project.getPublishersList ().add ( new UnitTestDBPublisher () );
 
-    MatrixBuild build = j.buildAndAssertSuccess ( project );
+    MatrixBuild build = project.scheduleBuild2 ( 0 ).get ();
+    j.assertBuildStatus ( Result.UNSTABLE, build );
+
+    EntityManager em = config.getEntityManagerFactory ().createEntityManager ();
+    org.jenkinsci.plugins.unittestdb.DB.Job job
+            = org.jenkinsci.plugins.unittestdb.DB.Job.findByName ( project
+                    .getName (), em, false );
+
+    assertNotNull ( "No Job", job );
+    assertNotNull ( "No Last Build", job.getLastBuild () );
+
+    org.jenkinsci.plugins.unittestdb.DB.User user
+            = org.jenkinsci.plugins.unittestdb.DB.User.
+            findByUsername ( UNITTESTUSER, em, false );
+
+    assertNotNull ( "No User", user );
   }
 }

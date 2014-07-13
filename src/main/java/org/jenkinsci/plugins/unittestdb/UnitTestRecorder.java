@@ -52,12 +52,17 @@ public class UnitTestRecorder {
   }
 
   protected void discoverUsers () {
+    LOG.log ( Level.INFO, "Found {0} change log entries", build.getChangeSet ()
+              .getItems ().length );
     for ( Object i : build.getChangeSet ().getItems () ) {
       if ( i instanceof ChangeLogSet.Entry ) {
         ChangeLogSet.Entry change = (ChangeLogSet.Entry) i;
         User user = User.findByUsername ( change.getAuthor ().getId (), em,
                                           true );
         users.add ( user );
+      } else if ( i != null ) {
+        LOG.log ( Level.WARNING, "Unkown SCM object type {0}", i.getClass ()
+                  .getName () );
       }
     }
   }
@@ -168,7 +173,8 @@ public class UnitTestRecorder {
 
       LOG.log ( Level.INFO, "Processed {0} unit tests and {1} failed",
                 new Object[]{ unittests_processed, failurelist != null
-                                                   ? failurelist.size () : 0 } );
+                                                           ? failurelist.size ()
+                                                           : 0 } );
     } catch ( SQLException ex ) {
       LOG.log ( Level.SEVERE, null, ex );
     } catch ( NullPointerException ex ) {
