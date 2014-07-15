@@ -20,7 +20,6 @@ import org.jvnet.hudson.test.TestBuilder;
 import static org.junit.Assert.assertNotNull;
 
 /**
- *
  * @author David van Laatum
  */
 public class UnitTestDBPublisherTest {
@@ -52,6 +51,11 @@ public class UnitTestDBPublisherTest {
       try ( PreparedStatement stmt = conn.prepareStatement (
               "DELETE FROM users WHERE username = ?" ) ) {
         stmt.setString ( 1, UNITTESTUSER );
+        stmt.execute ();
+      }
+      try ( PreparedStatement stmt = conn.prepareStatement (
+              "DELETE FROM nodes WHERE name = ?" ) ) {
+        stmt.setString ( 1, "master" );
         stmt.execute ();
       }
     }
@@ -146,9 +150,15 @@ public class UnitTestDBPublisherTest {
         stmt.setString ( 1, UNITTESTUSER );
         stmt.execute ();
       }
+      try ( PreparedStatement stmt = conn.prepareStatement (
+              "DELETE FROM nodes WHERE name = ? OR name = ?" ) ) {
+        stmt.setString ( 1, "master" );
+        stmt.setString ( 2, "slave0" );
+        stmt.execute ();
+      }
     }
 
-    j.createOnlineSlave ();
+    j.createOnlineSlave ().setNodeName ( "slave0" );
     MatrixProject project = j.createMatrixProject ( PROJECTNAME );
 
     final FakeChangeLogSCM fakeSCM = new FakeChangeLogSCM ();

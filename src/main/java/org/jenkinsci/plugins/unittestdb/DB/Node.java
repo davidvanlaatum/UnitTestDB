@@ -27,6 +27,8 @@ import static java.util.Objects.requireNonNull;
                 = "SELECT n FROM Node n WHERE n.name = :name" ) } )
 public class Node extends DBObject implements Serializable {
 
+  private static final Object lock = new Object ();
+
   private static final long serialVersionUID = 1L;
   @Id
   @GeneratedValue ( strategy = GenerationType.IDENTITY )
@@ -117,22 +119,22 @@ public class Node extends DBObject implements Serializable {
       rt = (Node) q.getSingleResult ();
     } catch ( NoResultException ex ) {
       if ( create ) {
-        em.getTransaction ().begin ();
-        Createlocks lock = Createlocks.getLockObject ( em, "node" );
-        em.lock ( lock, LockModeType.PESSIMISTIC_WRITE );
-        rt = findByName ( name, em, false );
-        if ( rt == null ) {
-          rt = new Node ();
-          rt.setName ( name.isEmpty () ? "master" : name );
+        synchronized ( lock ) {
           try {
-            em.persist ( rt );
+            em.getTransaction ().begin ();
+            Createlocks dblock = Createlocks.getLockObject ( em, "node" );
+            em.lock ( dblock, LockModeType.PESSIMISTIC_WRITE );
+            rt = findByName ( name, em, false );
+            if ( rt == null ) {
+              rt = new Node ();
+              rt.setName ( name.isEmpty () ? "master" : name );
+              em.persist ( rt );
+            }
             em.getTransaction ().commit ();
-          } catch ( Throwable ex2 ) {
+          } catch ( Exception ex2 ) {
             em.getTransaction ().rollback ();
             throw ex2;
           }
-        } else {
-          em.getTransaction ().rollback ();
         }
       }
     }

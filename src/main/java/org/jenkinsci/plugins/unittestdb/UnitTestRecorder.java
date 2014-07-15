@@ -36,12 +36,13 @@ public class UnitTestRecorder {
   protected GlobalConfig config;
   protected EntityManager em;
   protected Job job;
-  protected Map<String, User> users = new HashMap<String, User> ();
+  protected Map<String, User> users = new HashMap<> ();
   protected SortedMap<Integer, Failure> failurelist;
   protected SortedMap<String, UnitTest> unittestlist;
   protected Build buildObj;
   protected Node node;
-  protected int unittests_processed = 0;
+  protected int unittestsProcessed = 0;
+  protected BuildInfo buildInfo;
 
   public UnitTestRecorder ( AbstractBuild<?, ?> build, Launcher launcher,
                             BuildListener listener ) {
@@ -49,6 +50,7 @@ public class UnitTestRecorder {
     this.launcher = launcher;
     this.listener = listener;
     LOG.addHandler ( new JobLogger ( listener.getLogger () ) );
+    buildInfo = new BuildInfo ();
   }
 
   protected void discoverUsers () {
@@ -91,7 +93,7 @@ public class UnitTestRecorder {
         recordUnitTest ( subtest );
       }
     } else {
-      unittests_processed++;
+      unittestsProcessed++;
       UnitTest t = unittestlist.get ( test.getFullName () );
       if ( t == null ) {
         t = UnitTest.findByJobAndName ( job, test.getFullName (), em, true );
@@ -140,8 +142,8 @@ public class UnitTestRecorder {
         f.setLastBuild ( buildObj );
         f.setState ( FailureState.Fixed );
       }
-      if ( unittests_processed % 1000 == 0 ) {
-        LOG.log ( Level.INFO, "Processed {0} unit tests", unittests_processed );
+      if ( unittestsProcessed % 1000 == 0 ) {
+        LOG.log ( Level.INFO, "Processed {0} unit tests", unittestsProcessed );
       }
     }
   }
@@ -159,8 +161,9 @@ public class UnitTestRecorder {
               Build.findByJobAndJenkinsID ( job, build.getNumber (), build
                                             .getTime (), em, true ),
               "Failed to get build object" );
-      node = requireNonNull ( Node.findByName ( build.getBuiltOn ()
-              .getNodeName (), em, true ), "Failed to get Node object" );
+      node = requireNonNull ( Node
+              .findByName ( build.getBuiltOnStr (), em, true ),
+                              "Failed to get Node object" );
 
       discoverUsers ();
       discoverUnitTests ();
@@ -172,9 +175,19 @@ public class UnitTestRecorder {
       em.getTransaction ().commit ();
 
       LOG.log ( Level.INFO, "Processed {0} unit tests and {1} failed",
-                new Object[]{ unittests_processed, failurelist != null
-                                                           ? failurelist.size ()
-                                                           : 0 } );
+                new Object[]{ unittestsProcessed,
+                              failurelist != null ? failurelist.size () : 0 } );
+      build.addAction ( buildInfo );
+      for ( Failure f : failurelist.values () ) {
+        for ( FailureUser fu : f.getUsers () ) {
+          if ( fu.getState () != FailureUserState.Not_Me ) {
+            if ( !buildInfo.users.contains ( fu.getUser () ) ) {
+              buildInfo.users.add ( fu.getUser () );
+            }
+          }
+        }
+      }
+      buildInfo.failures.addAll ( failurelist.values () );
     } catch ( SQLException ex ) {
       LOG.log ( Level.SEVERE, null, ex );
     } catch ( NullPointerException ex ) {
@@ -185,10 +198,6 @@ public class UnitTestRecorder {
       }
     } finally {
       if ( em != null ) {
-        if ( em.getTransaction ().isActive () ) {
-          em.getTransaction ().commit ();
-          throw new IllegalStateException ( "Transaction still open!" );
-        }
         em.close ();
       }
     }
