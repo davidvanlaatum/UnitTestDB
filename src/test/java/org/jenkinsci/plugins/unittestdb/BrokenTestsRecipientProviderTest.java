@@ -3,14 +3,12 @@ package org.jenkinsci.plugins.unittestdb;
 import hudson.EnvVars;
 import hudson.console.ConsoleNote;
 import hudson.model.*;
-import hudson.model.queue.SubTask;
 import hudson.plugins.emailext.ExtendedEmailPublisher;
 import hudson.plugins.emailext.ExtendedEmailPublisherContext;
 import hudson.util.AbstractTaskListener;
 import java.io.*;
 import java.util.*;
 import javax.mail.internet.InternetAddress;
-import jenkins.model.Jenkins;
 import org.junit.Rule;
 import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
@@ -73,7 +71,7 @@ public class BrokenTestsRecipientProviderTest {
     FreeStyleProject project = j.createFreeStyleProject ();
     j.buildAndAssertSuccess ( project );
     ExtendedEmailPublisher extemail = new ExtendedEmailPublisher ();
-    FreeStyleBuild build = project.getLastBuild ();
+    FreeStyleBuild build = Objects.requireNonNull ( project.getLastBuild () );
     ExtendedEmailPublisherContext context = new ExtendedEmailPublisherContext (
             extemail, build, listener );
     EnvVars vars = new EnvVars ();
