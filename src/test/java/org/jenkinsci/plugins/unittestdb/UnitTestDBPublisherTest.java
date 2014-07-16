@@ -4,7 +4,6 @@ import com.google.common.collect.Lists;
 import hudson.Launcher;
 import hudson.matrix.*;
 import hudson.model.*;
-import hudson.slaves.DumbSlave;
 import hudson.tasks.junit.JUnitResultArchiver;
 import hudson.util.Secret;
 import java.io.IOException;
@@ -13,11 +12,13 @@ import java.sql.PreparedStatement;
 import javax.persistence.EntityManager;
 import org.jenkinsci.plugins.database.mysql.MySQLDatabase;
 import org.junit.*;
-import org.jvnet.hudson.test.FakeChangeLogSCM;
-import org.jvnet.hudson.test.JenkinsRule;
-import org.jvnet.hudson.test.TestBuilder;
+import org.jvnet.hudson.test.*;
 
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 
 /**
  * @author David van Laatum
@@ -118,11 +119,35 @@ public class UnitTestDBPublisherTest {
     build = project.scheduleBuild2 ( 0 ).get ();
     j.assertBuildStatus ( Result.UNSTABLE, build );
 
+    BuildInfo info = build.getAction ( BuildInfo.class );
+    assertNotNull ( "No build info", info );
+    assertNotNull ( info.failures );
+    assertNotNull ( info.users );
+    assertFalse ( info.failures.isEmpty () );
+    assertFalse ( info.users.isEmpty () );
+
     project.getBuildersList ().remove ( builder1 );
     project.getBuildersList ().add ( builder2 );
 
     build = project.scheduleBuild2 ( 0 ).get ();
     j.assertBuildStatus ( Result.SUCCESS, build );
+
+    info = build.getAction ( BuildInfo.class );
+    assertNotNull ( "No build info", info );
+    assertNotNull ( info.failures );
+    assertNotNull ( info.users );
+    assertFalse ( info.failures.isEmpty () );
+    assertFalse ( info.users.isEmpty () );
+
+    build = project.scheduleBuild2 ( 0 ).get ();
+    j.assertBuildStatus ( Result.SUCCESS, build );
+
+    info = build.getAction ( BuildInfo.class );
+    assertNotNull ( "No build info", info );
+    assertNotNull ( info.failures );
+    assertNotNull ( info.users );
+    assertTrue ( info.failures.isEmpty () );
+    assertTrue ( info.users.isEmpty () );
   }
 
   @Test
