@@ -1,8 +1,8 @@
 package org.jenkinsci.plugins.unittestdb;
 
+import java.sql.SQLException;
 import com.google.inject.Inject;
 import hudson.Extension;
-import java.sql.SQLException;
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 import jenkins.model.GlobalConfiguration;
@@ -12,7 +12,6 @@ import org.jenkinsci.plugins.database.Database;
 import org.jenkinsci.plugins.database.jpa.PersistenceService;
 import org.jenkinsci.plugins.unittestdb.DB.DBObject;
 import org.kohsuke.stapler.StaplerRequest;
-
 import static java.util.Objects.requireNonNull;
 
 /**

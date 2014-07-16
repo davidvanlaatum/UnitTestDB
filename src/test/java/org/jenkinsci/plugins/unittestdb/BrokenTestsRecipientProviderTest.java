@@ -1,18 +1,17 @@
 package org.jenkinsci.plugins.unittestdb;
 
+import java.io.*;
+import java.util.*;
 import hudson.EnvVars;
 import hudson.console.ConsoleNote;
 import hudson.model.*;
 import hudson.plugins.emailext.ExtendedEmailPublisher;
 import hudson.plugins.emailext.ExtendedEmailPublisherContext;
 import hudson.util.AbstractTaskListener;
-import java.io.*;
-import java.util.*;
 import javax.mail.internet.InternetAddress;
 import org.junit.Rule;
 import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
-
 import static org.junit.Assert.*;
 
 /**

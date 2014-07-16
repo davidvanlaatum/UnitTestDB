@@ -1,14 +1,14 @@
 package org.jenkinsci.plugins.unittestdb;
 
+import java.sql.SQLException;
+import java.util.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import com.google.inject.Inject;
 import hudson.Launcher;
 import hudson.model.*;
 import hudson.scm.ChangeLogSet;
 import hudson.tasks.test.*;
-import java.sql.SQLException;
-import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.persistence.EntityManager;
 import javax.persistence.LockModeType;
 import jenkins.model.Jenkins;
@@ -18,7 +18,6 @@ import org.jenkinsci.plugins.unittestdb.DB.Failure;
 import org.jenkinsci.plugins.unittestdb.DB.Job;
 import org.jenkinsci.plugins.unittestdb.DB.Node;
 import org.jenkinsci.plugins.unittestdb.DB.User;
-
 import static java.util.Objects.requireNonNull;
 
 /**

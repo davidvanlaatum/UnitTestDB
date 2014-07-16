@@ -1,9 +1,9 @@
 package org.jenkinsci.plugins.unittestdb;
 
+import java.util.List;
 import hudson.Extension;
 import hudson.model.*;
 import hudson.plugins.emailext.plugins.*;
-import java.util.List;
 import net.sf.json.JSONObject;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;

@@ -1,10 +1,10 @@
 package org.jenkinsci.plugins.unittestdb;
 
+import java.io.IOException;
 import hudson.Extension;
 import hudson.Launcher;
 import hudson.model.*;
 import hudson.tasks.*;
-import java.io.IOException;
 import net.sf.json.JSONObject;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;

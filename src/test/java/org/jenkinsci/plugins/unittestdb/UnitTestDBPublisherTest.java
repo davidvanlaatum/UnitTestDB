@@ -1,29 +1,24 @@
 package org.jenkinsci.plugins.unittestdb;
 
+import java.io.IOException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import com.google.common.collect.Lists;
 import hudson.Launcher;
 import hudson.matrix.*;
 import hudson.model.*;
 import hudson.tasks.junit.JUnitResultArchiver;
 import hudson.util.Secret;
-import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
 import javax.persistence.EntityManager;
 import org.jenkinsci.plugins.database.mysql.MySQLDatabase;
 import org.junit.*;
 import org.jvnet.hudson.test.*;
-
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.*;
 
 /**
  * @author David van Laatum
  */
-public class UnitTestDBPublisherTest {
+public class UnitTestDBPublisherTest extends TestBase {
 
   @Rule
   public JenkinsRule j = new JenkinsRule ();
@@ -35,13 +30,7 @@ public class UnitTestDBPublisherTest {
     GlobalConfig config = j.getInstance ().getInjector ().getInstance (
             GlobalConfig.class );
     assertNotNull ( config );
-    config.setDatabase ( new MySQLDatabase ( System.getProperty ( "db.host" ),
-                                             System.getProperty ( "db.name" ),
-                                             System.getProperty ( "db.user" ),
-                                             Secret.fromString ( System
-                                                     .getProperty ( "db.pass" ) ),
-                                             null ) );
-
+    config.setDatabase ( unitTestDB () );
     try ( Connection conn = config.getDatabase ().getDataSource ()
             .getConnection () ) {
       try ( PreparedStatement stmt = conn.prepareStatement (
@@ -157,12 +146,7 @@ public class UnitTestDBPublisherTest {
     GlobalConfig config = j.getInstance ().getInjector ().getInstance (
             GlobalConfig.class );
     assertNotNull ( config );
-    config.setDatabase ( new MySQLDatabase ( System.getProperty ( "db.host" ),
-                                             System.getProperty ( "db.name" ),
-                                             System.getProperty ( "db.user" ),
-                                             Secret.fromString ( System
-                                                     .getProperty ( "db.pass" ) ),
-                                             null ) );
+    config.setDatabase ( unitTestDB () );
     try ( Connection conn = config.getDatabase ().getDataSource ()
             .getConnection () ) {
       try ( PreparedStatement stmt = conn.prepareStatement (

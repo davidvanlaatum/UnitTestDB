@@ -1,15 +1,14 @@
 package org.jenkinsci.plugins.unittestdb;
 
+import java.io.UnsupportedEncodingException;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import hudson.EnvVars;
 import hudson.Extension;
 import hudson.plugins.emailext.ExtendedEmailPublisherContext;
 import hudson.plugins.emailext.plugins.RecipientProvider;
 import hudson.plugins.emailext.plugins.RecipientProviderDescriptor;
-import java.io.UnsupportedEncodingException;
-import java.util.Objects;
-import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import jenkins.model.Jenkins;
