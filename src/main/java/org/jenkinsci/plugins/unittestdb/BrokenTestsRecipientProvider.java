@@ -35,42 +35,43 @@ public class BrokenTestsRecipientProvider extends RecipientProvider {
                               Set<InternetAddress> bcc ) {
     Logger LOG = Logger.getLogger ( BrokenTestsRecipientProvider.class
             .getName () );
-    LOG.addHandler ( new JobLogger ( context.getListener ().getLogger () ) );
-    BuildInfo info = context.getBuild ().getAction ( BuildInfo.class );
-    if ( info != null ) {
-      for ( User u : info.users ) {
-        boolean found = false;
-        hudson.model.User user = Jenkins.getInstance ()
-                .getUser ( u.getUsername () );
-        if ( user != null ) {
-          hudson.tasks.Mailer.UserProperty email = user.getProperty (
-                  hudson.tasks.Mailer.UserProperty.class );
-          if ( email != null ) {
-            String address = email.getAddress ();
-            if ( address != null && !address.isEmpty () ) {
-              found = true;
-              try {
-                InternetAddress a = new InternetAddress ( address );
-                a.setPersonal ( user.getDisplayName () );
-                to.add ( a );
-                LOG
-                        .log ( Level.INFO, "Added {0} to list of recipients",
-                               address );
-              } catch ( AddressException | UnsupportedEncodingException ex ) {
-                LOG.log ( Level.SEVERE,
-                          "Exception while adding email address for user " + u
-                          .getUsername (), ex );
+    try ( JobLogger jobLogger = new JobLogger ( context.getListener ()
+            .getLogger (), LOG ) ) {
+      BuildInfo info = context.getBuild ().getAction ( BuildInfo.class );
+      if ( info != null ) {
+        for ( User u : info.users ) {
+          boolean found = false;
+          hudson.model.User user = Jenkins.getInstance ()
+                  .getUser ( u.getUsername () );
+          if ( user != null ) {
+            hudson.tasks.Mailer.UserProperty email = user.getProperty (
+                    hudson.tasks.Mailer.UserProperty.class );
+            if ( email != null ) {
+              String address = email.getAddress ();
+              if ( address != null && !address.isEmpty () ) {
+                found = true;
+                try {
+                  InternetAddress a = new InternetAddress ( address );
+                  a.setPersonal ( user.getDisplayName () );
+                  to.add ( a );
+                  LOG.log ( Level.INFO, "Added {0} to list of recipients",
+                            address );
+                } catch ( AddressException | UnsupportedEncodingException ex ) {
+                  LOG.log ( Level.SEVERE,
+                            "Exception while adding email address for user " + u
+                            .getUsername (), ex );
+                }
               }
             }
           }
+          if ( !found ) {
+            LOG.log ( Level.INFO, "No email address for user {0}", u
+                      .getUsername () );
+          }
         }
-        if ( !found ) {
-          LOG.log ( Level.INFO, "No email address for user {0}", u
-                    .getUsername () );
-        }
+      } else {
+        LOG.log ( Level.INFO, "No info from Unit Test Publisher" );
       }
-    } else {
-      LOG.log ( Level.INFO, "No info from Unit Test Publisher" );
     }
   }
 

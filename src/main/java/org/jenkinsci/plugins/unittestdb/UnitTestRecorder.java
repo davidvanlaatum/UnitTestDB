@@ -49,7 +49,6 @@ public class UnitTestRecorder {
     this.build = build;
     this.launcher = launcher;
     this.listener = listener;
-    LOG.addHandler ( new JobLogger ( listener.getLogger () ) );
     buildInfo = new BuildInfo ();
   }
 
@@ -149,7 +148,7 @@ public class UnitTestRecorder {
   }
 
   public void record () {
-    try {
+    try ( JobLogger jl = new JobLogger ( listener.getLogger (), LOG ) ) {
       Jenkins.getInstance ().getInjector ().injectMembers ( this );
       requireNonNull ( config, "Config is null have you configured me?" );
       em = requireNonNull ( config.getEntityManagerFactory ()
