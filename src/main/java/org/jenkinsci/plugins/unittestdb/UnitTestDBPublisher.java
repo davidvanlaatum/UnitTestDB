@@ -35,6 +35,11 @@ public class UnitTestDBPublisher extends Recorder {
     return true;
   }
 
+  @Override
+  public BuildStepDescriptor<Publisher> getDescriptor () {
+    return DESCRIPTOR;
+  }
+
   public static class DescriptorImpl extends BuildStepDescriptor<Publisher> {
 
     @Override
