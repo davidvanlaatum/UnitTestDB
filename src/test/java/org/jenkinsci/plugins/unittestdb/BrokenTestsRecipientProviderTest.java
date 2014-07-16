@@ -16,7 +16,6 @@ import org.jvnet.hudson.test.JenkinsRule;
 import static org.junit.Assert.*;
 
 /**
- *
  * @author David van Laatum
  */
 public class BrokenTestsRecipientProviderTest {
@@ -29,9 +28,14 @@ public class BrokenTestsRecipientProviderTest {
 
   /**
    * Test of addRecipients method, of class BrokenTestsRecipientProvider.
+   *
+   * @throws java.lang.Exception
    */
   @Test
   public void testAddRecipients () throws Exception {
+    final String TESTUSER = "testuser";
+    final String TESTEMAIL = "test@test.com";
+    final String TESTFULLNAME = "A Test User";
     BrokenTestsRecipientProvider obj = new BrokenTestsRecipientProvider ();
     final ByteArrayOutputStream out = new ByteArrayOutputStream ();
     TaskListener listener = new AbstractTaskListener () {
@@ -103,7 +107,7 @@ public class BrokenTestsRecipientProviderTest {
 
     org.jenkinsci.plugins.unittestdb.DB.User u
             = new org.jenkinsci.plugins.unittestdb.DB.User ();
-    u.setUsername ( "testuser" );
+    u.setUsername ( TESTUSER );
     buildInfo.users.add ( u );
 
     obj.addRecipients ( context, vars, to, cc, bcc );
@@ -111,26 +115,27 @@ public class BrokenTestsRecipientProviderTest {
     assertTrue ( to.isEmpty () );
     assertTrue ( cc.isEmpty () );
     assertTrue ( bcc.isEmpty () );
-    assertEquals ( "INFO: No email address for user testuser\n", out.toString () );
+    assertEquals ( "INFO: No email address for user " + TESTUSER + "\n", out
+                   .toString () );
 
     out.reset ();
 
-    assertNotNull ( j.getInstance ().getUser ( "testuser" ) );
-    j.getInstance ().getUser ( "testuser" ).addProperty (
-            new hudson.tasks.Mailer.UserProperty ( "test@test.com" ) );
-    j.getInstance ().getUser ( "testuser" ).setFullName ( "A Test User" );
+    User juser = j.getInstance ().getUser ( TESTUSER );
+    assertNotNull ( juser );
+    juser.addProperty ( new hudson.tasks.Mailer.UserProperty ( TESTEMAIL ) );
+    juser.setFullName ( TESTFULLNAME );
 
     obj.addRecipients ( context, vars, to, cc, bcc );
 
     assertFalse ( to.isEmpty () );
     assertTrue ( cc.isEmpty () );
     assertTrue ( bcc.isEmpty () );
-    assertEquals ( "INFO: Added test@test.com to list of recipients\n", out
-                   .toString () );
+    assertEquals ( "INFO: Added " + TESTEMAIL + " to list of recipients\n",
+                   out.toString () );
     assertEquals ( 1, to.size () );
 
-    assertEquals ( "test@test.com", to.iterator ().next ().getAddress () );
-    assertEquals ( "A Test User", to.iterator ().next ().getPersonal () );
+    assertEquals ( TESTEMAIL, to.iterator ().next ().getAddress () );
+    assertEquals ( TESTFULLNAME, to.iterator ().next ().getPersonal () );
   }
 
 }
