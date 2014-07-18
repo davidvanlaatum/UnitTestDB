@@ -9,21 +9,21 @@ import hudson.plugins.emailext.ExtendedEmailPublisher;
 import hudson.plugins.emailext.ExtendedEmailPublisherContext;
 import hudson.util.AbstractTaskListener;
 import javax.mail.internet.InternetAddress;
-import org.junit.Rule;
+import jenkins.model.Jenkins;
 import org.junit.Test;
-import org.jvnet.hudson.test.JenkinsRule;
+import org.junit.runner.RunWith;
+import org.jvnet.hudson.test.WithoutJenkins;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
 import static org.junit.Assert.*;
 
 /**
  * @author David van Laatum
  */
+@RunWith ( PowerMockRunner.class )
+@PrepareForTest ( { Jenkins.class } )
 public class BrokenTestsRecipientProviderTest {
-
-  public BrokenTestsRecipientProviderTest () {
-  }
-
-  @Rule
-  public JenkinsRule j = new JenkinsRule ();
 
   /**
    * Test of addRecipients method, of class BrokenTestsRecipientProvider.
@@ -71,10 +71,8 @@ public class BrokenTestsRecipientProviderTest {
       }
     };
 
-    FreeStyleProject project = j.createFreeStyleProject ();
-    j.buildAndAssertSuccess ( project );
+    AbstractBuild build = PowerMockito.mock ( AbstractBuild.class );
     ExtendedEmailPublisher extemail = new ExtendedEmailPublisher ();
-    FreeStyleBuild build = Objects.requireNonNull ( project.getLastBuild () );
     ExtendedEmailPublisherContext context = new ExtendedEmailPublisherContext (
             extemail, build, listener );
     EnvVars vars = new EnvVars ();
@@ -95,7 +93,11 @@ public class BrokenTestsRecipientProviderTest {
     buildInfo.users = new ArrayList<> ();
     buildInfo.failures = new ArrayList<> ();
 
-    build.addAction ( buildInfo );
+    PowerMockito.when ( build.getAction ( BuildInfo.class ) )
+            .thenReturn ( buildInfo );
+    PowerMockito.mockStatic ( Jenkins.class );
+    Jenkins j = PowerMockito.mock ( Jenkins.class );
+    PowerMockito.when ( Jenkins.getInstance () ).thenReturn ( j );
 
     obj.addRecipients ( context, vars, to, cc, bcc );
 
@@ -119,10 +121,23 @@ public class BrokenTestsRecipientProviderTest {
 
     out.reset ();
 
-    User juser = j.getInstance ().getUser ( TESTUSER );
-    assertNotNull ( juser );
-    juser.addProperty ( new hudson.tasks.Mailer.UserProperty ( TESTEMAIL ) );
-    juser.setFullName ( TESTFULLNAME );
+    User juser = PowerMockito.mock ( User.class );
+    PowerMockito.when ( j.getUser ( TESTUSER ) ).thenReturn ( juser );
+    PowerMockito.when ( juser.getDisplayName () ).thenReturn ( TESTFULLNAME );
+
+    obj.addRecipients ( context, vars, to, cc, bcc );
+
+    assertTrue ( to.isEmpty () );
+    assertTrue ( cc.isEmpty () );
+    assertTrue ( bcc.isEmpty () );
+    assertEquals ( "INFO: No email address for user " + TESTUSER + "\n", out
+                   .toString () );
+
+    out.reset ();
+
+    PowerMockito.when ( juser.getProperty (
+            hudson.tasks.Mailer.UserProperty.class ) ).thenReturn (
+                    new hudson.tasks.Mailer.UserProperty ( TESTEMAIL ) );
 
     obj.addRecipients ( context, vars, to, cc, bcc );
 
