@@ -96,7 +96,7 @@ public class BrokenTestsRecipientProviderTest {
 
     out.reset ();
 
-    BuildInfo buildInfo = new BuildInfo ();
+    BuildInfo buildInfo = new BuildInfo ( build );
 
     PowerMockito.when ( build.getAction ( BuildInfo.class ) )
             .thenReturn ( buildInfo );

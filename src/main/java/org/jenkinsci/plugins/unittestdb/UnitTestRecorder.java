@@ -48,7 +48,7 @@ public class UnitTestRecorder {
     this.build = build;
     this.launcher = launcher;
     this.listener = listener;
-    buildInfo = new BuildInfo ();
+    buildInfo = new BuildInfo ( build );
   }
 
   protected void discoverUsers () {

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout"
+         xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+  <l:layout title="Unit Test DB">
+    <st:include it="${it.build}" page="sidepanel.jelly"/>
+    <l:main-panel>
+      <h1>Unit Test Failures</h1>
+      <table>
+        <tbody>
+          <thead>
+            <tr>
+              <th>Unit Test</th>
+              <th>State</th>
+              <th>Users</th>
+              <th>Since</th>
+            </tr>
+          </thead>
+          <j:forEach items="${it.failures}" var="failure">
+            <tr>
+              <td>
+                ${failure.unitTestName}
+              </td>
+              <td>
+                ${failure.state}
+              </td>
+              <td style="padding: 0px 0px; margin: 0px 0px; border-spacing: 0px">
+                <table style="border-spacing: 0px">
+                  <j:forEach items="${failure.users}" var="user">
+                    <tr>
+                      <td>${app.getUser(user.username).getDisplayName()}</td>
+                      <td>${user.state}</td>
+                    </tr>
+                  </j:forEach>
+                </table>
+              </td>
+              <td>
+                <a href="${app.servletContext.getContextPath()}/${it.build.getProject ().getBuildByNumber ( failure.firstBuild ).getUrl()}">${it.build.getProject ().getBuildByNumber ( failure.firstBuild )}</a>
+              </td>
+            </tr>
+          </j:forEach>
+        </tbody>
+      </table>
+    </l:main-panel>
+  </l:layout>
+</j:jelly>

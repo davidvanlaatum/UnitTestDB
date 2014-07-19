@@ -82,7 +82,7 @@ public class BrokenTestsTriggerTest {
 
     out.reset ();
 
-    BuildInfo buildInfo = new BuildInfo ();
+    BuildInfo buildInfo = new BuildInfo ( build );
 
     build.addAction ( buildInfo );
 

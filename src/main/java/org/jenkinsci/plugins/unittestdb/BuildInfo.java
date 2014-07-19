@@ -1,21 +1,23 @@
 package org.jenkinsci.plugins.unittestdb;
 
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import com.google.common.collect.ImmutableList;
-import hudson.model.Action;
+import hudson.model.*;
+import org.jenkinsci.plugins.unittestdb.db.*;
 import org.jenkinsci.plugins.unittestdb.db.Failure;
-import org.jenkinsci.plugins.unittestdb.db.FailureState;
-import org.jenkinsci.plugins.unittestdb.db.FailureUser;
-import org.jenkinsci.plugins.unittestdb.db.FailureUserState;
 
 /**
  * @author David van Laatum
  */
-public class BuildInfo implements Action {
+public class BuildInfo extends Actionable implements Action {
 
-  public class BIFailureUser implements Serializable {
+  @Override
+  public String getSearchUrl () {
+    return null;
+  }
+
+  public class BIFailureUser {
 
     protected String username;
     protected FailureUserState state;
@@ -25,24 +27,62 @@ public class BuildInfo implements Action {
       this.state = state;
     }
 
+    public FailureUserState getState () {
+      return state;
+    }
+
+    public String getUsername () {
+      return username;
+    }
+
   }
 
-  public class BIFailure implements Serializable {
+  public class BIFailure {
 
     protected FailureState state;
     protected String unitTestName;
     protected List<BIFailureUser> users;
+    protected int firstBuild;
+    protected int lastBuild;
 
     public BIFailure ( FailureState state, String unitTestName,
-                       List<BIFailureUser> users ) {
+                       List<BIFailureUser> users, int firstBuild, int lastBuild ) {
       this.state = state;
       this.unitTestName = unitTestName;
       this.users = users;
+      this.firstBuild = firstBuild;
+      this.lastBuild = lastBuild;
     }
+
+    public FailureState getState () {
+      return state;
+    }
+
+    public List<BIFailureUser> getUsers () {
+      return ImmutableList.copyOf ( users );
+    }
+
+    public String getUnitTestName () {
+      return unitTestName;
+    }
+
+    public int getFirstBuild () {
+      return firstBuild;
+    }
+
+    public int getLastBuild () {
+      return lastBuild;
+    }
+
   }
 
   private final List<String> users = new ArrayList<> ();
   private final List<BIFailure> failures = new ArrayList<> ();
+  private final AbstractBuild<?, ?> build;
+
+  public BuildInfo ( AbstractBuild<?, ?> build ) {
+    this.build = build;
+  }
 
   @Override
   public String getDisplayName () {
@@ -51,12 +91,12 @@ public class BuildInfo implements Action {
 
   @Override
   public String getIconFileName () {
-    return null;
+    return "clipboard.png";
   }
 
   @Override
   public String getUrlName () {
-    return null;
+    return "unittestdb";
   }
 
   public boolean hasFailures () {
@@ -78,7 +118,17 @@ public class BuildInfo implements Action {
         }
       }
     }
-    failures.add ( new BIFailure ( failure.getState (), failure.getUnitTest ()
-                                   .getName (), fuser ) );
+    failures.add ( new BIFailure ( failure.getState (),
+                                   failure.getUnitTest ().getName (), fuser,
+                                   failure.getFirstBuild ().getJenkinsId (),
+                                   failure.getLastBuild ().getJenkinsId () ) );
+  }
+
+  public AbstractBuild<?, ?> getBuild () {
+    return build;
+  }
+
+  public List<BIFailure> getFailures () {
+    return ImmutableList.copyOf ( failures );
   }
 }
