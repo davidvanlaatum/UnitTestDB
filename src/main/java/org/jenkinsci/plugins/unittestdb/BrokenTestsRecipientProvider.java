@@ -14,6 +14,7 @@ import javax.mail.internet.InternetAddress;
 import jenkins.model.Jenkins;
 import org.jenkinsci.plugins.unittestdb.db.User;
 import org.kohsuke.stapler.DataBoundConstructor;
+import static java.util.Objects.requireNonNull;
 
 /**
  * @author David van Laatum
@@ -40,7 +41,7 @@ public class BrokenTestsRecipientProvider extends RecipientProvider {
       if ( info != null ) {
         for ( User u : info.users ) {
           boolean found = false;
-          hudson.model.User user = Jenkins.getInstance ()
+          hudson.model.User user = requireNonNull ( Jenkins.getInstance () )
                   .getUser ( u.getUsername () );
           if ( user != null ) {
             hudson.tasks.Mailer.UserProperty email = user.getProperty (

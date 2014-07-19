@@ -68,7 +68,8 @@ public class GlobalConfig extends GlobalConfiguration {
 
   public EntityManagerFactory getEntityManagerFactory () throws SQLException {
     if ( fac == null ) {
-      Jenkins.getInstance ().getInjector ().injectMembers ( this );
+      requireNonNull ( Jenkins.getInstance () ).getInjector ().injectMembers (
+              this );
       requireNonNull ( ps, "Persistence Service is null" );
       Database db = requireNonNull ( getDatabase (),
                                      "No database configured" );
