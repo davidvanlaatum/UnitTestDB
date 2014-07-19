@@ -1,11 +1,12 @@
 package org.jenkinsci.plugins.unittestdb.db;
 
+import java.util.ArrayList;
+import java.util.List;
 import com.google.common.collect.ImmutableList;
 import hudson.ExtensionList;
 import hudson.ExtensionPoint;
-import java.util.ArrayList;
-import java.util.List;
 import jenkins.model.Jenkins;
+import static java.util.Objects.requireNonNull;
 
 /**
  *
@@ -13,15 +14,22 @@ import jenkins.model.Jenkins;
  */
 public abstract class DBObject implements ExtensionPoint {
 
+  public DBObject () {
+
+  }
+
   /**
    * All registered {@link DBObject}s.
+   *
+   * @return
    */
   public static ExtensionList<DBObject> all () {
-    return Jenkins.getInstance ().getExtensionList ( DBObject.class );
+    return requireNonNull ( Jenkins.getInstance () ).getExtensionList (
+            DBObject.class );
   }
 
   public static List<Class> allClasses () {
-    ArrayList<Class> rt = new ArrayList<> ();
+    List<Class> rt = new ArrayList<> ();
 
     for ( DBObject obj : all () ) {
       rt.add ( obj.getClass () );
