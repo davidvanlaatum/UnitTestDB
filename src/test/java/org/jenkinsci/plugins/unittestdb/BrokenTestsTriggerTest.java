@@ -12,6 +12,9 @@ import hudson.model.FreeStyleProject;
 import hudson.model.TaskListener;
 import hudson.util.AbstractTaskListener;
 import org.jenkinsci.plugins.unittestdb.db.Failure;
+import org.jenkinsci.plugins.unittestdb.db.FailureUser;
+import org.jenkinsci.plugins.unittestdb.db.UnitTest;
+import org.jenkinsci.plugins.unittestdb.db.User;
 import org.junit.Rule;
 import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;
@@ -80,8 +83,6 @@ public class BrokenTestsTriggerTest {
     out.reset ();
 
     BuildInfo buildInfo = new BuildInfo ();
-    buildInfo.users = new ArrayList<> ();
-    buildInfo.failures = new ArrayList<> ();
 
     build.addAction ( buildInfo );
 
@@ -90,7 +91,12 @@ public class BrokenTestsTriggerTest {
 
     out.reset ();
 
-    buildInfo.failures.add ( new Failure () );
+    Failure f = new Failure ();
+    f.setUsers ( new ArrayList<FailureUser> () );
+    f.getUsers ().add ( new FailureUser () );
+    f.getUsers ().get ( 0 ).setUser ( new User ( 0, "auser" ) );
+    f.setUnitTest ( new UnitTest ( 0, "abc" ) );
+    buildInfo.addFailure ( f );
 
     assertTrue ( trigger.trigger ( build, listener ) );
     assertEquals ( "", out.toString () );

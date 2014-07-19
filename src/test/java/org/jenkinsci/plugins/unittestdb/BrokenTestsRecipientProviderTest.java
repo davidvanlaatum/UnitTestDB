@@ -2,6 +2,7 @@ package org.jenkinsci.plugins.unittestdb;
 
 import java.io.*;
 import java.util.*;
+import com.google.common.collect.ImmutableList;
 import hudson.EnvVars;
 import hudson.console.ConsoleNote;
 import hudson.model.*;
@@ -10,6 +11,7 @@ import hudson.plugins.emailext.ExtendedEmailPublisherContext;
 import hudson.util.AbstractTaskListener;
 import javax.mail.internet.InternetAddress;
 import jenkins.model.Jenkins;
+import org.jenkinsci.plugins.unittestdb.db.UnitTest;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.powermock.api.mockito.PowerMockito;
@@ -95,8 +97,6 @@ public class BrokenTestsRecipientProviderTest {
     out.reset ();
 
     BuildInfo buildInfo = new BuildInfo ();
-    buildInfo.users = new ArrayList<> ();
-    buildInfo.failures = new ArrayList<> ();
 
     PowerMockito.when ( build.getAction ( BuildInfo.class ) )
             .thenReturn ( buildInfo );
@@ -111,7 +111,14 @@ public class BrokenTestsRecipientProviderTest {
     org.jenkinsci.plugins.unittestdb.db.User u
             = new org.jenkinsci.plugins.unittestdb.db.User ();
     u.setUsername ( TESTUSER );
-    buildInfo.users.add ( u );
+    org.jenkinsci.plugins.unittestdb.db.Failure f
+            = new org.jenkinsci.plugins.unittestdb.db.Failure ();
+    f.setUsers ( ImmutableList.of (
+            new org.jenkinsci.plugins.unittestdb.db.FailureUser () ) );
+    f.setUnitTest ( new UnitTest () );
+    f.getUsers ().get ( 0 ).setUser ( u );
+
+    buildInfo.addFailure ( f );
 
     obj.addRecipients ( context, vars, to, cc, bcc );
 

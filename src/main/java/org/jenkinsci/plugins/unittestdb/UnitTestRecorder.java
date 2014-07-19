@@ -177,15 +177,8 @@ public class UnitTestRecorder {
                               failurelist != null ? failurelist.size () : 0 } );
       build.addAction ( buildInfo );
       for ( Failure f : failurelist.values () ) {
-        for ( FailureUser fu : f.getUsers () ) {
-          if ( fu.getState () != FailureUserState.Not_Me ) {
-            if ( !buildInfo.users.contains ( fu.getUser () ) ) {
-              buildInfo.users.add ( fu.getUser () );
-            }
-          }
-        }
+        buildInfo.addFailure ( f );
       }
-      buildInfo.failures.addAll ( failurelist.values () );
     } catch ( SQLException ex ) {
       LOG.log ( Level.SEVERE, null, ex );
     } catch ( NullPointerException ex ) {

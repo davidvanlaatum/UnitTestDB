@@ -37,7 +37,7 @@ public class BrokenTestsTrigger extends EmailTrigger {
     boolean rt = false;
     BuildInfo info = build.getAction ( BuildInfo.class );
     if ( info != null ) {
-      rt = !info.failures.isEmpty ();
+      rt = info.hasFailures ();
     }
     return rt;
   }

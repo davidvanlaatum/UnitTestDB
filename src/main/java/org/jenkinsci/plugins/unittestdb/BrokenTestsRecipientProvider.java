@@ -39,10 +39,10 @@ public class BrokenTestsRecipientProvider extends RecipientProvider {
             .getLogger (), LOG ) ) {
       BuildInfo info = context.getBuild ().getAction ( BuildInfo.class );
       if ( info != null ) {
-        for ( User u : info.users ) {
+        for ( String u : info.getUsers () ) {
           boolean found = false;
           hudson.model.User user = requireNonNull ( Jenkins.getInstance () )
-                  .getUser ( u.getUsername () );
+                  .getUser ( u );
           if ( user != null ) {
             hudson.tasks.Mailer.UserProperty email = user.getProperty (
                     hudson.tasks.Mailer.UserProperty.class );
@@ -58,15 +58,14 @@ public class BrokenTestsRecipientProvider extends RecipientProvider {
                             address );
                 } catch ( AddressException | UnsupportedEncodingException ex ) {
                   LOG.log ( Level.SEVERE,
-                            "Exception while adding email address for user " + u
-                            .getUsername (), ex );
+                            "Exception while adding email address for user " + u,
+                            ex );
                 }
               }
             }
           }
           if ( !found ) {
-            LOG.log ( Level.INFO, "No email address for user {0}", u
-                      .getUsername () );
+            LOG.log ( Level.INFO, "No email address for user {0}", u );
           }
         }
       } else {

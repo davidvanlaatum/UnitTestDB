@@ -111,10 +111,8 @@ public class UnitTestDBPublisherTest extends TestBase {
 
     BuildInfo info = build.getAction ( BuildInfo.class );
     assertNotNull ( "No build info", info );
-    assertNotNull ( info.failures );
-    assertNotNull ( info.users );
-    assertFalse ( info.failures.isEmpty () );
-    assertFalse ( info.users.isEmpty () );
+    assertTrue ( info.hasFailures () );
+    assertFalse ( info.getUsers ().isEmpty () );
 
     project.getBuildersList ().remove ( builder1 );
     project.getBuildersList ().add ( builder2 );
@@ -124,20 +122,16 @@ public class UnitTestDBPublisherTest extends TestBase {
 
     info = build.getAction ( BuildInfo.class );
     assertNotNull ( "No build info", info );
-    assertNotNull ( info.failures );
-    assertNotNull ( info.users );
-    assertFalse ( info.failures.isEmpty () );
-    assertFalse ( info.users.isEmpty () );
+    assertTrue ( info.hasFailures () );
+    assertFalse ( info.getUsers ().isEmpty () );
 
     build = project.scheduleBuild2 ( 0 ).get ();
     j.assertBuildStatus ( Result.SUCCESS, build );
 
     info = build.getAction ( BuildInfo.class );
     assertNotNull ( "No build info", info );
-    assertNotNull ( info.failures );
-    assertNotNull ( info.users );
-    assertTrue ( info.failures.isEmpty () );
-    assertTrue ( info.users.isEmpty () );
+    assertFalse ( info.hasFailures () );
+    assertTrue ( info.getUsers ().isEmpty () );
   }
 
   @Test
