@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
+  <changeSet author="david" id="1405166926249-1">
+    <createTable tableName="build_unit_tests">
+      <column autoIncrement="true" name="build_unit_test_id" type="INT">
+        <constraints primaryKey="true"/>
+      </column>
+      <column name="unit_test_id" type="INT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="job_id" type="INT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="build_id" type="INT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="duration" type="DOUBLE"/>
+      <column name="errordetails" type="TEXT"/>
+      <column name="errorstack" type="TEXT"/>
+      <column defaultValue="Failed" name="state" type="ENUM('Passed', 'Failed', 'Skipped', 'Error')">
+        <constraints nullable="false"/>
+      </column>
+      <column name="node_id" type="INT"/>
+      <column name="executor" type="INT"/>
+    </createTable>
+  </changeSet>
+  <changeSet author="david" id="1405166926249-2">
+    <createTable tableName="builds">
+      <column autoIncrement="true" name="build_id" type="INT">
+        <constraints primaryKey="true"/>
+      </column>
+      <column name="job_id" type="INT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="jenkins_id" type="INT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="time" type="TIMESTAMP">
+        <constraints nullable="false"/>
+      </column>
+      <column name="tests" type="INT"/>
+      <column defaultValueNumeric="0" name="failures" type="INT"/>
+      <column name="skipped" type="INT"/>
+    </createTable>
+  </changeSet>
+  <changeSet author="david" id="1405166926249-3">
+    <createTable tableName="failure_users">
+      <column autoIncrement="true" name="failure_user_id" type="INT">
+        <constraints primaryKey="true"/>
+      </column>
+      <column name="failure_id" type="INT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="user_id" type="INT">
+        <constraints nullable="false"/>
+      </column>
+      <column defaultValue="Maybe" name="state" type="ENUM('Maybe', 'Not Me', 'Was Me', 'Might be Me')">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+  </changeSet>
+  <changeSet author="david" id="1405166926249-4">
+    <createTable tableName="failures">
+      <column autoIncrement="true" name="failure_id" type="INT">
+        <constraints primaryKey="true"/>
+      </column>
+      <column name="unit_test_id" type="INT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="job_id" type="INT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="first_build" type="INT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="last_build" type="INT">
+        <constraints nullable="false"/>
+      </column>
+      <column defaultValue="Failed" name="state" type="ENUM('Failed', 'Fixed')">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+  </changeSet>
+  <changeSet author="david" id="1405166926249-5">
+    <createTable tableName="jobs">
+      <column autoIncrement="true" name="job_id" type="INT">
+        <constraints primaryKey="true"/>
+      </column>
+      <column name="name" type="VARCHAR(32)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="lastrun" type="TIMESTAMP"/>
+      <column name="last_build_id" type="INT"/>
+    </createTable>
+  </changeSet>
+  <changeSet author="david" id="1405166926249-6">
+    <createTable tableName="nodes">
+      <column autoIncrement="true" name="node_id" type="INT">
+        <constraints primaryKey="true"/>
+      </column>
+      <column name="name" type="VARCHAR(64)">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+  </changeSet>
+  <changeSet author="david" id="1405166926249-7">
+    <createTable tableName="unit_tests">
+      <column autoIncrement="true" name="unit_test_id" type="INT">
+        <constraints primaryKey="true"/>
+      </column>
+      <column name="job_id" type="INT">
+        <constraints nullable="false"/>
+      </column>
+      <column name="name" type="VARCHAR(512)">
+        <constraints nullable="false"/>
+      </column>
+      <column name="failure_rate" type="DOUBLE"/>
+    </createTable>
+  </changeSet>
+  <changeSet author="david" id="1405166926249-8">
+    <createTable tableName="users">
+      <column autoIncrement="true" name="user_id" type="INT">
+        <constraints primaryKey="true"/>
+      </column>
+      <column name="username" type="VARCHAR(32)">
+        <constraints nullable="false"/>
+      </column>
+    </createTable>
+  </changeSet>
+  <changeSet author="david" id="1405166926249-9">
+    <addUniqueConstraint columnNames="failure_id, user_id" constraintName="failure_id" deferrable="false" disabled="false" initiallyDeferred="false" tableName="failure_users"/>
+  </changeSet>
+  <changeSet author="david" id="1405166926249-10">
+    <addUniqueConstraint columnNames="name" constraintName="name" deferrable="false" disabled="false" initiallyDeferred="false" tableName="nodes"/>
+  </changeSet>
+  <changeSet author="david" id="1405166926249-11">
+    <addUniqueConstraint columnNames="name, job_id" constraintName="name_job" deferrable="false" disabled="false" initiallyDeferred="false" tableName="unit_tests"/>
+  </changeSet>
+  <changeSet author="david" id="1405166926249-12">
+    <addUniqueConstraint columnNames="unit_test_id, job_id" constraintName="unit_test_id" deferrable="false" disabled="false" initiallyDeferred="false" tableName="failures"/>
+  </changeSet>
+  <changeSet author="david" id="1405166926249-13">
+    <addUniqueConstraint columnNames="username" constraintName="username" deferrable="false" disabled="false" initiallyDeferred="false" tableName="users"/>
+  </changeSet>
+  <changeSet author="david" id="1405166926249-14">
+    <addForeignKeyConstraint baseColumnNames="unit_test_id" baseTableName="build_unit_tests" constraintName="build_unit_tests_ibfk_1" deferrable="false" initiallyDeferred="false" onDelete="CASCADE" onUpdate="CASCADE" referencedColumnNames="unit_test_id" referencedTableName="unit_tests"/>
+  </changeSet>
+  <changeSet author="david" id="1405166926249-15">
+    <addForeignKeyConstraint baseColumnNames="build_id" baseTableName="build_unit_tests" constraintName="build_unit_tests_ibfk_2" deferrable="false" initiallyDeferred="false" onDelete="CASCADE" onUpdate="CASCADE" referencedColumnNames="build_id" referencedTableName="builds"/>
+  </changeSet>
+  <changeSet author="david" id="1405166926249-16">
+    <addForeignKeyConstraint baseColumnNames="job_id" baseTableName="build_unit_tests" constraintName="build_unit_tests_ibfk_3" deferrable="false" initiallyDeferred="false" onDelete="CASCADE" onUpdate="CASCADE" referencedColumnNames="job_id" referencedTableName="jobs"/>
+  </changeSet>
+  <changeSet author="david" id="1405166926249-17">
+    <addForeignKeyConstraint baseColumnNames="node_id" baseTableName="build_unit_tests" constraintName="build_unit_tests_ibfk_4" deferrable="false" initiallyDeferred="false" onDelete="NO ACTION" onUpdate="NO ACTION" referencedColumnNames="node_id" referencedTableName="nodes"/>
+  </changeSet>
+  <changeSet author="david" id="1405166926249-18">
+    <addForeignKeyConstraint baseColumnNames="failure_id" baseTableName="failure_users" constraintName="failure_users_ibfk_1" deferrable="false" initiallyDeferred="false" onDelete="CASCADE" onUpdate="CASCADE" referencedColumnNames="failure_id" referencedTableName="failures"/>
+  </changeSet>
+  <changeSet author="david" id="1405166926249-19">
+    <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="failure_users" constraintName="failure_users_ibfk_2" deferrable="false" initiallyDeferred="false" onDelete="CASCADE" onUpdate="CASCADE" referencedColumnNames="user_id" referencedTableName="users"/>
+  </changeSet>
+  <changeSet author="david" id="1405166926249-20">
+    <addForeignKeyConstraint baseColumnNames="unit_test_id" baseTableName="failures" constraintName="failures_ibfk_1" deferrable="false" initiallyDeferred="false" onDelete="CASCADE" onUpdate="CASCADE" referencedColumnNames="unit_test_id" referencedTableName="unit_tests"/>
+  </changeSet>
+  <changeSet author="david" id="1405166926249-21">
+    <addForeignKeyConstraint baseColumnNames="first_build" baseTableName="failures" constraintName="failures_ibfk_3" deferrable="false" initiallyDeferred="false" onDelete="CASCADE" onUpdate="CASCADE" referencedColumnNames="build_id" referencedTableName="builds"/>
+  </changeSet>
+  <changeSet author="david" id="1405166926249-22">
+    <addForeignKeyConstraint baseColumnNames="last_build" baseTableName="failures" constraintName="failures_ibfk_4" deferrable="false" initiallyDeferred="false" onDelete="CASCADE" onUpdate="CASCADE" referencedColumnNames="build_id" referencedTableName="builds"/>
+  </changeSet>
+  <changeSet author="david" id="1405166926249-23">
+    <addForeignKeyConstraint baseColumnNames="job_id" baseTableName="failures" constraintName="failures_ibfk_5" deferrable="false" initiallyDeferred="false" onDelete="CASCADE" onUpdate="CASCADE" referencedColumnNames="job_id" referencedTableName="jobs"/>
+  </changeSet>
+  <changeSet author="david" id="1405166926249-24">
+    <addForeignKeyConstraint baseColumnNames="job_id" baseTableName="builds" constraintName="job_id" deferrable="false" initiallyDeferred="false" onDelete="CASCADE" onUpdate="CASCADE" referencedColumnNames="job_id" referencedTableName="jobs"/>
+  </changeSet>
+  <changeSet author="david" id="1405166926249-25">
+    <addForeignKeyConstraint baseColumnNames="last_build_id" baseTableName="jobs" constraintName="jobs_ibfk_1" deferrable="false" initiallyDeferred="false" onDelete="SET NULL" onUpdate="CASCADE" referencedColumnNames="build_id" referencedTableName="builds"/>
+  </changeSet>
+  <changeSet author="david" id="1405166926249-26">
+    <addForeignKeyConstraint baseColumnNames="job_id" baseTableName="unit_tests" constraintName="unit_tests_ibfk_1" deferrable="false" initiallyDeferred="false" onDelete="CASCADE" onUpdate="CASCADE" referencedColumnNames="job_id" referencedTableName="jobs"/>
+  </changeSet>
+  <changeSet author="david" id="1405166926249-27">
+    <createIndex indexName="lastrun" tableName="jobs" unique="false">
+      <column name="lastrun"/>
+    </createIndex>
+  </changeSet>
+  <changeSet author="david" id="1405166926249-28">
+    <createIndex indexName="name" tableName="jobs" unique="true">
+      <column name="name"/>
+    </createIndex>
+  </changeSet>
+  <changeSet author="david" id="1405166926249-29">
+    <createIndex indexName="time" tableName="builds" unique="false">
+      <column name="time"/>
+    </createIndex>
+  </changeSet>
+  <changeSet author="david" id="1405166926249-30">
+    <createIndex indexName="unit_test_id" tableName="build_unit_tests" unique="true">
+      <column name="unit_test_id"/>
+      <column name="build_id"/>
+    </createIndex>
+  </changeSet>
+  <changeSet author="david" id="lockobjects">
+    <createTable tableName="createlocks">
+      <column name="name" type="VARCHAR(16)"/>
+    </createTable>
+    <insert tableName="createlocks">
+      <column name="name" value="job"/>
+    </insert>
+    <insert tableName="createlocks">
+      <column name="name" value="node"/>
+    </insert>
+    <insert tableName="createlocks">
+      <column name="name" value="user"/>
+    </insert>
+  </changeSet>
+</databaseChangeLog>

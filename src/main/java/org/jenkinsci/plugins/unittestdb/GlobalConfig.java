@@ -1,12 +1,21 @@
 package org.jenkinsci.plugins.unittestdb;
 
+import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import com.google.inject.Inject;
 import hudson.Extension;
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
 import jenkins.model.GlobalConfiguration;
 import jenkins.model.Jenkins;
+import liquibase.Contexts;
+import liquibase.Liquibase;
+import liquibase.database.DatabaseFactory;
+import liquibase.database.jvm.JdbcConnection;
+import liquibase.exception.LiquibaseException;
+import liquibase.resource.ClassLoaderResourceAccessor;
 import net.sf.json.JSONObject;
 import org.jenkinsci.plugins.database.Database;
 import org.jenkinsci.plugins.database.jpa.PersistenceService;
@@ -20,6 +29,8 @@ import static java.util.Objects.requireNonNull;
 @Extension
 public class GlobalConfig extends GlobalConfiguration {
 
+  private static final Logger LOG
+          = Logger.getLogger ( GlobalConfig.class.getName () );
   private Database database;
   private EntityManagerFactory fac;
   @Inject
@@ -47,6 +58,7 @@ public class GlobalConfig extends GlobalConfiguration {
 
   public void setDatabase ( Database database ) {
     this.database = database;
+    checkDB ();
   }
 
   @Override
@@ -66,5 +78,28 @@ public class GlobalConfig extends GlobalConfiguration {
                              "No EntityManagerFactory" );
     }
     return fac;
+  }
+
+  @Override
+  public synchronized void load () {
+    super.load ();
+    checkDB ();
+  }
+
+  protected void checkDB () {
+    if ( database != null ) {
+      try ( Connection conn = database.getDataSource ().getConnection () ) {
+        liquibase.database.Database db = DatabaseFactory.getInstance ()
+                .findCorrectDatabaseImplementation ( new JdbcConnection ( conn ) );
+        Liquibase liquibase = new Liquibase ( "schema.xml",
+                                              new ClassLoaderResourceAccessor (),
+                                              db );
+        liquibase.update ( (Contexts) null );
+      } catch ( LiquibaseException | SQLException ex ) {
+        throw new IllegalStateException ( "Liquibase update failed", ex );
+      }
+    } else {
+      LOG.log ( Level.INFO, "No database config skipping" );
+    }
   }
 }
