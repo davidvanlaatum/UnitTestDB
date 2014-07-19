@@ -12,7 +12,6 @@ import javax.mail.internet.InternetAddress;
 import jenkins.model.Jenkins;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.jvnet.hudson.test.WithoutJenkins;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.powermock.modules.junit4.PowerMockRunner;
@@ -35,8 +34,8 @@ public class BrokenTestsRecipientProviderTest {
     final String TESTUSER = "testuser";
     final String TESTEMAIL = "test@test.com";
     final String TESTFULLNAME = "A Test User";
-    BrokenTestsRecipientProvider obj = new BrokenTestsRecipientProvider ();
     final ByteArrayOutputStream out = new ByteArrayOutputStream ();
+
     TaskListener listener = new AbstractTaskListener () {
       PrintStream log = new PrintStream ( out );
 
@@ -71,6 +70,10 @@ public class BrokenTestsRecipientProviderTest {
       }
     };
 
+    Jenkins j = PowerMockito.mock ( Jenkins.class );
+    PowerMockito.mockStatic ( Jenkins.class );
+    PowerMockito.when ( Jenkins.getInstance () ).thenReturn ( j );
+
     AbstractBuild build = PowerMockito.mock ( AbstractBuild.class );
     ExtendedEmailPublisher extemail = new ExtendedEmailPublisher ();
     ExtendedEmailPublisherContext context = new ExtendedEmailPublisherContext (
@@ -79,6 +82,8 @@ public class BrokenTestsRecipientProviderTest {
     Set<InternetAddress> to = new HashSet<> ();
     Set<InternetAddress> cc = new HashSet<> ();
     Set<InternetAddress> bcc = new HashSet<> ();
+
+    BrokenTestsRecipientProvider obj = new BrokenTestsRecipientProvider ();
 
     obj.addRecipients ( context, vars, to, cc, bcc );
 
@@ -95,9 +100,6 @@ public class BrokenTestsRecipientProviderTest {
 
     PowerMockito.when ( build.getAction ( BuildInfo.class ) )
             .thenReturn ( buildInfo );
-    PowerMockito.mockStatic ( Jenkins.class );
-    Jenkins j = PowerMockito.mock ( Jenkins.class );
-    PowerMockito.when ( Jenkins.getInstance () ).thenReturn ( j );
 
     obj.addRecipients ( context, vars, to, cc, bcc );
 

@@ -8,11 +8,10 @@ import hudson.Launcher;
 import hudson.matrix.*;
 import hudson.model.*;
 import hudson.tasks.junit.JUnitResultArchiver;
-import hudson.util.Secret;
 import javax.persistence.EntityManager;
-import org.jenkinsci.plugins.database.mysql.MySQLDatabase;
 import org.junit.*;
 import org.jvnet.hudson.test.*;
+import static java.util.Objects.requireNonNull;
 import static org.junit.Assert.*;
 
 /**
@@ -58,8 +57,9 @@ public class UnitTestDBPublisherTest extends TestBase {
                                Launcher launcher,
                                BuildListener listener ) throws
               InterruptedException, IOException {
-        build.getWorkspace ().child ( "tests.xml" ).copyFrom ( getClass ()
-                .getClassLoader ().getResource ( "exampletests.xml" ) );
+        requireNonNull ( build.getWorkspace () ).child ( "tests.xml" )
+                .copyFrom ( getClass ().getClassLoader ().getResource (
+                                "exampletests.xml" ) );
         return true;
       }
     };
@@ -70,8 +70,9 @@ public class UnitTestDBPublisherTest extends TestBase {
                                Launcher launcher,
                                BuildListener listener ) throws
               InterruptedException, IOException {
-        build.getWorkspace ().child ( "tests.xml" ).copyFrom ( getClass ()
-                .getClassLoader ().getResource ( "exampletests1.xml" ) );
+        requireNonNull ( build.getWorkspace () ).child ( "tests.xml" )
+                .copyFrom ( getClass ().getClassLoader ().getResource (
+                                "exampletests1.xml" ) );
         return true;
       }
     };
@@ -186,9 +187,11 @@ public class UnitTestDBPublisherTest extends TestBase {
         // for some reason adding a change log entry here makes it work with matrix builds
         fakeSCM.addChange ().withAuthor ( UNITTESTUSER )
                 .withMsg ( "A Test Commit" );
-        build.getWorkspace ().child ( "tests.xml" ).copyFrom ( getClass ()
-                .getClassLoader ().getResource ( "exampletests" + build
-                        .getBuildVariableResolver ().resolve ( "TEST" ) + ".xml" ) );
+        requireNonNull ( build.getWorkspace () ).child ( "tests.xml" )
+                .copyFrom ( getClass ()
+                        .getClassLoader ().getResource ( "exampletests" + build
+                                .getBuildVariableResolver ().resolve ( "TEST" )
+                                                                 + ".xml" ) );
         return true;
       }
     };

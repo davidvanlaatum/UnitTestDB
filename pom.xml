@@ -55,6 +55,7 @@
     <jacoco.out.path>${session.executionRootDirectory}/target</jacoco.out.path>
     <jacoco.out.file>jacocoit.exec</jacoco.out.file>
     <sonar.jacoco.itReportPath>${env.WORKSPACE}/target/${jacoco.out.file}</sonar.jacoco.itReportPath>
+    <concurrency>1</concurrency>
   </properties>
 
   <repositories>

@@ -1,16 +1,14 @@
 package org.jenkinsci.plugins.unittestdb.DB;
 
-import com.google.common.base.Strings;
-import hudson.Extension;
 import java.io.Serializable;
 import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import com.google.common.base.Strings;
+import hudson.Extension;
 import javax.persistence.*;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
-
-import static java.util.Objects.requireNonNull;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -33,6 +31,7 @@ import static java.util.Objects.requireNonNull;
 public class UnitTest extends DBObject implements Serializable {
 
   private static final long serialVersionUID = 1L;
+  private static final Object lock = new Object ();
   @Id
   @GeneratedValue ( strategy = GenerationType.IDENTITY )
   @Basic ( optional = false )
@@ -159,19 +158,22 @@ public class UnitTest extends DBObject implements Serializable {
       rt = (UnitTest) q.getSingleResult ();
     } catch ( NoResultException ex ) {
       if ( create ) {
-        em.getTransaction ().begin ();
-        rt = new UnitTest ();
-        rt.setJob ( job );
-        rt.setName ( name );
-        try {
-          em.persist ( rt );
-          em.getTransaction ().commit ();
-        } catch ( EntityExistsException ex2 ) {
-          em.getTransaction ().rollback ();
-          rt = findByJobAndName ( job, name, em, false );
-        } catch ( Throwable ex2 ) {
-          em.getTransaction ().rollback ();
-          throw ex2;
+        synchronized ( lock ) {
+          try {
+            em.getTransaction ().begin ();
+            em.lock ( job, LockModeType.PESSIMISTIC_WRITE );
+            rt = findByJobAndName ( job, name, em, false );
+            if ( rt == null ) {
+              rt = new UnitTest ();
+              rt.setJob ( job );
+              rt.setName ( name );
+              em.persist ( rt );
+            }
+            em.getTransaction ().commit ();
+          } catch ( Exception ex2 ) {
+            em.getTransaction ().rollback ();
+            throw ex2;
+          }
         }
       }
     }
