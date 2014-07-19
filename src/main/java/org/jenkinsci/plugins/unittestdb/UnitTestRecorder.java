@@ -12,12 +12,12 @@ import hudson.tasks.test.*;
 import javax.persistence.EntityManager;
 import javax.persistence.LockModeType;
 import jenkins.model.Jenkins;
-import org.jenkinsci.plugins.unittestdb.DB.*;
-import org.jenkinsci.plugins.unittestdb.DB.Build;
-import org.jenkinsci.plugins.unittestdb.DB.Failure;
-import org.jenkinsci.plugins.unittestdb.DB.Job;
-import org.jenkinsci.plugins.unittestdb.DB.Node;
-import org.jenkinsci.plugins.unittestdb.DB.User;
+import org.jenkinsci.plugins.unittestdb.db.*;
+import org.jenkinsci.plugins.unittestdb.db.Build;
+import org.jenkinsci.plugins.unittestdb.db.Failure;
+import org.jenkinsci.plugins.unittestdb.db.Job;
+import org.jenkinsci.plugins.unittestdb.db.Node;
+import org.jenkinsci.plugins.unittestdb.db.User;
 import static java.util.Objects.requireNonNull;
 
 /**

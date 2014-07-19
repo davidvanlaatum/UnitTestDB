@@ -93,15 +93,15 @@ public class UnitTestDBPublisherTest extends TestBase {
     j.assertBuildStatus ( Result.UNSTABLE, build );
 
     EntityManager em = config.getEntityManagerFactory ().createEntityManager ();
-    org.jenkinsci.plugins.unittestdb.DB.Job job
-            = org.jenkinsci.plugins.unittestdb.DB.Job.findByName ( project
+    org.jenkinsci.plugins.unittestdb.db.Job job
+            = org.jenkinsci.plugins.unittestdb.db.Job.findByName ( project
                     .getName (), em, false );
 
     assertNotNull ( "No job", job );
     assertNotNull ( "No last build", job.getLastBuild () );
 
-    org.jenkinsci.plugins.unittestdb.DB.User user
-            = org.jenkinsci.plugins.unittestdb.DB.User.
+    org.jenkinsci.plugins.unittestdb.db.User user
+            = org.jenkinsci.plugins.unittestdb.db.User.
             findByUsername ( UNITTESTUSER, em, false );
 
     assertNotNull ( "No User", user );
@@ -213,15 +213,15 @@ public class UnitTestDBPublisherTest extends TestBase {
     j.assertBuildStatus ( Result.UNSTABLE, build );
 
     EntityManager em = config.getEntityManagerFactory ().createEntityManager ();
-    org.jenkinsci.plugins.unittestdb.DB.Job job
-            = org.jenkinsci.plugins.unittestdb.DB.Job.findByName ( project
+    org.jenkinsci.plugins.unittestdb.db.Job job
+            = org.jenkinsci.plugins.unittestdb.db.Job.findByName ( project
                     .getName (), em, false );
 
     assertNotNull ( "No Job", job );
     assertNotNull ( "No Last Build", job.getLastBuild () );
 
-    org.jenkinsci.plugins.unittestdb.DB.User user
-            = org.jenkinsci.plugins.unittestdb.DB.User.
+    org.jenkinsci.plugins.unittestdb.db.User user
+            = org.jenkinsci.plugins.unittestdb.db.User.
             findByUsername ( UNITTESTUSER, em, false );
 
     assertNotNull ( "No User", user );

@@ -1,4 +1,4 @@
-package org.jenkinsci.plugins.unittestdb.DB;
+package org.jenkinsci.plugins.unittestdb.db;
 
 import com.google.common.collect.ImmutableList;
 import hudson.ExtensionList;

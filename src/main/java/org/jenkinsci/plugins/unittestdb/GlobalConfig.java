@@ -19,7 +19,7 @@ import liquibase.resource.ClassLoaderResourceAccessor;
 import net.sf.json.JSONObject;
 import org.jenkinsci.plugins.database.Database;
 import org.jenkinsci.plugins.database.jpa.PersistenceService;
-import org.jenkinsci.plugins.unittestdb.DB.DBObject;
+import org.jenkinsci.plugins.unittestdb.db.DBObject;
 import org.kohsuke.stapler.StaplerRequest;
 import static java.util.Objects.requireNonNull;
 

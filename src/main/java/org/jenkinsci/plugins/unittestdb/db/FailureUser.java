@@ -1,4 +1,4 @@
-package org.jenkinsci.plugins.unittestdb.DB;
+package org.jenkinsci.plugins.unittestdb.db;
 
 import hudson.Extension;
 import java.io.Serializable;

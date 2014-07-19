@@ -11,7 +11,7 @@ import hudson.model.FreeStyleBuild;
 import hudson.model.FreeStyleProject;
 import hudson.model.TaskListener;
 import hudson.util.AbstractTaskListener;
-import org.jenkinsci.plugins.unittestdb.DB.Failure;
+import org.jenkinsci.plugins.unittestdb.db.Failure;
 import org.junit.Rule;
 import org.junit.Test;
 import org.jvnet.hudson.test.JenkinsRule;

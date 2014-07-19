@@ -108,8 +108,8 @@ public class BrokenTestsRecipientProviderTest {
     assertTrue ( bcc.isEmpty () );
     assertEquals ( "", out.toString () );
 
-    org.jenkinsci.plugins.unittestdb.DB.User u
-            = new org.jenkinsci.plugins.unittestdb.DB.User ();
+    org.jenkinsci.plugins.unittestdb.db.User u
+            = new org.jenkinsci.plugins.unittestdb.db.User ();
     u.setUsername ( TESTUSER );
     buildInfo.users.add ( u );
 

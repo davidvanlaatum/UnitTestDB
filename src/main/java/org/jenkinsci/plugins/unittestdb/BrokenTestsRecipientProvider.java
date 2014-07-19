@@ -12,7 +12,7 @@ import hudson.plugins.emailext.plugins.RecipientProviderDescriptor;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import jenkins.model.Jenkins;
-import org.jenkinsci.plugins.unittestdb.DB.User;
+import org.jenkinsci.plugins.unittestdb.db.User;
 import org.kohsuke.stapler.DataBoundConstructor;
 
 /**
