@@ -19,8 +19,9 @@ public enum FailureUserState {
               .getDeclaredField ( "name" );
       nameField.setAccessible ( true );
       nameField.set ( this, value );
-    } catch ( Exception e ) {
-      throw new RuntimeException ( e );
+    } catch ( NoSuchFieldException | SecurityException |
+              IllegalArgumentException | IllegalAccessException ex ) {
+      throw new IllegalStateException ( ex );
     }
   }
 }
