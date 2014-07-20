@@ -40,7 +40,6 @@ public class UnitTest extends DBObject implements Serializable {
   @Basic ( optional = false )
   @Column ( name = "name" )
   private String name;
-  @Basic ( optional = false )
   @Column ( name = "id" )
   protected String id;
   // @Max(value=?)  @Min(value=?)//if you know range of your decimal fields consider using these annotations to enforce field validation

@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import hudson.model.*;
+import hudson.tasks.test.AggregatedTestResultAction;
+import hudson.tasks.test.TestObject;
 import hudson.tasks.test.TestResult;
 import javax.persistence.EntityManager;
 import jenkins.model.Jenkins;
@@ -84,10 +86,38 @@ public class ProjectBuildInfo extends Actionable implements Action {
 
       if ( lastBuild != null ) {
         if ( lastBuild.getTestResultAction () != null ) {
-          result = lastBuild.getTestResultAction ()
-                  .findCorrespondingResult ( failure.getUnitTest ().getId () );
+          result = findResult ( lastBuild.getTestResultAction ().getResult (),
+                                failure.getUnitTest ().getId () );
         }
       }
+      LOG.log ( Level.INFO, "{0} = {1}", new Object[]{ name, result
+                                                       .getRelativePathFrom (
+                                                       null ) } );
+    }
+
+    private TestResult findResult ( Object o, String id ) {
+      TestResult rt = null;
+      if ( o instanceof TestObject ) {
+        rt = ( (TestObject) o ).findCorrespondingResult ( id );
+      } else if ( o instanceof List ) {
+        for ( Object l : (List) o ) {
+          rt = findResult ( l, id );
+          if ( rt != null ) {
+            break;
+          }
+        }
+      } else if ( o instanceof AggregatedTestResultAction.ChildReport ) {
+        rt = findResult ( ( (AggregatedTestResultAction.ChildReport) o ).result,
+                          id );
+      } else {
+        Class c = o.getClass ().getSuperclass ();
+        LOG.log ( Level.WARNING, "Unhandled type {0}", c.getName () );
+        while ( c != null ) {
+          LOG.log ( Level.WARNING, "Parent is {0}", c.getName () );
+          c = c.getSuperclass ();
+        }
+      }
+      return rt;
     }
 
     @Exported

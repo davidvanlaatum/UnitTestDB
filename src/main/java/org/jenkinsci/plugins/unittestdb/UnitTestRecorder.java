@@ -70,14 +70,16 @@ public class UnitTestRecorder {
   protected void discoverUnitTests () {
     AbstractTestResultAction tests = build.getTestResultAction ();
     if ( tests != null ) {
-      hudson.tasks.junit.TestResult unittests
-              = (hudson.tasks.junit.TestResult) tests.getResult ();
+      if ( tests.getResult () instanceof hudson.tasks.junit.TestResult ) {
+        hudson.tasks.junit.TestResult unittests
+                = (hudson.tasks.junit.TestResult) tests.getResult ();
 
-      failurelist = Failure.findByJob ( job, em );
-      unittestlist = UnitTest.findByJob ( job, em );
+        failurelist = Failure.findByJob ( job, em );
+        unittestlist = UnitTest.findByJob ( job, em );
 
-      for ( TestResult test : unittests.getChildren () ) {
-        recordUnitTest ( test );
+        for ( TestResult test : unittests.getChildren () ) {
+          recordUnitTest ( test );
+        }
       }
     }
   }

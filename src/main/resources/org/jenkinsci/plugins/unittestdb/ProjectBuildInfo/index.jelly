@@ -7,8 +7,7 @@
       <h1>Unit Test Failures</h1>
       <style>
         .unittests td {
-        padding-left: 5px;
-        padding-right: 5px;
+        vertical-align: top;
         }
         .unittests ul {
         list-style: none;
