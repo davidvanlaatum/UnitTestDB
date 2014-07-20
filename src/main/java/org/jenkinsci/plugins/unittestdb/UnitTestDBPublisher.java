@@ -1,6 +1,8 @@
 package org.jenkinsci.plugins.unittestdb;
 
 import java.io.IOException;
+import java.util.Collection;
+import com.google.common.collect.ImmutableList;
 import hudson.Extension;
 import hudson.Launcher;
 import hudson.model.*;
@@ -10,6 +12,12 @@ import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
 
 public class UnitTestDBPublisher extends Recorder {
+
+  @Override
+  public Collection<? extends Action> getProjectActions (
+          AbstractProject<?, ?> project ) {
+    return ImmutableList.of ( new ProjectBuildInfo ( project ) );
+  }
 
   @Extension
   public static final DescriptorImpl DESCRIPTOR = new DescriptorImpl ();

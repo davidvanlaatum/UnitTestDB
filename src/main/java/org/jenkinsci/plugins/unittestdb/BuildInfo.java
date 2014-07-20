@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableList;
 import hudson.model.*;
 import org.jenkinsci.plugins.unittestdb.db.*;
 import org.jenkinsci.plugins.unittestdb.db.Failure;
+import static java.util.Objects.requireNonNull;
 
 /**
  * @author David van Laatum
@@ -108,6 +109,7 @@ public class BuildInfo extends Actionable implements Action {
   }
 
   public void addFailure ( Failure failure ) {
+    requireNonNull ( failure );
     List<BIFailureUser> fuser = new ArrayList<> ();
     for ( FailureUser fu : failure.getUsers () ) {
       fuser.add ( new BIFailureUser ( fu.getUser ().getUsername (), fu
@@ -118,9 +120,12 @@ public class BuildInfo extends Actionable implements Action {
         }
       }
     }
+    requireNonNull ( failure.getFirstBuild () );
+    requireNonNull ( failures );
     failures.add ( new BIFailure ( failure.getState (),
                                    failure.getUnitTest ().getName (), fuser,
-                                   failure.getFirstBuild ().getJenkinsId (),
+                                   failure.getFirstBuild () != null ? failure
+                                   .getFirstBuild ().getJenkinsId () : null,
                                    failure.getLastBuild ().getJenkinsId () ) );
   }
 

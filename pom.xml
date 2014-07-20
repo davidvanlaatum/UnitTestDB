@@ -141,5 +141,10 @@
       <artifactId>javassist</artifactId>
       <version>3.18.2-GA</version>
     </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>jquery</artifactId>
+      <version>1.7.2-1</version>
+    </dependency>
   </dependencies>
 </project>

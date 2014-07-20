@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout"
+         xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+  <l:layout title="Unit Test DB">
+    <st:include it="${it.project}" page="sidepanel.jelly"/>
+    <l:main-panel>
+      <h1>Unit Test Failures</h1>
+      <style>
+        .unittests td {
+        padding-left: 5px;
+        padding-right: 5px;
+        }
+        .unittests ul {
+        list-style: none;
+        padding: 0px 0px;
+        margin: 0px 0px;
+        }
+      </style>
+      <table class="unittests pane bigtable">
+        <thead>
+          <tr>
+            <th>Unit Test</th>
+            <th>State</th>
+            <th>From</th>
+            <th>To</th>
+            <th colspan="2">Users</th>
+          </tr>
+        </thead>
+        <j:forEach items="${it.failures}" var="failure">
+          <tr>
+            <td>${failure.name}</td>
+            <td>${failure.state}</td>
+            <td>${failure.firstBuild.displayName}</td>
+            <td>${failure.lastBuild.displayName}</td>
+            <td>
+              <ul>
+                <j:forEach items="${failure.users}" var="user">
+                  <li>${user.user}</li>
+                </j:forEach>
+              </ul>
+            </td>
+            <td>
+              <ul>
+                <j:forEach items="${failure.users}" var="user">
+                  <li>${user.state}</li>
+                </j:forEach>
+              </ul>
+            </td>
+          </tr>
+        </j:forEach>
+      </table>
+    </l:main-panel>
+  </l:layout>
+</j:jelly>

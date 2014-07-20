@@ -117,6 +117,8 @@ public class BrokenTestsRecipientProviderTest {
             new org.jenkinsci.plugins.unittestdb.db.FailureUser () ) );
     f.setUnitTest ( new UnitTest () );
     f.getUsers ().get ( 0 ).setUser ( u );
+    f.setFirstBuild ( new org.jenkinsci.plugins.unittestdb.db.Build () );
+    f.setLastBuild ( new org.jenkinsci.plugins.unittestdb.db.Build () );
 
     buildInfo.addFailure ( f );
 

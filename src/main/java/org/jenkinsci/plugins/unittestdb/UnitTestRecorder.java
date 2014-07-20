@@ -176,8 +176,10 @@ public class UnitTestRecorder {
                 new Object[]{ unittestsProcessed,
                               failurelist != null ? failurelist.size () : 0 } );
       build.addAction ( buildInfo );
-      for ( Failure f : failurelist.values () ) {
-        buildInfo.addFailure ( f );
+      if ( failurelist != null ) {
+        for ( Failure f : failurelist.values () ) {
+          buildInfo.addFailure ( f );
+        }
       }
     } catch ( SQLException ex ) {
       LOG.log ( Level.SEVERE, null, ex );
