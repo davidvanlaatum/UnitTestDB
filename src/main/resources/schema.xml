@@ -137,7 +137,9 @@
     <addUniqueConstraint columnNames="name, job_id" constraintName="name_job" deferrable="false" disabled="false" initiallyDeferred="false" tableName="unit_tests"/>
   </changeSet>
   <changeSet author="david" id="1405166926249-12">
-    <addUniqueConstraint columnNames="unit_test_id, job_id" constraintName="unit_test_id" deferrable="false" disabled="false" initiallyDeferred="false" tableName="failures"/>
+    <createIndex tableName="failures" indexName="unit_test_id">
+      <column name="unit_test_id"/>
+    </createIndex>
   </changeSet>
   <changeSet author="david" id="1405166926249-13">
     <addUniqueConstraint columnNames="username" constraintName="username" deferrable="false" disabled="false" initiallyDeferred="false" tableName="users"/>
