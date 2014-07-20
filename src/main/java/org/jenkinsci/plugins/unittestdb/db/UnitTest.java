@@ -40,6 +40,9 @@ public class UnitTest extends DBObject implements Serializable {
   @Basic ( optional = false )
   @Column ( name = "name" )
   private String name;
+  @Basic ( optional = false )
+  @Column ( name = "id" )
+  protected String id;
   // @Max(value=?)  @Min(value=?)//if you know range of your decimal fields consider using these annotations to enforce field validation
   @Column ( name = "failure_rate" )
   private Double failureRate;
@@ -61,6 +64,14 @@ public class UnitTest extends DBObject implements Serializable {
   public UnitTest ( Integer unitTestId, String name ) {
     this.unitTestId = unitTestId;
     this.name = name;
+  }
+
+  public String getId () {
+    return id;
+  }
+
+  public void setId ( String id ) {
+    this.id = id;
   }
 
   public Integer getUnitTestId () {

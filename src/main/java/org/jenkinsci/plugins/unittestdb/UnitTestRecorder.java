@@ -97,6 +97,7 @@ public class UnitTestRecorder {
         t = UnitTest.findByJobAndName ( job, test.getFullName (), em, true );
         unittestlist.put ( t.getName (), t );
       }
+      t.setId ( test.getId () );
 
       BuildUnitTest bt = new BuildUnitTest ();
       bt.setBuild ( buildObj );

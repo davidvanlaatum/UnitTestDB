@@ -216,4 +216,9 @@
       <column name="name" value="user"/>
     </insert>
   </changeSet>
+  <changeSet id="unittestid" author="david">
+    <addColumn tableName="unit_tests">
+      <column name="id" type="VARCHAR(512)"/>
+    </addColumn>
+  </changeSet>
 </databaseChangeLog>

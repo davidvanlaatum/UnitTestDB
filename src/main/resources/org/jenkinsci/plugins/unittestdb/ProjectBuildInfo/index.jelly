@@ -20,16 +20,17 @@
         <thead>
           <tr>
             <th>Unit Test</th>
-            <th>State</th>
             <th>From</th>
             <th>To</th>
             <th colspan="2">Users</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <j:forEach items="${it.failures}" var="failure">
           <tr>
-            <td>${failure.name}</td>
-            <td>${failure.state}</td>
+            <td>
+              <a href="../lastBuild/${failure.result.getTestResultAction ().getTestResultPath ( failure.result).replace('/junit/','/')}">${failure.name}</a>
+            </td>
             <td>${failure.firstBuild.displayName}</td>
             <td>${failure.lastBuild.displayName}</td>
             <td>
@@ -45,6 +46,9 @@
                   <li>${user.state}</li>
                 </j:forEach>
               </ul>
+            </td>
+            <td>
+              Was Me | Not Me | Might Be Me
             </td>
           </tr>
         </j:forEach>

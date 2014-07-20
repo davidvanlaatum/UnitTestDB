@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import hudson.model.*;
+import hudson.tasks.test.TestResult;
 import javax.persistence.EntityManager;
 import jenkins.model.Jenkins;
 import org.jenkinsci.plugins.unittestdb.db.*;
@@ -60,6 +61,7 @@ public class ProjectBuildInfo extends Actionable implements Action {
 
     protected Integer failureId;
     protected String name;
+    protected TestResult result;
     protected FailureState state;
     protected List<PBIUser> users;
     protected AbstractBuild<?, ?> firstBuild;
@@ -78,6 +80,13 @@ public class ProjectBuildInfo extends Actionable implements Action {
       users = new ArrayList<> ();
       for ( FailureUser fu : failure.getUsers () ) {
         users.add ( new PBIUser ( fu ) );
+      }
+
+      if ( lastBuild != null ) {
+        if ( lastBuild.getTestResultAction () != null ) {
+          result = lastBuild.getTestResultAction ()
+                  .findCorrespondingResult ( failure.getUnitTest ().getId () );
+        }
       }
     }
 
@@ -110,6 +119,13 @@ public class ProjectBuildInfo extends Actionable implements Action {
     @Exported
     public String getName () {
       return name;
+    }
+
+    /**
+     * @return the result
+     */
+    public TestResult getResult () {
+      return result;
     }
 
     /**

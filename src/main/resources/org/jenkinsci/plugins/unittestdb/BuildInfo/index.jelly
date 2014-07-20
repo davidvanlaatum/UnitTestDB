@@ -5,13 +5,24 @@
     <st:include it="${it.build}" page="sidepanel.jelly"/>
     <l:main-panel>
       <h1>Unit Test Failures</h1>
-      <table>
+      <style>
+        .unittests td {
+        padding-left: 5px;
+        padding-right: 5px;
+        }
+        .unittests ul {
+        list-style: none;
+        padding: 0px 0px;
+        margin: 0px 0px;
+        }
+      </style>
+      <table class="unittests pane bigtable">
         <tbody>
           <thead>
             <tr>
               <th>Unit Test</th>
               <th>State</th>
-              <th>Users</th>
+              <th colspan="2">Users</th>
               <th>Since</th>
             </tr>
           </thead>
@@ -23,15 +34,19 @@
               <td>
                 ${failure.state}
               </td>
-              <td style="padding: 0px 0px; margin: 0px 0px; border-spacing: 0px">
-                <table style="border-spacing: 0px">
+              <td>
+                <ul>
                   <j:forEach items="${failure.users}" var="user">
-                    <tr>
-                      <td>${app.getUser(user.username).getDisplayName()}</td>
-                      <td>${user.state}</td>
-                    </tr>
+                    <li>${app.getUser(user.username).getDisplayName()}</li>
                   </j:forEach>
-                </table>
+                </ul>
+              </td>
+              <td>
+                <ul>
+                  <j:forEach items="${failure.users}" var="user">
+                    <li>${user.state}</li>
+                  </j:forEach>
+                </ul>
               </td>
               <td>
                 <a href="${app.servletContext.getContextPath()}/${it.build.getProject ().getBuildByNumber ( failure.firstBuild ).getUrl()}">${it.build.getProject ().getBuildByNumber ( failure.firstBuild )}</a>
