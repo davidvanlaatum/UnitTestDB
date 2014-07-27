@@ -167,4 +167,19 @@ public class Failure extends DBObject implements Serializable {
     return rt;
   }
 
+  public static Failure findByID ( Integer id, EntityManager em ) {
+    requireNonNull ( em, "No EntityManager passed in" );
+    requireNonNull ( id, "No id passed in" );
+    Query q = em.createNamedQuery ( "Failure.findByFailureId" );
+    q.setParameter ( "failureId", id );
+    q.setMaxResults ( 1 );
+    Failure rt = null;
+    try {
+      rt = (Failure) q.getSingleResult ();
+    } catch ( NoResultException ex ) {
+
+    }
+    return rt;
+  }
+
 }

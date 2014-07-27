@@ -1,9 +1,10 @@
 package org.jenkinsci.plugins.unittestdb.db;
 
-import hudson.Extension;
 import java.io.Serializable;
+import hudson.Extension;
 import javax.persistence.*;
 import javax.xml.bind.annotation.XmlRootElement;
+import static java.util.Objects.requireNonNull;
 
 /**
  *
@@ -109,6 +110,21 @@ public class FailureUser extends DBObject implements Serializable {
   public String toString () {
     return "com.vanlaatum.unittestsdb.DB.FailureUser[ failureUserId="
                    + failureUserId + " ]";
+  }
+
+  public static FailureUser findByID ( Integer id, EntityManager em ) {
+    requireNonNull ( em, "No EntityManager passed in" );
+    requireNonNull ( id, "No id passed in" );
+    Query q = em.createNamedQuery ( "FailureUser.findByFailureUserId" );
+    q.setParameter ( "failureUserId", id );
+    q.setMaxResults ( 1 );
+    FailureUser rt = null;
+    try {
+      rt = (FailureUser) q.getSingleResult ();
+    } catch ( NoResultException ex ) {
+
+    }
+    return rt;
   }
 
 }

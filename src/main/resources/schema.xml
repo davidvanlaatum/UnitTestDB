@@ -223,4 +223,8 @@
       <column name="id" type="VARCHAR(512)"/>
     </addColumn>
   </changeSet>
+  <changeSet id="gone" author="david">
+    <modifyDataType tableName="failures" columnName="state" newDataType="ENUM('Failed', 'Fixed','Gone')"/>
+    <addNotNullConstraint tableName="failures" columnName="state" columnDataType="ENUM('Failed', 'Fixed','Gone')"/>
+  </changeSet>
 </databaseChangeLog>

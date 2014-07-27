@@ -19,7 +19,9 @@
         <thead>
           <tr>
             <th>Unit Test</th>
+            <th>State</th>
             <th>Duration</th>
+            <th>Node</th>
             <th>From</th>
             <th>To</th>
             <th colspan="2">Users</th>
@@ -33,7 +35,9 @@
               <t:failed-test result="${failure.result}" url="${rootURL}/${failure.url}"/>
               <!--<a href="../lastCompletedBuild/${failure.result.getTestResultAction ().getTestResultPath ( failure.result).replace('/junit/','/')}">${failure.name}</a>-->
             </td>
+            <td>${failure.testState}</td>
             <td>${failure.duration}</td>
+            <td>${failure.nodestr}</td>
             <td>
               <t:buildLink job="${failure.firstBuild.project}" number="${failure.firstBuild.number}"/>
             </td>
@@ -55,7 +59,11 @@
               </ul>
             </td>
             <td>
-              Was Me | Not Me | Might Be Me
+              <a href="failure/${failure.failureId}/user/me/maybe">Maybe</a> |
+              <a href="failure/${failure.failureId}/user/me/wasme">Was Me</a> |
+              <a href="failure/${failure.failureId}/user/me/notme">Not Me</a> |
+              <a href="failure/${failure.failureId}/user/me/mightbeme">Might Be Me</a> |
+              <a href="failure/${failure.failureId}/gone">Gone</a>
             </td>
           </tr>
         </j:forEach>

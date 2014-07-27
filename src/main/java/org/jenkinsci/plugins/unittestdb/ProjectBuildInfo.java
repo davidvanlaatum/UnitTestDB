@@ -1,5 +1,6 @@
 package org.jenkinsci.plugins.unittestdb;
 
+import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -8,15 +9,21 @@ import java.util.logging.Logger;
 import hudson.matrix.MatrixBuild;
 import hudson.matrix.MatrixRun;
 import hudson.model.*;
+import hudson.model.User;
 import hudson.tasks.test.*;
 import javax.persistence.EntityManager;
+import javax.servlet.ServletException;
 import jenkins.model.Jenkins;
 import org.jenkinsci.plugins.unittestdb.db.*;
 import org.jenkinsci.plugins.unittestdb.db.Failure;
 import org.jenkinsci.plugins.unittestdb.db.Job;
+import org.kohsuke.stapler.StaplerRequest;
+import org.kohsuke.stapler.StaplerResponse;
 import org.kohsuke.stapler.export.Exported;
 import org.kohsuke.stapler.export.ExportedBean;
 import static java.util.Objects.requireNonNull;
+import static org.jenkinsci.plugins.unittestdb.db.FailureState.Gone;
+import static org.jenkinsci.plugins.unittestdb.db.FailureUserState.*;
 
 /**
  *
@@ -26,14 +33,32 @@ import static java.util.Objects.requireNonNull;
 public class ProjectBuildInfo extends Actionable implements Action {
 
   @ExportedBean
-  public class PBIUser {
+  public class PBIUser extends Actionable implements Action {
 
     protected String username;
     protected FailureUserState state;
+    protected PBIFailure failure;
+    protected Integer id;
 
     public PBIUser ( FailureUser fu ) {
       username = fu.getUser ().getUsername ();
       state = fu.getState ();
+      id = fu.getFailureUserId ();
+    }
+
+    @Override
+    public String getDisplayName () {
+      throw new UnsupportedOperationException ( "Not supported yet." );
+    }
+
+    @Override
+    public String getIconFileName () {
+      throw new UnsupportedOperationException ( "Not supported yet." );
+    }
+
+    @Override
+    public String getSearchUrl () {
+      throw new UnsupportedOperationException ( "Not supported yet." );
     }
 
     /**
@@ -42,6 +67,11 @@ public class ProjectBuildInfo extends Actionable implements Action {
     @Exported
     public FailureUserState getState () {
       return state;
+    }
+
+    @Override
+    public String getUrlName () {
+      throw new UnsupportedOperationException ( "Not supported yet." );
     }
 
     /**
@@ -56,10 +86,51 @@ public class ProjectBuildInfo extends Actionable implements Action {
       return Jenkins.getInstance ().getUser ( username );
     }
 
+    protected void doUpdateTo ( FailureUserState state ) throws SQLException {
+      GlobalConfig config = requireNonNull ( Jenkins.getInstance () )
+              .getInjector ().getInstance ( GlobalConfig.class );
+      EntityManager em = null;
+      try {
+        em = config.getEntityManagerFactory ().createEntityManager ();
+        em.getTransaction ().begin ();
+        FailureUser fu = FailureUser.findByID ( id, em );
+        fu.setState ( state );
+        em.getTransaction ().commit ();
+      } finally {
+        if ( em != null ) {
+          em.close ();
+        }
+      }
+    }
+
+    public void doWasme ( StaplerRequest req, StaplerResponse rsp ) throws
+            SQLException, ServletException, IOException {
+      doUpdateTo ( Was_Me );
+      rsp.forwardToPreviousPage ( req );
+    }
+
+    public void doNotme ( StaplerRequest req, StaplerResponse rsp ) throws
+            SQLException, ServletException, IOException {
+      doUpdateTo ( Not_Me );
+      rsp.forwardToPreviousPage ( req );
+    }
+
+    public void doMaybe ( StaplerRequest req, StaplerResponse rsp ) throws
+            SQLException, ServletException, IOException {
+      doUpdateTo ( Maybe );
+      rsp.forwardToPreviousPage ( req );
+    }
+
+    public void doMightbeme ( StaplerRequest req, StaplerResponse rsp ) throws
+            SQLException, ServletException, IOException {
+      doUpdateTo ( Might_be_Me );
+      rsp.forwardToPreviousPage ( req );
+    }
+
   }
 
   @ExportedBean
-  public class PBIFailure {
+  public class PBIFailure extends Actionable implements Action {
 
     protected Integer failureId;
     protected String name;
@@ -72,6 +143,7 @@ public class ProjectBuildInfo extends Actionable implements Action {
     protected Integer lastBuildId;
     protected String url;
     protected Double duration;
+    protected UnitTestState testState;
 
     public PBIFailure ( Failure failure, AbstractProject<?, ?> project,
                         EntityManager em ) {
@@ -83,6 +155,7 @@ public class ProjectBuildInfo extends Actionable implements Action {
       firstBuild = project.getBuildByNumber ( firstBuildId );
       lastBuild = project.getBuildByNumber ( lastBuildId );
       duration = null;
+      testState = null;
       users = new ArrayList<> ();
       for ( FailureUser fu : failure.getUsers () ) {
         users.add ( new PBIUser ( fu ) );
@@ -93,6 +166,7 @@ public class ProjectBuildInfo extends Actionable implements Action {
               .getLastBuild (), failure.getUnitTest ().getUnitTestId (), em );
       if ( but != null ) {
         duration = but.getDuration ();
+        testState = but.getState ();
       } else {
         LOG.log ( Level.WARNING, "failed to get info about unit test in build" );
       }
@@ -205,6 +279,11 @@ public class ProjectBuildInfo extends Actionable implements Action {
       return duration;
     }
 
+    @Exported
+    public UnitTestState getTestState () {
+      return testState;
+    }
+
     /**
      * @return the name
      */
@@ -234,6 +313,92 @@ public class ProjectBuildInfo extends Actionable implements Action {
     @Exported ( inline = true )
     public List<PBIUser> getUsers () {
       return users;
+    }
+
+    @Override
+    public String getDisplayName () {
+      throw new UnsupportedOperationException ( "Not supported yet." );
+    }
+
+    @Override
+    public String getIconFileName () {
+      throw new UnsupportedOperationException ( "Not supported yet." );
+    }
+
+    @Override
+    public String getSearchUrl () {
+      throw new UnsupportedOperationException ( "Not supported yet." );
+    }
+
+    @Override
+    public String getUrlName () {
+      throw new UnsupportedOperationException ( "Not supported yet." );
+    }
+
+    public void doGone ( StaplerRequest req, StaplerResponse rsp ) throws
+            SQLException, ServletException, IOException {
+      GlobalConfig config = requireNonNull ( Jenkins.getInstance () )
+              .getInjector ().getInstance ( GlobalConfig.class );
+      EntityManager em = null;
+      try {
+        em = config.getEntityManagerFactory ().createEntityManager ();
+        em.getTransaction ().begin ();
+        Failure f = Failure.findByID ( failureId, em );
+        f.setState ( Gone );
+        em.getTransaction ().commit ();
+      } finally {
+        if ( em != null ) {
+          em.close ();
+        }
+      }
+      rsp.forwardToPreviousPage ( req );
+    }
+
+    protected PBIUser attachNewUser ( String user ) throws SQLException {
+      PBIUser rt = null;
+      GlobalConfig config = requireNonNull ( Jenkins.getInstance () )
+              .getInjector ().getInstance ( GlobalConfig.class );
+      EntityManager em = null;
+      try {
+        em = config.getEntityManagerFactory ().createEntityManager ();
+        em.getTransaction ().begin ();
+        Failure f = Failure.findByID ( failureId, em );
+
+        FailureUser fu = new FailureUser ();
+        fu.setFailure ( f );
+        fu.setUser ( org.jenkinsci.plugins.unittestdb.db.User.findByUsername (
+                user, em, true ) );
+        fu.setState ( Maybe );
+        em.persist ( fu );
+        em.getTransaction ().commit ();
+        rt = new PBIUser ( fu );
+      } finally {
+        if ( em != null ) {
+          em.close ();
+        }
+      }
+      return rt;
+    }
+
+    public PBIUser getUser ( String user ) throws SQLException {
+      PBIUser rt = null;
+
+      if ( user.equalsIgnoreCase ( "me" ) ) {
+        user = requireNonNull ( User.current (), "Not logged in" ).getId ();
+      }
+
+      for ( PBIUser pbiu : users ) {
+        if ( pbiu.getUsername ().equals ( user ) ) {
+          rt = pbiu;
+          break;
+        }
+      }
+
+      if ( rt == null ) {
+        rt = attachNewUser ( user );
+      }
+
+      return rt;
     }
 
   }
@@ -288,6 +453,25 @@ public class ProjectBuildInfo extends Actionable implements Action {
       for ( Failure f : Failure.findByJob ( job, em ).values () ) {
         rt.add ( new PBIFailure ( f, project, em ) );
       }
+    } catch ( SQLException ex ) {
+      LOG.log ( Level.SEVERE, null, ex );
+    } finally {
+      if ( em != null ) {
+        em.close ();
+      }
+    }
+    return rt;
+  }
+
+  public Action getFailure ( String id ) {
+    Integer failureId = Integer.valueOf ( id );
+    PBIFailure rt = null;
+    GlobalConfig config = requireNonNull ( Jenkins.getInstance () )
+            .getInjector ().getInstance ( GlobalConfig.class );
+    EntityManager em = null;
+    try {
+      em = config.getEntityManagerFactory ().createEntityManager ();
+      rt = new PBIFailure ( Failure.findByID ( failureId, em ), project, em );
     } catch ( SQLException ex ) {
       LOG.log ( Level.SEVERE, null, ex );
     } finally {

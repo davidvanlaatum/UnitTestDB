@@ -5,5 +5,5 @@ package org.jenkinsci.plugins.unittestdb.db;
  */
 public enum FailureState {
 
-  Failed, Fixed
+  Failed, Fixed, Gone
 }
