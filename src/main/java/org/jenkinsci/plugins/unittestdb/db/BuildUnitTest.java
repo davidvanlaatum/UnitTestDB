@@ -1,6 +1,8 @@
 package org.jenkinsci.plugins.unittestdb.db;
 
 import java.io.Serializable;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import hudson.Extension;
 import javax.persistence.*;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -28,6 +30,9 @@ import static java.util.Objects.requireNonNull;
   @NamedQuery ( name = "BuildUnitTest.findByBuildAndId", query
                 = "SELECT b FROM BuildUnitTest b WHERE b.unitTest.unitTestId = :id AND b.build.buildId = :build" ) } )
 public class BuildUnitTest extends DBObject implements Serializable {
+
+  private static final Logger LOG
+          = Logger.getLogger ( BuildUnitTest.class.getName () );
 
   private static final long serialVersionUID = 1L;
   @Id
@@ -197,6 +202,8 @@ public class BuildUnitTest extends DBObject implements Serializable {
     try {
       rt = (BuildUnitTest) q.getSingleResult ();
     } catch ( NoResultException ex ) {
+      LOG.log ( Level.FINE, "BuildUnitTest with build {0} and id {1} not found",
+                new Object[]{ build.getBuildId (), id } );
     }
     return rt;
   }

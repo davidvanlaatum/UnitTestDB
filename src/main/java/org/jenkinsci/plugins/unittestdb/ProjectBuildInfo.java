@@ -175,7 +175,7 @@ public class ProjectBuildInfo extends Actionable implements Action {
     private TestResult findResult ( Object o, String id, int depth ) {
       TestResult rt = null;
       if ( depth > 10 || o == null ) {
-
+        // do nothing
       } else if ( o instanceof TestObject ) {
         rt = ( (TestObject) o ).findCorrespondingResult ( id );
       } else if ( o instanceof List ) {
