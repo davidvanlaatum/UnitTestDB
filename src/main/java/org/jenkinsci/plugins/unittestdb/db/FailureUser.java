@@ -1,6 +1,8 @@
 package org.jenkinsci.plugins.unittestdb.db;
 
 import java.io.Serializable;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import hudson.Extension;
 import javax.persistence.*;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -22,6 +24,9 @@ import static java.util.Objects.requireNonNull;
   @NamedQuery ( name = "FailureUser.findByState", query
                 = "SELECT f FROM FailureUser f WHERE f.state = :state" ) } )
 public class FailureUser extends DBObject implements Serializable {
+
+  private static final Logger LOG
+          = Logger.getLogger ( FailureUser.class.getName () );
 
   private static final long serialVersionUID = 1L;
   @Id
@@ -122,7 +127,7 @@ public class FailureUser extends DBObject implements Serializable {
     try {
       rt = (FailureUser) q.getSingleResult ();
     } catch ( NoResultException ex ) {
-
+      LOG.log ( Level.FINE, "FailureUser with with id {0} not found", id );
     }
     return rt;
   }

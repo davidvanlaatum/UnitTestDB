@@ -4,6 +4,8 @@ import java.io.Serializable;
 import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import hudson.Extension;
 import javax.persistence.*;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -26,6 +28,9 @@ import static java.util.Objects.requireNonNull;
   @NamedQuery ( name = "Failure.findByStateAndJob", query
                 = "SELECT f FROM Failure f WHERE f.state = :state AND f.job.jobId = :job" ) } )
 public class Failure extends DBObject implements Serializable {
+
+  private static final Logger LOG
+          = Logger.getLogger ( Failure.class.getName () );
 
   private static final long serialVersionUID = 1L;
   @Id
@@ -177,7 +182,7 @@ public class Failure extends DBObject implements Serializable {
     try {
       rt = (Failure) q.getSingleResult ();
     } catch ( NoResultException ex ) {
-
+      LOG.log ( Level.FINE, "Failure with id {0} not found", id );
     }
     return rt;
   }
