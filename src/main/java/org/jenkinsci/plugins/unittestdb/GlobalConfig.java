@@ -82,7 +82,7 @@ public class GlobalConfig extends GlobalConfiguration {
   }
 
   @Override
-  public synchronized void load () {
+  public final synchronized void load () {
     super.load ();
     checkDB ();
   }

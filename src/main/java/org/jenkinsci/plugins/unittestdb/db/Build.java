@@ -1,6 +1,5 @@
 package org.jenkinsci.plugins.unittestdb.db;
 
-import com.google.common.base.Strings;
 import hudson.Extension;
 import java.io.Serializable;
 import java.util.Date;
@@ -47,10 +46,6 @@ public class Build extends DBObject implements Serializable {
   private Integer failures;
   @Column ( name = "skipped" )
   private Integer skipped;
-  @OneToMany ( cascade = CascadeType.ALL, mappedBy = "firstBuild" )
-  private List<Failure> failureList;
-  @OneToMany ( cascade = CascadeType.ALL, mappedBy = "lastBuild" )
-  private List<Failure> failureList1;
   @OneToMany ( mappedBy = "lastBuild" )
   private List<Job> jobList;
   @JoinColumn ( name = "job_id", referencedColumnName = "job_id" )
@@ -118,24 +113,6 @@ public class Build extends DBObject implements Serializable {
 
   public void setSkipped ( Integer skipped ) {
     this.skipped = skipped;
-  }
-
-  @XmlTransient
-  public List<Failure> getFailureList () {
-    return failureList;
-  }
-
-  public void setFailureList ( List<Failure> failureList ) {
-    this.failureList = failureList;
-  }
-
-  @XmlTransient
-  public List<Failure> getFailureList1 () {
-    return failureList1;
-  }
-
-  public void setFailureList1 ( List<Failure> failureList1 ) {
-    this.failureList1 = failureList1;
   }
 
   @XmlTransient

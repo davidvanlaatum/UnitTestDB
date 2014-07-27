@@ -80,6 +80,9 @@ public class UnitTestRecorder {
         for ( TestResult test : unittests.getChildren () ) {
           recordUnitTest ( test );
         }
+      } else if ( tests.getResult () != null ) {
+        LOG.log ( Level.WARNING, "Unhandeled type {0}", tests.getResult ()
+                  .getClass ().getName () );
       }
     }
   }

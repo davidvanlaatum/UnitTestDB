@@ -1,14 +1,13 @@
 package org.jenkinsci.plugins.unittestdb.db;
 
-import hudson.Extension;
 import java.io.Serializable;
 import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
+import hudson.Extension;
 import javax.persistence.*;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
-
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -153,7 +152,7 @@ public class Failure extends DBObject implements Serializable {
   public static SortedMap<Integer, Failure> findByJob ( Job job,
                                                         EntityManager em ) {
     requireNonNull ( em, "No EntityManager passed in" );
-    requireNonNull ( job, "No job passwd in" );
+    requireNonNull ( job, "No job passed in" );
     Query q = em.createNamedQuery ( "Failure.findByStateAndJob" );
     q.setParameter ( "job", job.getJobId () );
     q.setParameter ( "state", FailureState.Failed );

@@ -1,9 +1,10 @@
 package org.jenkinsci.plugins.unittestdb.db;
 
-import hudson.Extension;
 import java.io.Serializable;
+import hudson.Extension;
 import javax.persistence.*;
 import javax.xml.bind.annotation.XmlRootElement;
+import static java.util.Objects.requireNonNull;
 
 /**
  *
@@ -23,7 +24,9 @@ import javax.xml.bind.annotation.XmlRootElement;
   @NamedQuery ( name = "BuildUnitTest.findByState", query
                 = "SELECT b FROM BuildUnitTest b WHERE b.state = :state" ),
   @NamedQuery ( name = "BuildUnitTest.findByExecutor", query
-                = "SELECT b FROM BuildUnitTest b WHERE b.executor = :executor" ) } )
+                = "SELECT b FROM BuildUnitTest b WHERE b.executor = :executor" ),
+  @NamedQuery ( name = "BuildUnitTest.findByBuildAndId", query
+                = "SELECT b FROM BuildUnitTest b WHERE b.unitTest.unitTestId = :id AND b.build.buildId = :build" ) } )
 public class BuildUnitTest extends DBObject implements Serializable {
 
   private static final long serialVersionUID = 1L;
@@ -181,4 +184,20 @@ public class BuildUnitTest extends DBObject implements Serializable {
                    + buildUnitTestId + " ]";
   }
 
+  public static BuildUnitTest findByBuildAndId ( Build build, Integer id,
+                                                 EntityManager em ) {
+    requireNonNull ( em, "No EntityManager passed in" );
+    requireNonNull ( build, "No build passed in" );
+    requireNonNull ( id, "No id passed in" );
+    Query q = em.createNamedQuery ( "BuildUnitTest.findByBuildAndId" );
+    q.setParameter ( "build", build.getBuildId () );
+    q.setParameter ( "id", id );
+    q.setMaxResults ( 1 );
+    BuildUnitTest rt = null;
+    try {
+      rt = (BuildUnitTest) q.getSingleResult ();
+    } catch ( NoResultException ex ) {
+    }
+    return rt;
+  }
 }

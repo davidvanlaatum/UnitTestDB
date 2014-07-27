@@ -5,10 +5,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import hudson.matrix.MatrixBuild;
+import hudson.matrix.MatrixRun;
 import hudson.model.*;
-import hudson.tasks.test.AggregatedTestResultAction;
-import hudson.tasks.test.TestObject;
-import hudson.tasks.test.TestResult;
+import hudson.tasks.test.*;
 import javax.persistence.EntityManager;
 import jenkins.model.Jenkins;
 import org.jenkinsci.plugins.unittestdb.db.*;
@@ -70,8 +70,11 @@ public class ProjectBuildInfo extends Actionable implements Action {
     protected Integer firstBuildId;
     protected AbstractBuild<?, ?> lastBuild;
     protected Integer lastBuildId;
+    protected String url;
+    protected Double duration;
 
-    public PBIFailure ( Failure failure, AbstractProject<?, ?> project ) {
+    public PBIFailure ( Failure failure, AbstractProject<?, ?> project,
+                        EntityManager em ) {
       failureId = failure.getFailureId ();
       name = failure.getUnitTest ().getName ();
       state = failure.getState ();
@@ -79,36 +82,58 @@ public class ProjectBuildInfo extends Actionable implements Action {
       lastBuildId = failure.getLastBuild ().getJenkinsId ();
       firstBuild = project.getBuildByNumber ( firstBuildId );
       lastBuild = project.getBuildByNumber ( lastBuildId );
+      duration = null;
       users = new ArrayList<> ();
       for ( FailureUser fu : failure.getUsers () ) {
         users.add ( new PBIUser ( fu ) );
       }
-
-      if ( lastBuild != null ) {
-        if ( lastBuild.getTestResultAction () != null ) {
-          result = findResult ( lastBuild.getTestResultAction ().getResult (),
-                                failure.getUnitTest ().getId () );
-        }
+      result = findResult ( lastBuild, failure.getUnitTest ().getId (), 0 );
+      url = findUrl ( failure );
+      BuildUnitTest but = BuildUnitTest.findByBuildAndId ( failure
+              .getLastBuild (), failure.getUnitTest ().getUnitTestId (), em );
+      if ( but != null ) {
+        duration = but.getDuration ();
+      } else {
+        LOG.log ( Level.WARNING, "failed to get info about unit test in build" );
       }
-      LOG.log ( Level.INFO, "{0} = {1}", new Object[]{ name, result
-                                                       .getRelativePathFrom (
-                                                       null ) } );
     }
 
-    private TestResult findResult ( Object o, String id ) {
+    private TestResult findResult ( Object o, String id, int depth ) {
       TestResult rt = null;
-      if ( o instanceof TestObject ) {
+      if ( depth > 10 || o == null ) {
+
+      } else if ( o instanceof TestObject ) {
         rt = ( (TestObject) o ).findCorrespondingResult ( id );
       } else if ( o instanceof List ) {
         for ( Object l : (List) o ) {
-          rt = findResult ( l, id );
+          rt = findResult ( l, id, depth + 1 );
           if ( rt != null ) {
             break;
           }
         }
       } else if ( o instanceof AggregatedTestResultAction.ChildReport ) {
         rt = findResult ( ( (AggregatedTestResultAction.ChildReport) o ).result,
-                          id );
+                          id, depth + 1 );
+      } else if ( o instanceof AbstractBuild ) {
+        rt = findResult ( ( (AbstractBuild) o ).getTestResultAction (), id,
+                          depth + 1 );
+        if ( rt == null ) {
+          rt = findResult ( ( (AbstractBuild) o )
+                  .getAggregatedTestResultAction (), id, depth + 1 );
+        }
+        if ( rt == null ) {
+          if ( o instanceof MatrixBuild ) {
+            for ( MatrixRun r : ( (MatrixBuild) o ).getRuns () ) {
+              rt = findResult ( r.getTestResultAction (), id, depth + 1 );
+              if ( rt != null ) {
+                break;
+              }
+            }
+          }
+        }
+      } else if ( o instanceof AbstractTestResultAction ) {
+        rt = findResult ( ( (AbstractTestResultAction) o ).getResult (), id,
+                          depth + 1 );
       } else {
         Class c = o.getClass ().getSuperclass ();
         LOG.log ( Level.WARNING, "Unhandled type {0}", c.getName () );
@@ -118,6 +143,35 @@ public class ProjectBuildInfo extends Actionable implements Action {
         }
       }
       return rt;
+    }
+
+    private String findUrl ( Failure f ) {
+      String rt = null;
+
+      if ( lastBuild instanceof MatrixBuild ) {
+        for ( MatrixRun r : ( (MatrixBuild) lastBuild ).getRuns () ) {
+          TestResult t = r.getTestResultAction ().findCorrespondingResult ( f
+                  .getUnitTest ()
+                  .getId () );
+          if ( t != null ) {
+            rt = r.getUrl () + r.getTestResultAction ().getTestResultPath (
+                    result );
+            break;
+          }
+        }
+      }
+
+      if ( rt == null && lastBuild != null && result != null ) {
+        rt = lastBuild.getUrl () + result.getParentAction ()
+                .getTestResultPath ( result );
+      }
+
+      return rt;
+    }
+
+    @Exported
+    public String getUrl () {
+      return url;
     }
 
     @Exported
@@ -141,6 +195,14 @@ public class ProjectBuildInfo extends Actionable implements Action {
 
     public Integer getLastBuildId () {
       return lastBuildId;
+    }
+
+    /**
+     * @return the duration
+     */
+    @Exported
+    public Double getDuration () {
+      return duration;
     }
 
     /**
@@ -224,7 +286,7 @@ public class ProjectBuildInfo extends Actionable implements Action {
       em = config.getEntityManagerFactory ().createEntityManager ();
       Job job = Job.findByName ( project.getDisplayName (), em, false );
       for ( Failure f : Failure.findByJob ( job, em ).values () ) {
-        rt.add ( new PBIFailure ( f, project ) );
+        rt.add ( new PBIFailure ( f, project, em ) );
       }
     } catch ( SQLException ex ) {
       LOG.log ( Level.SEVERE, null, ex );

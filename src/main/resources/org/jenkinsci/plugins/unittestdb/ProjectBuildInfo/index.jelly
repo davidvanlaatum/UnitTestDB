@@ -19,6 +19,7 @@
         <thead>
           <tr>
             <th>Unit Test</th>
+            <th>Duration</th>
             <th>From</th>
             <th>To</th>
             <th colspan="2">Users</th>
@@ -28,10 +29,17 @@
         <j:forEach items="${it.failures}" var="failure">
           <tr>
             <td>
-              <a href="../lastBuild/${failure.result.getTestResultAction ().getTestResultPath ( failure.result).replace('/junit/','/')}">${failure.name}</a>
+              <j:if test="${failure.result==null}">Is Null</j:if>
+              <t:failed-test result="${failure.result}" url="${rootURL}/${failure.url}"/>
+              <!--<a href="../lastCompletedBuild/${failure.result.getTestResultAction ().getTestResultPath ( failure.result).replace('/junit/','/')}">${failure.name}</a>-->
             </td>
-            <td>${failure.firstBuild.displayName}</td>
-            <td>${failure.lastBuild.displayName}</td>
+            <td>${failure.duration}</td>
+            <td>
+              <t:buildLink job="${failure.firstBuild.project}" number="${failure.firstBuild.number}"/>
+            </td>
+            <td>
+              <t:buildLink job="${failure.lastBuild.project}" number="${failure.lastBuild.number}"/>
+            </td>
             <td>
               <ul>
                 <j:forEach items="${failure.users}" var="user">
