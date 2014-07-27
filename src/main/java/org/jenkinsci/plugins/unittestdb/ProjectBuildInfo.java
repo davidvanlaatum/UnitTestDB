@@ -382,20 +382,21 @@ public class ProjectBuildInfo extends Actionable implements Action {
 
     public PBIUser getUser ( String user ) throws SQLException {
       PBIUser rt = null;
+      String userName = user;
 
-      if ( user.equalsIgnoreCase ( "me" ) ) {
-        user = requireNonNull ( User.current (), "Not logged in" ).getId ();
+      if ( "me".equalsIgnoreCase ( user ) ) {
+        userName = requireNonNull ( User.current (), "Not logged in" ).getId ();
       }
 
       for ( PBIUser pbiu : users ) {
-        if ( pbiu.getUsername ().equals ( user ) ) {
+        if ( pbiu.getUsername ().equals ( userName ) ) {
           rt = pbiu;
           break;
         }
       }
 
       if ( rt == null ) {
-        rt = attachNewUser ( user );
+        rt = attachNewUser ( userName );
       }
 
       return rt;
