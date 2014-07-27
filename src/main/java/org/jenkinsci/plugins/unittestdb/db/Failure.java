@@ -1,6 +1,7 @@
 package org.jenkinsci.plugins.unittestdb.db;
 
 import java.io.Serializable;
+import java.text.MessageFormat;
 import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -167,6 +168,8 @@ public class Failure extends DBObject implements Serializable {
         rt.put ( f.getUnitTest ().getUnitTestId (), f );
       }
     } catch ( NoResultException ex ) {
+      LOG.log ( Level.FINE, MessageFormat.format (
+                "No Failures found for job {0}", job.getJobId () ), ex );
     }
 
     return rt;
@@ -182,7 +185,8 @@ public class Failure extends DBObject implements Serializable {
     try {
       rt = (Failure) q.getSingleResult ();
     } catch ( NoResultException ex ) {
-      LOG.log ( Level.FINE, "Failure with id {0} not found", id );
+      LOG.log ( Level.FINE, MessageFormat.format (
+                "Failure with id {0} not found", id ), ex );
     }
     return rt;
   }
