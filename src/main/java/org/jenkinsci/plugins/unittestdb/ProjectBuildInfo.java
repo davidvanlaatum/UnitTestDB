@@ -48,17 +48,17 @@ public class ProjectBuildInfo extends Actionable implements Action {
 
     @Override
     public String getDisplayName () {
-      throw new UnsupportedOperationException ( "Not supported yet." );
+      return null;
     }
 
     @Override
     public String getIconFileName () {
-      throw new UnsupportedOperationException ( "Not supported yet." );
+      return null;
     }
 
     @Override
     public String getSearchUrl () {
-      throw new UnsupportedOperationException ( "Not supported yet." );
+      return null;
     }
 
     /**
@@ -71,7 +71,7 @@ public class ProjectBuildInfo extends Actionable implements Action {
 
     @Override
     public String getUrlName () {
-      throw new UnsupportedOperationException ( "Not supported yet." );
+      return null;
     }
 
     /**
@@ -83,7 +83,7 @@ public class ProjectBuildInfo extends Actionable implements Action {
 
     @Exported ( inline = true )
     public hudson.model.User getUser () {
-      return Jenkins.getInstance ().getUser ( username );
+      return requireNonNull ( Jenkins.getInstance () ).getUser ( username );
     }
 
     protected void doUpdateTo ( FailureUserState state ) throws SQLException {
@@ -317,22 +317,22 @@ public class ProjectBuildInfo extends Actionable implements Action {
 
     @Override
     public String getDisplayName () {
-      throw new UnsupportedOperationException ( "Not supported yet." );
+      return null;
     }
 
     @Override
     public String getIconFileName () {
-      throw new UnsupportedOperationException ( "Not supported yet." );
+      return null;
     }
 
     @Override
     public String getSearchUrl () {
-      throw new UnsupportedOperationException ( "Not supported yet." );
+      return null;
     }
 
     @Override
     public String getUrlName () {
-      throw new UnsupportedOperationException ( "Not supported yet." );
+      return null;
     }
 
     public void doGone ( StaplerRequest req, StaplerResponse rsp ) throws
