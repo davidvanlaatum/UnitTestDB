@@ -29,78 +29,79 @@ import static java.util.Objects.requireNonNull;
 @Extension
 public class GlobalConfig extends GlobalConfiguration {
 
-  private static final Logger LOG
-          = Logger.getLogger ( GlobalConfig.class.getName () );
-  private Database database;
-  private EntityManagerFactory fac;
-  @Inject
-  PersistenceService ps;
+    private static final Logger LOG
+            = Logger.getLogger(GlobalConfig.class.getName());
+    private Database database;
+    private EntityManagerFactory fac;
+    @Inject
+    PersistenceService ps;
 
-  public GlobalConfig () {
-    load ();
-  }
-
-  @Override
-  public boolean configure ( StaplerRequest req, JSONObject json ) throws
-          FormException {
-    req.bindJSON ( this, json );
-    save ();
-    if ( fac != null ) {
-      fac.close ();
-      fac = null;
+    public GlobalConfig() {
+        load();
     }
-    return true;
-  }
 
-  public Database getDatabase () {
-    return database;
-  }
-
-  public void setDatabase ( Database database ) {
-    this.database = database;
-    checkDB ();
-  }
-
-  @Override
-  public String getDisplayName () {
-    return "Unit Test DB Configuration";
-  }
-
-  public EntityManagerFactory getEntityManagerFactory () throws SQLException {
-    if ( fac == null ) {
-      requireNonNull ( Jenkins.getInstance () ).getInjector ().injectMembers (
-              this );
-      requireNonNull ( ps, "Persistence Service is null" );
-      Database db = requireNonNull ( getDatabase (),
-                                     "No database configured" );
-      DataSource ds = requireNonNull ( db.getDataSource (), "No Datasource" );
-      fac = requireNonNull ( ps
-              .createEntityManagerFactory ( ds, DBObject.allClasses () ),
-                             "No EntityManagerFactory" );
+    @Override
+    public boolean configure(StaplerRequest req, JSONObject json) throws
+            FormException {
+        req.bindJSON(this, json);
+        save();
+        if (fac != null) {
+            fac.close();
+            fac = null;
+        }
+        return true;
     }
-    return fac;
-  }
 
-  @Override
-  public final synchronized void load () {
-    super.load ();
-    checkDB ();
-  }
-
-  protected void checkDB () {
-    if ( database != null ) {
-      try ( Connection conn = database.getDataSource ().getConnection () ) {
-        liquibase.database.Database db = DatabaseFactory.getInstance ()
-                .findCorrectDatabaseImplementation ( new JdbcConnection ( conn ) );
-        Liquibase liquibase = new Liquibase ( "schema.xml",
-                                              new ClassLoaderResourceAccessor (),
-                                              db );
-        liquibase.update ( (Contexts) null );
-      } catch ( LiquibaseException | SQLException ex ) {
-        throw new IllegalStateException ( "Liquibase update failed", ex );
-      }
-    } else {
-      LOG.log ( Level.INFO, "No database config skipping" );
+    public Database getDatabase() {
+        return database;
     }
-  }
+
+    public void setDatabase(Database database) {
+        this.database = database;
+        checkDB();
+    }
+
+    @Override
+    public String getDisplayName() {
+        return "Unit Test DB Configuration";
+    }
+
+    public EntityManagerFactory getEntityManagerFactory() throws SQLException {
+        if (fac == null) {
+            requireNonNull(Jenkins.getInstance()).getInjector().injectMembers(
+                    this);
+            requireNonNull(ps, "Persistence Service is null");
+            Database db = requireNonNull(getDatabase(),
+                    "No database configured");
+            DataSource ds = requireNonNull(db.getDataSource(), "No Datasource");
+            fac = requireNonNull(ps
+                    .createEntityManagerFactory(ds, DBObject.allClasses()),
+                    "No EntityManagerFactory");
+        }
+        return fac;
+    }
+
+    @Override
+    public final synchronized void load() {
+        super.load();
+        checkDB();
+    }
+
+    protected void checkDB() {
+        if (database != null) {
+            try (Connection conn = database.getDataSource().getConnection()) {
+                liquibase.database.Database db = DatabaseFactory.getInstance()
+                        .findCorrectDatabaseImplementation(new JdbcConnection(conn));
+                Liquibase liquibase = new Liquibase("schema.xml",
+                        new ClassLoaderResourceAccessor(),
+                        db);
+                liquibase.update((Contexts) null);
+            } catch (LiquibaseException | SQLException ex) {
+                LOG.log(Level.SEVERE, null, ex);
+                throw new IllegalStateException("Liquibase update failed", ex);
+            }
+        } else {
+            LOG.log(Level.INFO, "No database config skipping");
+        }
+    }
 }
