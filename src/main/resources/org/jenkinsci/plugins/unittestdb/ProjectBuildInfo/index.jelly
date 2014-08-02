@@ -2,7 +2,9 @@
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout"
          xmlns:t="/lib/hudson" xmlns:f="/lib/form">
   <l:layout title="Unit Test DB">
-    <link rel="stylesheet" href="${resURL}/plugin/UnitTestsDB/tests.css" type="text/​css" />​
+    <l:header>
+      <link rel="stylesheet" href="${resURL}/plugin/UnitTestsDB/css/tests.css" type="text/css"/>​
+    </l:header>
     <st:include it="${it.project}" page="sidepanel.jelly"/>
     <l:main-panel>
       <h1>Unit Test Failures</h1>

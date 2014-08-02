@@ -10,6 +10,7 @@ import hudson.model.*;
 import javax.persistence.EntityManager;
 import jenkins.model.Jenkins;
 import org.jenkinsci.plugins.unittestdb.db.Job;
+import org.kohsuke.stapler.export.Exported;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -41,6 +42,11 @@ public class GlobalView extends Actionable implements RootAction {
     return "unittestdb";
   }
 
+  public Api getApi () {
+    return new Api ( this );
+  }
+
+  @Exported ( inline = true )
   public Collection<ProjectBuildInfo> getJobs () {
     SortedMap<String, ProjectBuildInfo> jobs = new TreeMap<> ();
     GlobalConfig config = requireNonNull ( Jenkins.getInstance () )
