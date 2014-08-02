@@ -18,9 +18,10 @@
     <j:forEach items="${it.failures}" var="failure">
       <tr>
         <td>
-          <j:if test="${failure.result==null}">Is Null</j:if>
-          <t:failed-test result="${failure.result}" url="${rootURL}/${failure.url}"/>
-          <!--<a href="../lastCompletedBuild/${failure.result.getTestResultAction ().getTestResultPath ( failure.result).replace('/junit/','/')}">${failure.name}</a>-->
+          <j:if test="${failure.result==null}">${failure.name}</j:if>
+          <j:if test="${failure.result!=null}">
+            <t:failed-test result="${failure.result}" url="${rootURL}/${failure.url}"/>
+          </j:if>
         </td>
         <td>${failure.testState}</td>
         <td>${failure.duration}</td>
