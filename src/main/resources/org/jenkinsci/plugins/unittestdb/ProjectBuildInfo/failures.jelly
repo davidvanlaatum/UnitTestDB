@@ -47,11 +47,11 @@
           </ul>
         </td>
         <td>
-          <a href="failure/${failure.failureId}/user/me/maybe">Maybe</a> |
-          <a href="failure/${failure.failureId}/user/me/wasme">Was Me</a> |
-          <a href="failure/${failure.failureId}/user/me/notme">Not Me</a> |
-          <a href="failure/${failure.failureId}/user/me/mightbeme">Might Be Me</a> |
-          <a href="failure/${failure.failureId}/gone">Gone</a>
+          <a href="${rootURL}/${it.project.url}${it.urlName}/failure/${failure.failureId}/user/me/maybe">Maybe</a> |
+          <a href="${rootURL}/${it.project.url}${it.urlName}/failure/${failure.failureId}/user/me/wasme">Was Me</a> |
+          <a href="${rootURL}/${it.project.url}${it.urlName}/failure/${failure.failureId}/user/me/notme">Not Me</a> |
+          <a href="${rootURL}/${it.project.url}${it.urlName}/failure/${failure.failureId}/user/me/mightbeme">Might Be Me</a> |
+          <a href="${rootURL}/${it.project.url}${it.urlName}/failure/${failure.failureId}/gone">Gone</a>
         </td>
       </tr>
     </j:forEach>
