@@ -361,13 +361,15 @@ public class ProjectBuildInfo extends Actionable implements Action {
       EntityManager em = null;
       try {
         em = config.getEntityManagerFactory ().createEntityManager ();
+        org.jenkinsci.plugins.unittestdb.db.User userObj
+                = org.jenkinsci.plugins.unittestdb.db.User.findByUsername (
+                        user, em, true );
         em.getTransaction ().begin ();
         Failure f = Failure.findByID ( failureId, em );
 
         FailureUser fu = new FailureUser ();
         fu.setFailure ( f );
-        fu.setUser ( org.jenkinsci.plugins.unittestdb.db.User.findByUsername (
-                user, em, true ) );
+        fu.setUser ( userObj );
         fu.setState ( Maybe );
         em.persist ( fu );
         em.getTransaction ().commit ();
