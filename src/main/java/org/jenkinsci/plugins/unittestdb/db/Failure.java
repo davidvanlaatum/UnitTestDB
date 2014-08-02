@@ -26,6 +26,8 @@ import static java.util.Objects.requireNonNull;
                 = "SELECT f FROM Failure f" ),
   @NamedQuery ( name = "Failure.findByFailureId", query
                 = "SELECT f FROM Failure f WHERE f.failureId = :failureId" ),
+  @NamedQuery ( name = "Failure.findByState", query
+                = "SELECT f FROM Failure f WHERE f.state = :state" ),
   @NamedQuery ( name = "Failure.findByStateAndJob", query
                 = "SELECT f FROM Failure f WHERE f.state = :state AND f.job.jobId = :job" ) } )
 public class Failure extends DBObject implements Serializable {
@@ -187,6 +189,21 @@ public class Failure extends DBObject implements Serializable {
     } catch ( NoResultException ex ) {
       LOG.log ( Level.FINE, MessageFormat.format (
                 "Failure with id {0} not found", id ), ex );
+    }
+    return rt;
+  }
+
+  @SuppressWarnings ( "unchecked" )
+  public static List<Failure> findByState ( FailureState state, EntityManager em ) {
+    List<Failure> rt = null;
+    requireNonNull ( em, "No EntityManager passed in" );
+    Query q = em.createNamedQuery ( "Failure.findByState" );
+    q.setParameter ( "state", state );
+    try {
+      rt = q.getResultList ();
+    } catch ( NoResultException ex ) {
+      LOG.log ( Level.FINE, MessageFormat.format (
+                "No Failures with state {0} not found", state ), ex );
     }
     return rt;
   }

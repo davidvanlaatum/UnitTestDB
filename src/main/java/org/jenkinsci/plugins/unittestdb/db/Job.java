@@ -1,16 +1,15 @@
 package org.jenkinsci.plugins.unittestdb.db;
 
-import com.google.common.base.Strings;
-import hudson.Extension;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import com.google.common.base.Strings;
+import hudson.Extension;
 import javax.persistence.*;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
-
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -213,6 +212,19 @@ public class Job extends DBObject implements Serializable {
               "Somehow the job we are returning is not in the entity manager" );
     }
 
+    return rt;
+  }
+
+  @SuppressWarnings ( "unchecked" )
+  public static List<Job> getAll ( EntityManager em ) {
+    requireNonNull ( em, "No EntityManager passed in" );
+    Query q = em.createNamedQuery ( "Job.findAll" );
+    List<Job> rt = null;
+    try {
+      rt = q.getResultList ();
+    } catch ( NoResultException ex ) {
+      LOG.log ( Level.FINE, "No Jobs found" );
+    }
     return rt;
   }
 

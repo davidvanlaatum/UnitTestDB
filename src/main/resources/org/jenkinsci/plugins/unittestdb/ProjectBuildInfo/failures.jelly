@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:i="jelly:fmt" xmlns:l="/lib/layout"
+         xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+  <table class="unittests pane bigtable">
+    <thead>
+      <tr>
+        <th>Unit Test</th>
+        <th>State</th>
+        <th>Duration</th>
+        <th>Node</th>
+        <th>From</th>
+        <th>To</th>
+        <th colspan="2">Users</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <j:forEach items="${it.failures}" var="failure">
+      <tr>
+        <td>
+          <j:if test="${failure.result==null}">Is Null</j:if>
+          <t:failed-test result="${failure.result}" url="${rootURL}/${failure.url}"/>
+          <!--<a href="../lastCompletedBuild/${failure.result.getTestResultAction ().getTestResultPath ( failure.result).replace('/junit/','/')}">${failure.name}</a>-->
+        </td>
+        <td>${failure.testState}</td>
+        <td>${failure.duration}</td>
+        <td>${failure.nodestr}</td>
+        <td>
+          <t:buildLink job="${failure.firstBuild.project}" number="${failure.firstBuild.number}"/>
+        </td>
+        <td>
+          <t:buildLink job="${failure.lastBuild.project}" number="${failure.lastBuild.number}"/>
+        </td>
+        <td>
+          <ul>
+            <j:forEach items="${failure.users}" var="user">
+              <li>${user.user}</li>
+            </j:forEach>
+          </ul>
+        </td>
+        <td>
+          <ul>
+            <j:forEach items="${failure.users}" var="user">
+              <li>${user.state}</li>
+            </j:forEach>
+          </ul>
+        </td>
+        <td>
+          <a href="failure/${failure.failureId}/user/me/maybe">Maybe</a> |
+          <a href="failure/${failure.failureId}/user/me/wasme">Was Me</a> |
+          <a href="failure/${failure.failureId}/user/me/notme">Not Me</a> |
+          <a href="failure/${failure.failureId}/user/me/mightbeme">Might Be Me</a> |
+          <a href="failure/${failure.failureId}/gone">Gone</a>
+        </td>
+      </tr>
+    </j:forEach>
+  </table>
+</j:jelly>

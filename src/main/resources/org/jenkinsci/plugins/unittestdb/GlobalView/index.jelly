@@ -3,10 +3,13 @@
          xmlns:t="/lib/hudson" xmlns:f="/lib/form">
   <l:layout title="Unit Test DB">
     <link rel="stylesheet" href="${resURL}/plugin/UnitTestsDB/tests.css" type="text/​css" />​
-    <st:include it="${it.project}" page="sidepanel.jelly"/>
+    <st:include it="${app}" page="sidepanel.jelly"/>
     <l:main-panel>
       <h1>Unit Test Failures</h1>
-      <st:include it="${it}" page="failures.jelly"/>
+      <j:forEach items="${it.jobs}" var="job">
+        <h2>${job.project.name}</h2>
+        <st:include it="${job}" page="failures.jelly"/>
+      </j:forEach>
     </l:main-panel>
   </l:layout>
 </j:jelly>

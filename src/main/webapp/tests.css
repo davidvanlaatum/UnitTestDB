@@ -1,0 +1,12 @@
+/*
+    Created on : Aug 2, 2014, 2:27:50 PM
+    Author     : David van Laatum
+*/
+.unittests td {
+  vertical-align: top;
+}
+.unittests ul {
+  list-style: none;
+  padding: 0px 0px;
+  margin: 0px 0px;
+}
