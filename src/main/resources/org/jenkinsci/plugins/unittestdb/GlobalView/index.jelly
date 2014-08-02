@@ -9,8 +9,10 @@
     <l:main-panel>
       <h1>Unit Test Failures</h1>
       <j:forEach items="${it.jobs}" var="job">
-        <h2>${job.project.name}</h2>
-        <st:include it="${job}" page="failures.jelly"/>
+        <j:if test="${job.hasFailures()}">
+          <h2>${job.project.name}</h2>
+          <st:include it="${job}" page="failures.jelly"/>
+        </j:if>
       </j:forEach>
     </l:main-panel>
   </l:layout>

@@ -25,6 +25,7 @@ public class ProjectBuildInfo extends Actionable implements Action {
           = Logger.getLogger ( ProjectBuildInfo.class.getName () );
 
   protected AbstractProject<?, ?> project;
+  protected List<PBIFailure> failures;
 
   public ProjectBuildInfo ( AbstractProject<?, ?> project ) {
     this.project = project;
@@ -59,26 +60,32 @@ public class ProjectBuildInfo extends Actionable implements Action {
     return new Api ( this );
   }
 
+  public boolean hasFailures () {
+    return !getFailures ().isEmpty ();
+  }
+
   @Exported ( inline = true )
   public List<PBIFailure> getFailures () {
-    List<PBIFailure> rt = new ArrayList<> ();
-    GlobalConfig config = requireNonNull ( Jenkins.getInstance () )
-            .getInjector ().getInstance ( GlobalConfig.class );
-    EntityManager em = null;
-    try {
-      em = config.getEntityManagerFactory ().createEntityManager ();
-      Job job = Job.findByName ( project.getDisplayName (), em, false );
-      for ( Failure f : Failure.findByJob ( job, em ).values () ) {
-        rt.add ( new PBIFailure ( f, project, em ) );
-      }
-    } catch ( SQLException ex ) {
-      LOG.log ( Level.SEVERE, null, ex );
-    } finally {
-      if ( em != null ) {
-        em.close ();
+    if ( failures == null ) {
+      failures = new ArrayList<> ();
+      GlobalConfig config = requireNonNull ( Jenkins.getInstance () )
+              .getInjector ().getInstance ( GlobalConfig.class );
+      EntityManager em = null;
+      try {
+        em = config.getEntityManagerFactory ().createEntityManager ();
+        Job job = Job.findByName ( project.getDisplayName (), em, false );
+        for ( Failure f : Failure.findByJob ( job, em ).values () ) {
+          failures.add ( new PBIFailure ( f, project, em ) );
+        }
+      } catch ( SQLException ex ) {
+        LOG.log ( Level.SEVERE, null, ex );
+      } finally {
+        if ( em != null ) {
+          em.close ();
+        }
       }
     }
-    return rt;
+    return failures;
   }
 
   public Action getFailure ( String id ) {
