@@ -10,7 +10,9 @@
       <h1>Unit Test Failures</h1>
       <j:forEach items="${it.jobs}" var="job">
         <j:if test="${job.hasFailures()}">
-          <h2>${job.project.name}</h2>
+          <h2>
+            <a href="${rootURL}/${job.project.url}" class="model-link inside unittestproject">${job.project.name}</a>
+          </h2>
           <st:include it="${job}" page="failures.jelly"/>
         </j:if>
       </j:forEach>

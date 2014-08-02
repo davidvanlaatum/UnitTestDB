@@ -10,3 +10,8 @@
   padding: 0px 0px;
   margin: 0px 0px;
 }
+
+a.unittestproject {
+  text-decoration: none;
+  color: inherit;
+}
