@@ -24,7 +24,7 @@
           </j:if>
         </td>
         <td>${failure.testState}</td>
-        <td>${failure.duration}</td>
+        <td>${failure.duration} sec</td>
         <td>${failure.nodestr}</td>
         <td>
           <t:buildLink job="${failure.firstBuild.project}" number="${failure.firstBuild.number}"/>

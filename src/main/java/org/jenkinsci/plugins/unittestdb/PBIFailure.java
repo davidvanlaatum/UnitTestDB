@@ -177,7 +177,7 @@ public class PBIFailure extends Actionable implements Action {
    */
   @Exported
   public Double getDuration () {
-    return duration;
+    return ( (double) Math.round ( duration * 100 ) ) / 100;
   }
 
   @Exported
