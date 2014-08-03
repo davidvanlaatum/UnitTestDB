@@ -24,7 +24,7 @@ public class BuildInfo extends Actionable implements Action {
 
   @Initializer ( before = PLUGINS_STARTED )
   public static void addAliases () {
-    Items.XSTREAM2.addCompatibilityAlias (
+    Run.XSTREAM2.addCompatibilityAlias (
             "org.jenkinsci.plugins.unittestdb.BuildInfo", BuildInfo.class );
   }
 
@@ -64,7 +64,7 @@ public class BuildInfo extends Actionable implements Action {
     List<BuildInfoFailureUser> fuser = new ArrayList<> ();
     for ( FailureUser fu : failure.getUsers () ) {
       fuser.add ( new BuildInfoFailureUser ( fu.getUser ().getUsername (), fu
-                                      .getState () ) );
+                                             .getState () ) );
       if ( fu.getState () != FailureUserState.Not_Me ) {
         if ( !users.contains ( fu.getUser ().getUsername () ) ) {
           users.add ( fu.getUser ().getUsername () );
@@ -74,10 +74,14 @@ public class BuildInfo extends Actionable implements Action {
     requireNonNull ( failure.getFirstBuild () );
     requireNonNull ( failures );
     failures.add ( new BuildInfoFailure ( failure.getState (),
-                                   failure.getUnitTest ().getName (), fuser,
-                                   failure.getFirstBuild () != null ? failure
-                                   .getFirstBuild ().getJenkinsId () : null,
-                                   failure.getLastBuild ().getJenkinsId () ) );
+                                          failure.getUnitTest ().getName (),
+                                          fuser,
+                                          failure.getFirstBuild () != null
+                                          ? failure
+                                          .getFirstBuild ().getJenkinsId ()
+                                          : null,
+                                          failure.getLastBuild ()
+                                          .getJenkinsId () ) );
   }
 
   public AbstractBuild<?, ?> getBuild () {
