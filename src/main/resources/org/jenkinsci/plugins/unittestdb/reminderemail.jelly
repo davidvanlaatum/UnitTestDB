@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define">
+  <style>
+    ul {
+    list-style: none;
+    padding: 0px 0px;
+    margin: 0px 0px;
+    }
+
+    td {
+    vertical-align: top;
+    }
+  </style>
+  <div style="float: left; padding-right: 20px">
+    <h1>Your Tests</h1>
+    <j:forEach items="${it.jobs}" var="job">
+      <h2>${job.name}</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>From</th>
+            <th>To</th>
+            <th colspan="2">Users</th>
+          </tr>
+        </thead>
+        <tbody>
+          <j:forEach items="${job.tests}" var="test">
+            <tr>
+              <td>
+                <a href="${app.rootUrl}${test.url}">${test.name}</a>
+              </td>
+              <td>${test.firstBuild}</td>
+              <td>${test.lastBuild}</td>
+              <td>
+                <ul>
+                  <j:forEach items="${test.users}" var="user">
+                    <li>${user.name}</li>
+                  </j:forEach>
+                </ul>
+              </td>
+              <td>
+                <ul>
+                  <j:forEach items="${test.users}" var="user">
+                    <li>${user.state}</li>
+                  </j:forEach>
+                </ul>
+              </td>
+            </tr>
+          </j:forEach>
+        </tbody>
+      </table>
+    </j:forEach>
+  </div>
+  <div style="float: left">
+    <h1>Unclaimed</h1>
+    <j:forEach items="${it.unclaimed}" var="job">
+      <h2>${job.name}</h2>
+      <table>
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>From</th>
+            <th>To</th>
+          </tr>
+        </thead>
+        <tbody>
+          <j:forEach items="${job.tests}" var="test">
+            <tr>
+              <td>
+                <a href="${app.rootUrl}${test.url}">${test.name}</a>
+              </td>
+              <td>${test.firstBuild}</td>
+              <td>${test.lastBuild}</td>
+            </tr>
+          </j:forEach>
+        </tbody>
+      </table>
+    </j:forEach>
+  </div>
+</j:jelly>

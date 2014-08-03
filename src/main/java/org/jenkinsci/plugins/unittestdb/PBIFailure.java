@@ -62,7 +62,7 @@ public class PBIFailure extends Actionable implements Action {
       users.add ( new PBIUser ( fu ) );
     }
     result = findResult ( lastBuild, failure.getUnitTest ().getId (), 0 );
-    url = findUrl ( failure );
+    url = findUrl ( failure, lastBuild, result );
     BuildUnitTest but = BuildUnitTest.findByBuildAndId ( failure
             .getLastBuild (), failure.getUnitTest ().getUnitTestId (), em );
     if ( but != null ) {
@@ -73,7 +73,7 @@ public class PBIFailure extends Actionable implements Action {
     }
   }
 
-  private TestResult findResult ( Object o, String id, int depth ) {
+  public static TestResult findResult ( Object o, String id, int depth ) {
     TestResult rt = null;
     if ( depth > 10 || o == null ) {
       // do nothing
@@ -120,11 +120,12 @@ public class PBIFailure extends Actionable implements Action {
     return rt;
   }
 
-  private String findUrl ( Failure f ) {
+  public static String findUrl ( Failure f, AbstractBuild<?, ?> build,
+                                 TestResult result ) {
     String rt = null;
 
-    if ( lastBuild instanceof MatrixBuild ) {
-      for ( MatrixRun r : ( (MatrixBuild) lastBuild ).getRuns () ) {
+    if ( build instanceof MatrixBuild ) {
+      for ( MatrixRun r : ( (MatrixBuild) build ).getRuns () ) {
         TestResult t = r.getTestResultAction ().findCorrespondingResult ( f
                 .getUnitTest ()
                 .getId () );
@@ -136,8 +137,8 @@ public class PBIFailure extends Actionable implements Action {
       }
     }
 
-    if ( rt == null && lastBuild != null && result != null ) {
-      rt = lastBuild.getUrl () + result.getParentAction ()
+    if ( rt == null && build != null && result != null ) {
+      rt = build.getUrl () + result.getParentAction ()
               .getTestResultPath ( result );
     }
 
