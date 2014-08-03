@@ -1,4 +1,4 @@
-package org.jenkinsci.plugins.unittestdb;
+package org.jenkinsci.plugins.unittestdb.email;
 
 import java.io.UnsupportedEncodingException;
 import java.util.Set;
@@ -6,14 +6,18 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import hudson.EnvVars;
 import hudson.Extension;
+import hudson.init.Initializer;
+import hudson.model.Items;
 import hudson.plugins.emailext.ExtendedEmailPublisherContext;
 import hudson.plugins.emailext.plugins.RecipientProvider;
 import hudson.plugins.emailext.plugins.RecipientProviderDescriptor;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import jenkins.model.Jenkins;
-import org.jenkinsci.plugins.unittestdb.db.User;
+import org.jenkinsci.plugins.unittestdb.build.BuildInfo;
+import org.jenkinsci.plugins.unittestdb.JobLogger;
 import org.kohsuke.stapler.DataBoundConstructor;
+import static hudson.init.InitMilestone.PLUGINS_STARTED;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -24,6 +28,13 @@ public class BrokenTestsRecipientProvider extends RecipientProvider {
   @Extension
   public static final DescriptorImpl DESCRIPTOR = new DescriptorImpl ();
   public static final String DISPLAYNAME = "Unit Test Breakers";
+
+  @Initializer ( before = PLUGINS_STARTED )
+  public static void addAliases () {
+    Items.XSTREAM2.addCompatibilityAlias (
+            "org.jenkinsci.plugins.unittestdb.BrokenTestsRecipientProvider",
+            BrokenTestsRecipientProvider.class );
+  }
 
   @DataBoundConstructor
   public BrokenTestsRecipientProvider () {

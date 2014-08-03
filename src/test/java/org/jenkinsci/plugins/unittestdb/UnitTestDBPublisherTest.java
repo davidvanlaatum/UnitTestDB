@@ -1,5 +1,7 @@
 package org.jenkinsci.plugins.unittestdb;
 
+import org.jenkinsci.plugins.unittestdb.build.BuildInfo;
+import org.jenkinsci.plugins.unittestdb.project.UnitTestDBPublisher;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;

@@ -13,7 +13,7 @@ public class JobLogger extends Handler implements AutoCloseable {
   protected PrintStream stream;
   protected Logger log;
 
-  JobLogger ( PrintStream logger, Logger log ) {
+  public JobLogger ( PrintStream logger, Logger log ) {
     stream = logger;
     this.log = log;
     log.addHandler ( this );

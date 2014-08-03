@@ -1,15 +1,17 @@
-package org.jenkinsci.plugins.unittestdb;
+package org.jenkinsci.plugins.unittestdb.project;
 
 import java.io.IOException;
 import java.util.Collection;
 import com.google.common.collect.ImmutableList;
 import hudson.Extension;
 import hudson.Launcher;
+import hudson.init.Initializer;
 import hudson.model.*;
 import hudson.tasks.*;
 import net.sf.json.JSONObject;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
+import static hudson.init.InitMilestone.PLUGINS_STARTED;
 
 public class UnitTestDBPublisher extends Recorder {
 
@@ -22,6 +24,20 @@ public class UnitTestDBPublisher extends Recorder {
   @Extension
   public static final DescriptorImpl DESCRIPTOR = new DescriptorImpl ();
   public static final String PUBLISHER_DISPLAYNAME = "Publish Unit Tests to DB";
+
+  @Initializer ( before = PLUGINS_STARTED )
+  public static void addAliases () {
+    Items.XSTREAM2.addCompatibilityAlias (
+            "org.jenkinsci.plugins.unittestdb.UnitTestDBPublisher",
+            UnitTestDBPublisher.class );
+    Items.XSTREAM2.addCompatibilityAlias (
+            "org.jenkinsci.plugins.unittestdb.ProjectBuildInfo",
+            ProjectBuildInfo.class );
+    Items.XSTREAM2.addCompatibilityAlias (
+            "org.jenkinsci.plugins.unittestdb.PBIUser", PBIUser.class );
+    Items.XSTREAM2.addCompatibilityAlias (
+            "org.jenkinsci.plugins.unittestdb.PBIFailure", PBIFailure.class );
+  }
 
   @DataBoundConstructor
   public UnitTestDBPublisher () {

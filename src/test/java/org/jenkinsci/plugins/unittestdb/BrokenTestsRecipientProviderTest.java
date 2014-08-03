@@ -1,5 +1,7 @@
 package org.jenkinsci.plugins.unittestdb;
 
+import org.jenkinsci.plugins.unittestdb.build.BuildInfo;
+import org.jenkinsci.plugins.unittestdb.email.BrokenTestsRecipientProvider;
 import java.io.*;
 import java.util.*;
 import com.google.common.collect.ImmutableList;

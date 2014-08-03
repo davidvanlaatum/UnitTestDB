@@ -1,4 +1,4 @@
-package org.jenkinsci.plugins.unittestdb;
+package org.jenkinsci.plugins.unittestdb.project;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -8,6 +8,7 @@ import java.util.logging.Logger;
 import hudson.model.*;
 import javax.persistence.EntityManager;
 import jenkins.model.Jenkins;
+import org.jenkinsci.plugins.unittestdb.GlobalConfig;
 import org.jenkinsci.plugins.unittestdb.db.Failure;
 import org.jenkinsci.plugins.unittestdb.db.Job;
 import org.kohsuke.stapler.export.Exported;

@@ -1,5 +1,7 @@
 package org.jenkinsci.plugins.unittestdb;
 
+import org.jenkinsci.plugins.unittestdb.build.BuildInfo;
+import org.jenkinsci.plugins.unittestdb.email.BrokenTestsTrigger;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;

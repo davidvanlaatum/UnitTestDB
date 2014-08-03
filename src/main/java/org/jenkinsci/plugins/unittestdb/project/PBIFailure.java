@@ -1,4 +1,4 @@
-package org.jenkinsci.plugins.unittestdb;
+package org.jenkinsci.plugins.unittestdb.project;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -16,6 +16,7 @@ import hudson.tasks.test.TestResult;
 import javax.persistence.EntityManager;
 import javax.servlet.ServletException;
 import jenkins.model.Jenkins;
+import org.jenkinsci.plugins.unittestdb.GlobalConfig;
 import org.jenkinsci.plugins.unittestdb.db.*;
 import org.jenkinsci.plugins.unittestdb.db.Failure;
 import org.kohsuke.stapler.StaplerRequest;

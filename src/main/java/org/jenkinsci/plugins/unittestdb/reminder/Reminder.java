@@ -1,5 +1,6 @@
-package org.jenkinsci.plugins.unittestdb;
+package org.jenkinsci.plugins.unittestdb.reminder;
 
+import org.jenkinsci.plugins.unittestdb.project.PBIFailure;
 import java.io.*;
 import java.sql.SQLException;
 import java.util.*;
@@ -9,6 +10,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.inject.Inject;
 import hudson.Extension;
 import hudson.Launcher;
+import hudson.init.Initializer;
 import hudson.model.*;
 import hudson.model.User;
 import hudson.tasks.*;
@@ -19,11 +21,13 @@ import javax.persistence.EntityManager;
 import jenkins.model.Jenkins;
 import jenkins.model.JenkinsLocationConfiguration;
 import org.apache.commons.jelly.*;
+import org.jenkinsci.plugins.unittestdb.*;
 import org.jenkinsci.plugins.unittestdb.db.*;
 import org.jenkinsci.plugins.unittestdb.db.Failure;
 import org.jenkinsci.plugins.unittestdb.db.Job;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.xml.sax.InputSource;
+import static hudson.init.InitMilestone.PLUGINS_STARTED;
 import static java.util.Objects.*;
 import static org.jenkinsci.plugins.unittestdb.db.FailureUserState.Not_Me;
 
@@ -49,6 +53,12 @@ public class Reminder extends Builder {
   @Override
   public BuildStepDescriptor<Builder> getDescriptor () {
     return DESCRIPTOR;
+  }
+
+  @Initializer ( before = PLUGINS_STARTED )
+  public static void addAliases () {
+    Items.XSTREAM2.addCompatibilityAlias (
+            "org.jenkinsci.plugins.unittestdb.Reminder", Reminder.class );
   }
 
   @Override

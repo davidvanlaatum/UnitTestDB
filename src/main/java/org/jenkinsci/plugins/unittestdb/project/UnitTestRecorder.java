@@ -1,5 +1,6 @@
-package org.jenkinsci.plugins.unittestdb;
+package org.jenkinsci.plugins.unittestdb.project;
 
+import org.jenkinsci.plugins.unittestdb.build.BuildInfo;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.logging.Level;
@@ -12,6 +13,8 @@ import hudson.tasks.test.*;
 import javax.persistence.EntityManager;
 import javax.persistence.LockModeType;
 import jenkins.model.Jenkins;
+import org.jenkinsci.plugins.unittestdb.GlobalConfig;
+import org.jenkinsci.plugins.unittestdb.JobLogger;
 import org.jenkinsci.plugins.unittestdb.db.*;
 import org.jenkinsci.plugins.unittestdb.db.Build;
 import org.jenkinsci.plugins.unittestdb.db.Failure;

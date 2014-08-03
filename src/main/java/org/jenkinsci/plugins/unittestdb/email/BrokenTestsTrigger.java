@@ -1,12 +1,15 @@
-package org.jenkinsci.plugins.unittestdb;
+package org.jenkinsci.plugins.unittestdb.email;
 
 import java.util.List;
 import hudson.Extension;
+import hudson.init.Initializer;
 import hudson.model.*;
 import hudson.plugins.emailext.plugins.*;
 import net.sf.json.JSONObject;
+import org.jenkinsci.plugins.unittestdb.build.BuildInfo;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
+import static hudson.init.InitMilestone.PLUGINS_STARTED;
 
 /**
  *
@@ -26,6 +29,13 @@ public class BrokenTestsTrigger extends EmailTrigger {
 
   public BrokenTestsTrigger ( JSONObject formData ) {
     super ( formData );
+  }
+
+  @Initializer ( before = PLUGINS_STARTED )
+  public static void addAliases () {
+    Items.XSTREAM2.addCompatibilityAlias (
+            "org.jenkinsci.plugins.unittestdb.BrokenTestsTrigger",
+            BrokenTestsTrigger.class );
   }
 
   @Extension

@@ -1,5 +1,6 @@
 package org.jenkinsci.plugins.unittestdb;
 
+import org.jenkinsci.plugins.unittestdb.project.ProjectBuildInfo;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.logging.Level;
