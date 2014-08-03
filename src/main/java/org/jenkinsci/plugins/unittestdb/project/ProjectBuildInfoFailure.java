@@ -32,13 +32,13 @@ import static org.jenkinsci.plugins.unittestdb.db.FailureUserState.Maybe;
  * @author David van Laatum
  */
 @ExportedBean
-public class PBIFailure extends Actionable implements Action {
+public class ProjectBuildInfoFailure extends Actionable implements Action {
 
   protected Integer failureId;
   protected String name;
   protected TestResult result;
   protected FailureState state;
-  protected List<PBIUser> users;
+  protected List<ProjectBuildInfoUser> users;
   protected AbstractBuild<?, ?> firstBuild;
   protected Integer firstBuildId;
   protected AbstractBuild<?, ?> lastBuild;
@@ -47,7 +47,7 @@ public class PBIFailure extends Actionable implements Action {
   protected Double duration;
   protected UnitTestState testState;
 
-  public PBIFailure ( Failure failure, AbstractProject<?, ?> project,
+  public ProjectBuildInfoFailure ( Failure failure, AbstractProject<?, ?> project,
                       EntityManager em ) {
     failureId = failure.getFailureId ();
     name = failure.getUnitTest ().getName ();
@@ -60,7 +60,7 @@ public class PBIFailure extends Actionable implements Action {
     testState = null;
     users = new ArrayList<> ();
     for ( FailureUser fu : failure.getUsers () ) {
-      users.add ( new PBIUser ( fu ) );
+      users.add ( new ProjectBuildInfoUser ( fu ) );
     }
     result = findResult ( lastBuild, failure.getUnitTest ().getId (), 0 );
     url = findUrl ( failure, lastBuild, result );
@@ -214,7 +214,7 @@ public class PBIFailure extends Actionable implements Action {
    * @return the users
    */
   @Exported ( inline = true )
-  public List<PBIUser> getUsers () {
+  public List<ProjectBuildInfoUser> getUsers () {
     return users;
   }
 
@@ -257,9 +257,9 @@ public class PBIFailure extends Actionable implements Action {
     rsp.forwardToPreviousPage ( req );
   }
 
-  protected PBIUser attachNewUser ( String user ) throws
+  protected ProjectBuildInfoUser attachNewUser ( String user ) throws
           SQLException {
-    PBIUser rt = null;
+    ProjectBuildInfoUser rt = null;
     GlobalConfig config = requireNonNull ( Jenkins.getInstance () )
             .getInjector ().getInstance ( GlobalConfig.class );
     EntityManager em = null;
@@ -277,7 +277,7 @@ public class PBIFailure extends Actionable implements Action {
       fu.setState ( Maybe );
       em.persist ( fu );
       em.getTransaction ().commit ();
-      rt = new PBIUser ( fu );
+      rt = new ProjectBuildInfoUser ( fu );
     } finally {
       if ( em != null ) {
         em.close ();
@@ -286,8 +286,8 @@ public class PBIFailure extends Actionable implements Action {
     return rt;
   }
 
-  public PBIUser getUser ( String user ) throws SQLException {
-    PBIUser rt = null;
+  public ProjectBuildInfoUser getUser ( String user ) throws SQLException {
+    ProjectBuildInfoUser rt = null;
     String userName = user;
 
     if ( "me".equalsIgnoreCase ( user ) ) {
@@ -295,7 +295,7 @@ public class PBIFailure extends Actionable implements Action {
                                   "Not logged in" ).getId ();
     }
 
-    for ( PBIUser pbiu : users ) {
+    for ( ProjectBuildInfoUser pbiu : users ) {
       if ( pbiu.getUsername ().equals ( userName ) ) {
         rt = pbiu;
         break;
@@ -309,6 +309,6 @@ public class PBIFailure extends Actionable implements Action {
     return rt;
   }
   private static final Logger LOG
-          = Logger.getLogger ( PBIFailure.class.getName () );
+          = Logger.getLogger ( ProjectBuildInfoFailure.class.getName () );
 
 }

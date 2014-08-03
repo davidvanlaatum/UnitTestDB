@@ -34,9 +34,9 @@ public class UnitTestDBPublisher extends Recorder {
             "org.jenkinsci.plugins.unittestdb.ProjectBuildInfo",
             ProjectBuildInfo.class );
     Items.XSTREAM2.addCompatibilityAlias (
-            "org.jenkinsci.plugins.unittestdb.PBIUser", PBIUser.class );
+            "org.jenkinsci.plugins.unittestdb.PBIUser", ProjectBuildInfoUser.class );
     Items.XSTREAM2.addCompatibilityAlias (
-            "org.jenkinsci.plugins.unittestdb.PBIFailure", PBIFailure.class );
+            "org.jenkinsci.plugins.unittestdb.PBIFailure", ProjectBuildInfoFailure.class );
   }
 
   @DataBoundConstructor

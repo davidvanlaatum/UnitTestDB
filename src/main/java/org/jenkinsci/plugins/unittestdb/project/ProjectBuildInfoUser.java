@@ -22,14 +22,14 @@ import static org.jenkinsci.plugins.unittestdb.db.FailureUserState.*;
  * @author David van Laatum
  */
 @ExportedBean
-public class PBIUser extends Actionable implements Action {
+public class ProjectBuildInfoUser extends Actionable implements Action {
 
   protected String username;
   protected FailureUserState state;
-  protected PBIFailure failure;
+  protected ProjectBuildInfoFailure failure;
   protected Integer id;
 
-  public PBIUser ( FailureUser fu ) {
+  public ProjectBuildInfoUser ( FailureUser fu ) {
     username = fu.getUser ().getUsername ();
     state = fu.getState ();
     id = fu.getFailureUserId ();

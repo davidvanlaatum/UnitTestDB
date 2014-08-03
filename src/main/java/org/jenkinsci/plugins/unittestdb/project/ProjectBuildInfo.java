@@ -26,7 +26,7 @@ public class ProjectBuildInfo extends Actionable implements Action {
           = Logger.getLogger ( ProjectBuildInfo.class.getName () );
 
   protected AbstractProject<?, ?> project;
-  protected List<PBIFailure> failures;
+  protected List<ProjectBuildInfoFailure> failures;
 
   public ProjectBuildInfo ( AbstractProject<?, ?> project ) {
     this.project = project;
@@ -66,7 +66,7 @@ public class ProjectBuildInfo extends Actionable implements Action {
   }
 
   @Exported ( inline = true )
-  public List<PBIFailure> getFailures () {
+  public List<ProjectBuildInfoFailure> getFailures () {
     if ( failures == null ) {
       failures = new ArrayList<> ();
       GlobalConfig config = requireNonNull ( Jenkins.getInstance () )
@@ -76,7 +76,7 @@ public class ProjectBuildInfo extends Actionable implements Action {
         em = config.getEntityManagerFactory ().createEntityManager ();
         Job job = Job.findByName ( project.getDisplayName (), em, false );
         for ( Failure f : Failure.findByJob ( job, em ).values () ) {
-          failures.add ( new PBIFailure ( f, project, em ) );
+          failures.add ( new ProjectBuildInfoFailure ( f, project, em ) );
         }
       } catch ( SQLException ex ) {
         LOG.log ( Level.SEVERE, null, ex );
@@ -91,13 +91,13 @@ public class ProjectBuildInfo extends Actionable implements Action {
 
   public Action getFailure ( String id ) {
     Integer failureId = Integer.valueOf ( id );
-    PBIFailure rt = null;
+    ProjectBuildInfoFailure rt = null;
     GlobalConfig config = requireNonNull ( Jenkins.getInstance () )
             .getInjector ().getInstance ( GlobalConfig.class );
     EntityManager em = null;
     try {
       em = config.getEntityManagerFactory ().createEntityManager ();
-      rt = new PBIFailure ( Failure.findByID ( failureId, em ), project, em );
+      rt = new ProjectBuildInfoFailure ( Failure.findByID ( failureId, em ), project, em );
     } catch ( SQLException ex ) {
       LOG.log ( Level.SEVERE, null, ex );
     } finally {

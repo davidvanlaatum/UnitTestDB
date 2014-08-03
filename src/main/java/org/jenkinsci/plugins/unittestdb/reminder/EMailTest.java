@@ -9,7 +9,7 @@ import hudson.tasks.test.TestResult;
 import jenkins.model.Jenkins;
 import org.jenkinsci.plugins.unittestdb.db.Failure;
 import org.jenkinsci.plugins.unittestdb.db.FailureUser;
-import org.jenkinsci.plugins.unittestdb.project.PBIFailure;
+import org.jenkinsci.plugins.unittestdb.project.ProjectBuildInfoFailure;
 
 /**
  *
@@ -35,9 +35,9 @@ public class EMailTest {
       User user = JENKINS.getUser ( u.getUser ().getUsername () );
       users.add ( new EMailUser ( user, u.getState () ) );
     }
-    result = PBIFailure.findResult ( lastBuild, f.getUnitTest ().getId (), 0 );
+    result = ProjectBuildInfoFailure.findResult ( lastBuild, f.getUnitTest ().getId (), 0 );
     if ( result != null ) {
-      url = PBIFailure.findUrl ( f, lastBuild, result );
+      url = ProjectBuildInfoFailure.findUrl ( f, lastBuild, result );
     }
   }
 
