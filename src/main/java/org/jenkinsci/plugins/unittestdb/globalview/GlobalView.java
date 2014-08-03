@@ -1,4 +1,4 @@
-package org.jenkinsci.plugins.unittestdb;
+package org.jenkinsci.plugins.unittestdb.globalview;
 
 import java.sql.SQLException;
 import java.util.*;
@@ -9,6 +9,7 @@ import hudson.Util;
 import hudson.model.*;
 import javax.persistence.EntityManager;
 import jenkins.model.Jenkins;
+import org.jenkinsci.plugins.unittestdb.GlobalConfig;
 import org.jenkinsci.plugins.unittestdb.db.Job;
 import org.jenkinsci.plugins.unittestdb.project.ProjectBuildInfo;
 import org.kohsuke.stapler.export.Exported;

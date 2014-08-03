@@ -26,6 +26,12 @@ public class BuildInfo extends Actionable implements Action {
   public static void addAliases () {
     Run.XSTREAM2.addCompatibilityAlias (
             "org.jenkinsci.plugins.unittestdb.BuildInfo", BuildInfo.class );
+    Run.XSTREAM2.addCompatibilityAlias (
+            "org.jenkinsci.plugins.unittestdb.BuildInfo$BIFailure",
+            BuildInfoFailure.class );
+    Run.XSTREAM2.addCompatibilityAlias (
+            "org.jenkinsci.plugins.unittestdb.BuildInfo$BIFailureUser",
+            BuildInfoFailureUser.class );
   }
 
   private final List<String> users = new ArrayList<> ();
@@ -77,9 +83,9 @@ public class BuildInfo extends Actionable implements Action {
                                           failure.getUnitTest ().getName (),
                                           fuser,
                                           failure.getFirstBuild () != null
-                                          ? failure
+                                                  ? failure
                                           .getFirstBuild ().getJenkinsId ()
-                                          : null,
+                                                  : null,
                                           failure.getLastBuild ()
                                           .getJenkinsId () ) );
   }
