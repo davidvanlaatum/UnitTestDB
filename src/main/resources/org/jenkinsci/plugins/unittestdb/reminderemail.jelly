@@ -52,30 +52,32 @@
       </table>
     </j:forEach>
   </div>
-  <div style="float: left">
-    <h1>Unclaimed</h1>
-    <j:forEach items="${it.unclaimed}" var="job">
-      <h2>${job.name}</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>From</th>
-            <th>To</th>
-          </tr>
-        </thead>
-        <tbody>
-          <j:forEach items="${job.tests}" var="test">
+  <j:if test="${!it.unclaimed.isEmpty()}">
+    <div style="float: left">
+      <h1>Unclaimed</h1>
+      <j:forEach items="${it.unclaimed}" var="job">
+        <h2>${job.name}</h2>
+        <table>
+          <thead>
             <tr>
-              <td>
-                <a href="${app.rootUrl}${test.url}">${test.name}</a>
-              </td>
-              <td>${test.firstBuild}</td>
-              <td>${test.lastBuild}</td>
+              <th>Name</th>
+              <th>From</th>
+              <th>To</th>
             </tr>
-          </j:forEach>
-        </tbody>
-      </table>
-    </j:forEach>
-  </div>
+          </thead>
+          <tbody>
+            <j:forEach items="${job.tests}" var="test">
+              <tr>
+                <td>
+                  <a href="${app.rootUrl}${test.url}">${test.name}</a>
+                </td>
+                <td>${test.firstBuild}</td>
+                <td>${test.lastBuild}</td>
+              </tr>
+            </j:forEach>
+          </tbody>
+        </table>
+      </j:forEach>
+    </div>
+  </j:if>
 </j:jelly>
