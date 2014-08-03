@@ -11,6 +11,14 @@
   margin: 0px 0px;
 }
 
+.unittests .actions {
+  text-align: right;
+}
+
+.unittests .duration {
+  text-align: right;
+}
+
 a.unittestproject {
   text-decoration: none;
   color: inherit;

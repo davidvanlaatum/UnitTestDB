@@ -2,7 +2,7 @@
 <?jelly escape-by-default='true'?>
 <j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:i="jelly:fmt" xmlns:l="/lib/layout"
          xmlns:t="/lib/hudson" xmlns:f="/lib/form">
-  <table class="unittests pane bigtable">
+  <table class="unittests pane bigtable sortable">
     <thead>
       <tr>
         <th>Unit Test</th>
@@ -17,36 +17,36 @@
     </thead>
     <j:forEach items="${it.failures}" var="failure">
       <tr>
-        <td>
+        <td class="name">
           <j:if test="${failure.result==null}">${failure.name}</j:if>
           <j:if test="${failure.result!=null}">
             <t:failed-test result="${failure.result}" url="${rootURL}/${failure.url}"/>
           </j:if>
         </td>
-        <td>${failure.testState}</td>
-        <td>${failure.duration} sec</td>
-        <td>${failure.nodestr}</td>
-        <td>
+        <td class="state">${failure.testState}</td>
+        <td class="duration">${failure.duration} sec</td>
+        <td class="node">${failure.nodestr}</td>
+        <td class="firstbuild">
           <t:buildLink job="${failure.firstBuild.project}" number="${failure.firstBuild.number}"/>
         </td>
-        <td>
+        <td class="lastbuild">
           <t:buildLink job="${failure.lastBuild.project}" number="${failure.lastBuild.number}"/>
         </td>
-        <td>
+        <td class="user">
           <ul>
             <j:forEach items="${failure.users}" var="user">
               <li>${user.user}</li>
             </j:forEach>
           </ul>
         </td>
-        <td>
+        <td class="userstate">
           <ul>
             <j:forEach items="${failure.users}" var="user">
               <li>${user.state}</li>
             </j:forEach>
           </ul>
         </td>
-        <td>
+        <td class="actions">
           <a href="${rootURL}/${it.project.url}${it.urlName}/failure/${failure.failureId}/user/me/maybe">Maybe</a> |
           <a href="${rootURL}/${it.project.url}${it.urlName}/failure/${failure.failureId}/user/me/wasme">Was Me</a> |
           <a href="${rootURL}/${it.project.url}${it.urlName}/failure/${failure.failureId}/user/me/notme">Not Me</a> |
