@@ -1,4 +1,4 @@
-package org.jenkinsci.plugins.unittestdb;
+package org.jenkinsci.plugins.unittestdb.email;
 
 import org.jenkinsci.plugins.unittestdb.build.BuildInfo;
 import org.jenkinsci.plugins.unittestdb.email.BrokenTestsRecipientProvider;

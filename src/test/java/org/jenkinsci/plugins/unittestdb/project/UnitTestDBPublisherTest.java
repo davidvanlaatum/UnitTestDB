@@ -1,4 +1,4 @@
-package org.jenkinsci.plugins.unittestdb;
+package org.jenkinsci.plugins.unittestdb.project;
 
 import org.jenkinsci.plugins.unittestdb.build.BuildInfo;
 import org.jenkinsci.plugins.unittestdb.project.UnitTestDBPublisher;
@@ -11,6 +11,8 @@ import hudson.matrix.*;
 import hudson.model.*;
 import hudson.tasks.junit.JUnitResultArchiver;
 import javax.persistence.EntityManager;
+import org.jenkinsci.plugins.unittestdb.GlobalConfig;
+import org.jenkinsci.plugins.unittestdb.TestBase;
 import org.junit.*;
 import org.jvnet.hudson.test.*;
 import static java.util.Objects.requireNonNull;
