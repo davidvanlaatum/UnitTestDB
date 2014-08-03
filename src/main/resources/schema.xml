@@ -227,4 +227,13 @@
     <modifyDataType tableName="failures" columnName="state" newDataType="ENUM('Failed', 'Fixed','Gone')"/>
     <addNotNullConstraint tableName="failures" columnName="state" columnDataType="ENUM('Failed', 'Fixed','Gone')"/>
   </changeSet>
+  <changeSet id="calc" author="david">
+    <addColumn tableName="jobs">
+      <column name="lastcalc" type="TIMESTAMP"/>
+    </addColumn>
+    <addColumn tableName="unit_tests">
+      <column name="runs" type="INT"/>
+      <column name="statechanges" type="INT"/>
+    </addColumn>
+  </changeSet>
 </databaseChangeLog>

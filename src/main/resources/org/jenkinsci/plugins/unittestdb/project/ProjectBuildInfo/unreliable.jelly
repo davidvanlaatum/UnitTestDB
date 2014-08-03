@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:i="jelly:fmt" xmlns:l="/lib/layout"
+         xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+  <table class="unreliable pane bigtable">
+    <thead>
+      <tr>
+        <th>Unit Test</th>
+        <th>Runs</th>
+        <th>State Changes</th>
+        <th>Rate</th>
+      </tr>
+    </thead>
+    <j:forEach items="${it.unreliable}" var="failure">
+      <tr>
+        <td class="name">${failure.name}</td>
+        <td class="runs">${failure.runs}</td>
+        <td class="statechange">${failure.stateChanges}</td>
+        <td class="rate">${failure.rate}%</td>
+      </tr>
+    </j:forEach>
+  </table>
+</j:jelly>

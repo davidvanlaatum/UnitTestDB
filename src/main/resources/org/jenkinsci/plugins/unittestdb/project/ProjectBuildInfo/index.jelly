@@ -9,6 +9,8 @@
     <l:main-panel>
       <h1>Unit Test Failures</h1>
       <st:include it="${it}" page="failures.jelly"/>
+      <h1>Unreliable Unit Tests</h1>
+      <st:include it="${it}" page="unreliable.jelly"/>
     </l:main-panel>
   </l:layout>
 </j:jelly>

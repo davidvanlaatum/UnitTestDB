@@ -15,3 +15,8 @@ a.unittestproject {
   text-decoration: none;
   color: inherit;
 }
+
+.unreliable .statechange, .unreliable .runs, .unreliable .rate {
+  text-align: right;
+  width: 50px;
+}

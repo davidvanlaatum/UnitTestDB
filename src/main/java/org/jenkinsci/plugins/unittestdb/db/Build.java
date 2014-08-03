@@ -1,13 +1,12 @@
 package org.jenkinsci.plugins.unittestdb.db;
 
-import hudson.Extension;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
+import hudson.Extension;
 import javax.persistence.*;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
-
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -24,7 +23,10 @@ import static java.util.Objects.requireNonNull;
   @NamedQuery ( name = "Build.findByBuildId", query
                 = "SELECT b FROM Build b WHERE b.buildId = :buildId" ),
   @NamedQuery ( name = "Build.findByJobAndJenkinsID", query
-                = "SELECT b FROM Build b WHERE b.job.jobId = :job AND b.jenkinsId = :jenkinsid" ) } )
+                = "SELECT b FROM Build b WHERE b.job.jobId = :job AND b.jenkinsId = :jenkinsid" ),
+  @NamedQuery ( name = "Build.findAllNeedingStats", query
+                = "SELECT b FROM Build b WHERE b.tests IS NULL OR b.skipped IS NULL OR b.skipped IS NULL" )
+} )
 public class Build extends DBObject implements Serializable {
 
   private static final long serialVersionUID = 1L;
@@ -212,6 +214,19 @@ public class Build extends DBObject implements Serializable {
       }
     }
 
+    return rt;
+  }
+
+  @SuppressWarnings ( "unchecked" )
+  public static List<Build> findAllNeedingStats ( EntityManager em ) {
+    List<Build> rt = null;
+    requireNonNull ( em, "No EntityManager passed in" );
+    Query q = em.createNamedQuery ( "Build.findAllNeedingStats" );
+    try {
+      rt = q.getResultList ();
+    } catch ( NoResultException ex ) {
+
+    }
     return rt;
   }
 

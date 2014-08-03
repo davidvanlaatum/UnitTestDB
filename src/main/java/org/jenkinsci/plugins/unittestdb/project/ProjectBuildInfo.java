@@ -11,6 +11,7 @@ import jenkins.model.Jenkins;
 import org.jenkinsci.plugins.unittestdb.GlobalConfig;
 import org.jenkinsci.plugins.unittestdb.db.Failure;
 import org.jenkinsci.plugins.unittestdb.db.Job;
+import org.jenkinsci.plugins.unittestdb.db.UnitTest;
 import org.kohsuke.stapler.export.Exported;
 import org.kohsuke.stapler.export.ExportedBean;
 import static java.util.Objects.requireNonNull;
@@ -27,6 +28,8 @@ public class ProjectBuildInfo extends Actionable implements Action {
 
   protected AbstractProject<?, ?> project;
   protected List<ProjectBuildInfoFailure> failures;
+  protected List<ProjectBuildInfoUnreliable> unreliable;
+  private static final Jenkins JENKINS = Jenkins.getInstance ();
 
   public ProjectBuildInfo ( AbstractProject<?, ?> project ) {
     this.project = project;
@@ -65,6 +68,10 @@ public class ProjectBuildInfo extends Actionable implements Action {
     return !getFailures ().isEmpty ();
   }
 
+  public boolean hasUnreliable () {
+    return !getUnreliable ().isEmpty ();
+  }
+
   @Exported ( inline = true )
   public List<ProjectBuildInfoFailure> getFailures () {
     if ( failures == null ) {
@@ -88,7 +95,6 @@ public class ProjectBuildInfo extends Actionable implements Action {
     }
     return failures;
   }
-  private static final Jenkins JENKINS = Jenkins.getInstance ();
 
   public Action getFailure ( String id ) {
     Integer failureId = Integer.valueOf ( id );
@@ -108,6 +114,30 @@ public class ProjectBuildInfo extends Actionable implements Action {
       }
     }
     return rt;
+  }
+
+  public List<ProjectBuildInfoUnreliable> getUnreliable () {
+    if ( unreliable == null ) {
+      unreliable = new ArrayList<> ();
+      GlobalConfig config = requireNonNull ( JENKINS )
+              .getInjector ().getInstance ( GlobalConfig.class );
+      EntityManager em = null;
+      try {
+        em = config.getEntityManagerFactory ().createEntityManager ();
+        Job job = Job.findByName ( project.getDisplayName (), em, false );
+        List<UnitTest> tests = UnitTest.findUnreliableForJob ( job, em );
+        for ( UnitTest test : tests ) {
+          unreliable.add ( new ProjectBuildInfoUnreliable ( test ) );
+        }
+      } catch ( SQLException ex ) {
+        LOG.log ( Level.SEVERE, null, ex );
+      } finally {
+        if ( em != null ) {
+          em.close ();
+        }
+      }
+    }
+    return unreliable;
   }
 
 }

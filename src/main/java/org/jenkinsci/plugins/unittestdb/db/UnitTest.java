@@ -27,7 +27,10 @@ import static java.util.Objects.requireNonNull;
   @NamedQuery ( name = "UnitTest.findByJob", query
                 = "SELECT u FROM UnitTest u WHERE u.job.jobId = :job" ),
   @NamedQuery ( name = "UnitTest.findByJobAndName", query
-                = "SELECT u FROM UnitTest u WHERE u.job.jobId = :job AND u.name = :name" ) } )
+                = "SELECT u FROM UnitTest u WHERE u.job.jobId = :job AND u.name = :name" ),
+  @NamedQuery ( name = "UnitTest.findUnreliableForJob", query
+                = "SELECT u FROM UnitTest u WHERE u.job.jobId = :job AND failure_rate >= :rate" )
+} )
 public class UnitTest extends DBObject implements Serializable {
 
   private static final long serialVersionUID = 1L;
@@ -45,6 +48,10 @@ public class UnitTest extends DBObject implements Serializable {
   // @Max(value=?)  @Min(value=?)//if you know range of your decimal fields consider using these annotations to enforce field validation
   @Column ( name = "failure_rate" )
   private Double failureRate;
+  @Column ( name = "runs" )
+  private Integer runs;
+  @Column ( name = "statechanges" )
+  private Integer statechanges;
   @OneToMany ( cascade = CascadeType.ALL, mappedBy = "unitTest" )
   private List<Failure> failureList;
   @JoinColumn ( name = "job_id", referencedColumnName = "job_id" )
@@ -112,6 +119,22 @@ public class UnitTest extends DBObject implements Serializable {
 
   public void setJob ( Job job ) {
     this.job = job;
+  }
+
+  public Integer getRuns () {
+    return runs;
+  }
+
+  public Integer getStatechanges () {
+    return statechanges;
+  }
+
+  public void setRuns ( Integer runs ) {
+    this.runs = runs;
+  }
+
+  public void setStatechanges ( Integer statechanges ) {
+    this.statechanges = statechanges;
   }
 
   @XmlTransient
@@ -205,6 +228,20 @@ public class UnitTest extends DBObject implements Serializable {
     } catch ( NoResultException ex ) {
     }
 
+    return rt;
+  }
+
+  public static List<UnitTest> findUnreliableForJob ( Job job, EntityManager em ) {
+    List<UnitTest> rt = null;
+    requireNonNull ( em, "No EntityManager passed in" );
+    requireNonNull ( job, "No job passwd in" );
+    Query q = em.createNamedQuery ( "UnitTest.findUnreliableForJob" );
+    q.setParameter ( "job", job.getJobId () );
+    q.setParameter ( "rate", 0.2 );
+    try {
+      rt = q.getResultList ();
+    } catch ( NoResultException ex ) {
+    }
     return rt;
   }
 

@@ -16,6 +16,15 @@
           <st:include it="${job}" page="failures.jelly"/>
         </j:if>
       </j:forEach>
+      <h1>Unreliable Unit Tests</h1>
+      <j:forEach items="${it.jobs}" var="job">
+        <j:if test="${job.hasUnreliable()}">
+          <h2>
+            <a href="${rootURL}/${job.project.url}" class="model-link inside unittestproject">${job.project.name}</a>
+          </h2>
+          <st:include it="${job}" page="unreliable.jelly"/>
+        </j:if>
+      </j:forEach>
     </l:main-panel>
   </l:layout>
 </j:jelly>
