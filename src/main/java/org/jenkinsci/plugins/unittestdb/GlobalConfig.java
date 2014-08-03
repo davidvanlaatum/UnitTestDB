@@ -32,9 +32,9 @@ public class GlobalConfig extends GlobalConfiguration {
   private static final Logger LOG
           = Logger.getLogger ( GlobalConfig.class.getName () );
   private Database database;
-  private EntityManagerFactory fac;
+  private transient EntityManagerFactory fac;
   @Inject
-  PersistenceService ps;
+  transient PersistenceService ps;
 
   public GlobalConfig () {
     load ();

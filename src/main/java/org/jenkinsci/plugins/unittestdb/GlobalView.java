@@ -1,6 +1,5 @@
 package org.jenkinsci.plugins.unittestdb;
 
-import org.jenkinsci.plugins.unittestdb.project.ProjectBuildInfo;
 import java.sql.SQLException;
 import java.util.*;
 import java.util.logging.Level;
@@ -11,6 +10,7 @@ import hudson.model.*;
 import javax.persistence.EntityManager;
 import jenkins.model.Jenkins;
 import org.jenkinsci.plugins.unittestdb.db.Job;
+import org.jenkinsci.plugins.unittestdb.project.ProjectBuildInfo;
 import org.kohsuke.stapler.export.Exported;
 import static java.util.Objects.requireNonNull;
 
