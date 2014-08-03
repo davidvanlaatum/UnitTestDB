@@ -13,11 +13,12 @@ public class BuildInfoFailure {
   protected FailureState state;
   protected String unitTestName;
   protected List<BuildInfoFailureUser> users;
-  protected int firstBuild;
-  protected int lastBuild;
+  protected Integer firstBuild;
+  protected Integer lastBuild;
 
   public BuildInfoFailure ( FailureState state, String unitTestName,
-                     List<BuildInfoFailureUser> users, int firstBuild, int lastBuild ) {
+                            List<BuildInfoFailureUser> users,
+                            Integer firstBuild, Integer lastBuild ) {
     this.state = state;
     this.unitTestName = unitTestName;
     this.users = users;
@@ -37,11 +38,11 @@ public class BuildInfoFailure {
     return unitTestName;
   }
 
-  public int getFirstBuild () {
+  public Integer getFirstBuild () {
     return firstBuild;
   }
 
-  public int getLastBuild () {
+  public Integer getLastBuild () {
     return lastBuild;
   }
 

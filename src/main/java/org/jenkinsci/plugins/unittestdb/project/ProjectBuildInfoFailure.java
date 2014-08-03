@@ -243,7 +243,7 @@ public class ProjectBuildInfoFailure extends Actionable implements Action {
 
   public void doGone ( StaplerRequest req, StaplerResponse rsp ) throws
           SQLException, ServletException, IOException {
-    GlobalConfig config = JENKINS.getInjector ().getInstance ( 
+    GlobalConfig config = JENKINS.getInjector ().getInstance (
             GlobalConfig.class );
     EntityManager em = null;
     try {
@@ -294,8 +294,11 @@ public class ProjectBuildInfoFailure extends Actionable implements Action {
     String userName = user;
 
     if ( "me".equalsIgnoreCase ( user ) ) {
-      userName = requireNonNull ( hudson.model.User.current (),
-                                  "Not logged in" ).getId ();
+      hudson.model.User current = hudson.model.User.current ();
+      if ( current == null ) {
+        throw new IllegalArgumentException ( "Not logged in" );
+      }
+      userName = current.getId ();
     }
 
     for ( ProjectBuildInfoUser pbiu : users ) {

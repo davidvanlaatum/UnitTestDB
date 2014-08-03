@@ -79,15 +79,12 @@ public class BuildInfo extends Actionable implements Action {
     }
     requireNonNull ( failure.getFirstBuild () );
     requireNonNull ( failures );
-    failures.add ( new BuildInfoFailure ( failure.getState (),
-                                          failure.getUnitTest ().getName (),
-                                          fuser,
-                                          failure.getFirstBuild () != null
-                                                  ? failure
-                                          .getFirstBuild ().getJenkinsId ()
-                                                  : null,
-                                          failure.getLastBuild ()
-                                          .getJenkinsId () ) );
+    String name = failure.getUnitTest ().getName ();
+    Integer firstBuild = failure.getFirstBuild () != null ? failure
+            .getFirstBuild ().getJenkinsId () : null;
+    Integer lastBuild = failure.getLastBuild ().getJenkinsId ();
+    failures.add ( new BuildInfoFailure ( failure.getState (), name, fuser,
+                                          firstBuild, lastBuild ) );
   }
 
   public AbstractBuild<?, ?> getBuild () {
