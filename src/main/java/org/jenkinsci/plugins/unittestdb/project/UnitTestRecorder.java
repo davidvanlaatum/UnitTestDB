@@ -158,7 +158,7 @@ public class UnitTestRecorder {
   public void record () {
     System.setProperty ( "javax.persistence.validation.mode", "none" );
     try ( JobLogger jl = new JobLogger ( listener.getLogger (), LOG ) ) {
-      Jenkins.getInstance ().getInjector ().injectMembers ( this );
+      JENKINS.getInjector ().injectMembers ( this );
       requireNonNull ( config, "Config is null have you configured me?" );
       em = requireNonNull ( config.getEntityManagerFactory ()
               .createEntityManager (), "Failed to get an EntityManager" );
@@ -205,5 +205,6 @@ public class UnitTestRecorder {
       }
     }
   }
+  private static final Jenkins JENKINS = Jenkins.getInstance ();
 
 }

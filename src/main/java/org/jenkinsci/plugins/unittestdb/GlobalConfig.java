@@ -29,6 +29,7 @@ import static java.util.Objects.requireNonNull;
 @Extension
 public class GlobalConfig extends GlobalConfiguration {
 
+  private static final Jenkins JENKINS = Jenkins.getInstance ();
   private static final Logger LOG
           = Logger.getLogger ( GlobalConfig.class.getName () );
   private Database database;
@@ -72,8 +73,7 @@ public class GlobalConfig extends GlobalConfiguration {
 
   public EntityManagerFactory getEntityManagerFactory () throws SQLException {
     if ( fac == null ) {
-      requireNonNull ( Jenkins.getInstance () ).getInjector ().injectMembers (
-              this );
+      JENKINS.getInjector ().injectMembers ( this );
       requireNonNull ( ps, "Persistence Service is null" );
       Database db = requireNonNull ( getDatabase (),
                                      "No database configured" );

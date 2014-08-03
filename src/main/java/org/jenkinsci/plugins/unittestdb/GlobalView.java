@@ -12,7 +12,6 @@ import jenkins.model.Jenkins;
 import org.jenkinsci.plugins.unittestdb.db.Job;
 import org.jenkinsci.plugins.unittestdb.project.ProjectBuildInfo;
 import org.kohsuke.stapler.export.Exported;
-import static java.util.Objects.requireNonNull;
 
 /**
  * @author David van Laatum
@@ -20,6 +19,7 @@ import static java.util.Objects.requireNonNull;
 @Extension
 public class GlobalView extends Actionable implements RootAction {
 
+  private static final Jenkins JENKINS = Jenkins.getInstance ();
   private static final Logger LOG
           = Logger.getLogger ( GlobalView.class.getName () );
 
@@ -50,14 +50,13 @@ public class GlobalView extends Actionable implements RootAction {
   @Exported ( inline = true )
   public Collection<ProjectBuildInfo> getJobs () {
     SortedMap<String, ProjectBuildInfo> jobs = new TreeMap<> ();
-    GlobalConfig config = requireNonNull ( Jenkins.getInstance () )
-            .getInjector ().getInstance ( GlobalConfig.class );
+    GlobalConfig config = JENKINS.getInjector ().getInstance (
+            GlobalConfig.class );
     EntityManager em = null;
     try {
       em = config.getEntityManagerFactory ().createEntityManager ();
-      List<TopLevelItem> projects = Util.createSubList ( Jenkins
-              .getInstance ().getAllItems ( AbstractProject.class ),
-                                                         TopLevelItem.class );
+      List<TopLevelItem> projects = Util.createSubList ( JENKINS.getAllItems (
+              AbstractProject.class ), TopLevelItem.class );
       for ( Job job : Job.getAll ( em ) ) {
         AbstractProject<?, ?> project = null;
 

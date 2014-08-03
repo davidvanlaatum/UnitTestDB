@@ -14,17 +14,17 @@ import hudson.plugins.emailext.plugins.RecipientProviderDescriptor;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
 import jenkins.model.Jenkins;
-import org.jenkinsci.plugins.unittestdb.build.BuildInfo;
 import org.jenkinsci.plugins.unittestdb.JobLogger;
+import org.jenkinsci.plugins.unittestdb.build.BuildInfo;
 import org.kohsuke.stapler.DataBoundConstructor;
 import static hudson.init.InitMilestone.PLUGINS_STARTED;
-import static java.util.Objects.requireNonNull;
 
 /**
  * @author David van Laatum
  */
 public class BrokenTestsRecipientProvider extends RecipientProvider {
 
+  private static final Jenkins JENKINS = Jenkins.getInstance ();
   @Extension
   public static final DescriptorImpl DESCRIPTOR = new DescriptorImpl ();
   public static final String DISPLAYNAME = "Unit Test Breakers";
@@ -52,8 +52,7 @@ public class BrokenTestsRecipientProvider extends RecipientProvider {
       if ( info != null ) {
         for ( String u : info.getUsers () ) {
           boolean found = false;
-          hudson.model.User user = requireNonNull ( Jenkins.getInstance () )
-                  .getUser ( u );
+          hudson.model.User user = JENKINS.getUser ( u );
           if ( user != null ) {
             hudson.tasks.Mailer.UserProperty email = user.getProperty (
                     hudson.tasks.Mailer.UserProperty.class );

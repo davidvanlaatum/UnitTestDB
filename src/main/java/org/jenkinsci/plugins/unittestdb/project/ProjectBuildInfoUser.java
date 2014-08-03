@@ -14,7 +14,6 @@ import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 import org.kohsuke.stapler.export.Exported;
 import org.kohsuke.stapler.export.ExportedBean;
-import static java.util.Objects.requireNonNull;
 import static org.jenkinsci.plugins.unittestdb.db.FailureUserState.*;
 
 /**
@@ -72,12 +71,13 @@ public class ProjectBuildInfoUser extends Actionable implements Action {
 
   @Exported ( inline = true )
   public hudson.model.User getUser () {
-    return requireNonNull ( Jenkins.getInstance () ).getUser ( username );
+    return JENKINS.getUser ( username );
   }
+  private static final Jenkins JENKINS = Jenkins.getInstance ();
 
   protected void doUpdateTo ( FailureUserState state ) throws SQLException {
-    GlobalConfig config = requireNonNull ( Jenkins.getInstance () )
-            .getInjector ().getInstance ( GlobalConfig.class );
+    GlobalConfig config = JENKINS.getInjector ().getInstance (
+            GlobalConfig.class );
     EntityManager em = null;
     try {
       em = config.getEntityManagerFactory ().createEntityManager ();

@@ -34,6 +34,8 @@ import static org.jenkinsci.plugins.unittestdb.db.FailureUserState.Maybe;
 @ExportedBean
 public class ProjectBuildInfoFailure extends Actionable implements Action {
 
+  private static final Jenkins JENKINS = Jenkins.getInstance ();
+
   protected Integer failureId;
   protected String name;
   protected TestResult result;
@@ -47,8 +49,9 @@ public class ProjectBuildInfoFailure extends Actionable implements Action {
   protected Double duration;
   protected UnitTestState testState;
 
-  public ProjectBuildInfoFailure ( Failure failure, AbstractProject<?, ?> project,
-                      EntityManager em ) {
+  public ProjectBuildInfoFailure ( Failure failure,
+                                   AbstractProject<?, ?> project,
+                                   EntityManager em ) {
     failureId = failure.getFailureId ();
     name = failure.getUnitTest ().getName ();
     state = failure.getState ();
@@ -240,8 +243,8 @@ public class ProjectBuildInfoFailure extends Actionable implements Action {
 
   public void doGone ( StaplerRequest req, StaplerResponse rsp ) throws
           SQLException, ServletException, IOException {
-    GlobalConfig config = requireNonNull ( Jenkins.getInstance () )
-            .getInjector ().getInstance ( GlobalConfig.class );
+    GlobalConfig config = JENKINS.getInjector ().getInstance ( 
+            GlobalConfig.class );
     EntityManager em = null;
     try {
       em = config.getEntityManagerFactory ().createEntityManager ();
@@ -260,7 +263,7 @@ public class ProjectBuildInfoFailure extends Actionable implements Action {
   protected ProjectBuildInfoUser attachNewUser ( String user ) throws
           SQLException {
     ProjectBuildInfoUser rt = null;
-    GlobalConfig config = requireNonNull ( Jenkins.getInstance () )
+    GlobalConfig config = requireNonNull ( JENKINS )
             .getInjector ().getInstance ( GlobalConfig.class );
     EntityManager em = null;
     try {

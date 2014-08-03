@@ -69,7 +69,7 @@ public class ProjectBuildInfo extends Actionable implements Action {
   public List<ProjectBuildInfoFailure> getFailures () {
     if ( failures == null ) {
       failures = new ArrayList<> ();
-      GlobalConfig config = requireNonNull ( Jenkins.getInstance () )
+      GlobalConfig config = requireNonNull ( JENKINS )
               .getInjector ().getInstance ( GlobalConfig.class );
       EntityManager em = null;
       try {
@@ -88,16 +88,18 @@ public class ProjectBuildInfo extends Actionable implements Action {
     }
     return failures;
   }
+  private static final Jenkins JENKINS = Jenkins.getInstance ();
 
   public Action getFailure ( String id ) {
     Integer failureId = Integer.valueOf ( id );
     ProjectBuildInfoFailure rt = null;
-    GlobalConfig config = requireNonNull ( Jenkins.getInstance () )
+    GlobalConfig config = requireNonNull ( JENKINS )
             .getInjector ().getInstance ( GlobalConfig.class );
     EntityManager em = null;
     try {
       em = config.getEntityManagerFactory ().createEntityManager ();
-      rt = new ProjectBuildInfoFailure ( Failure.findByID ( failureId, em ), project, em );
+      rt = new ProjectBuildInfoFailure ( Failure.findByID ( failureId, em ),
+                                         project, em );
     } catch ( SQLException ex ) {
       LOG.log ( Level.SEVERE, null, ex );
     } finally {

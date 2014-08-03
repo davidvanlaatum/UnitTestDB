@@ -6,13 +6,14 @@ import com.google.common.collect.ImmutableList;
 import hudson.ExtensionList;
 import hudson.ExtensionPoint;
 import jenkins.model.Jenkins;
-import static java.util.Objects.requireNonNull;
 
 /**
  *
  * @author David van Laatum
  */
 public abstract class DBObject implements ExtensionPoint {
+
+  private static final Jenkins JENKINS = Jenkins.getInstance ();
 
   public DBObject () {
 
@@ -24,8 +25,7 @@ public abstract class DBObject implements ExtensionPoint {
    * @return
    */
   public static ExtensionList<DBObject> all () {
-    return requireNonNull ( Jenkins.getInstance () ).getExtensionList (
-            DBObject.class );
+    return JENKINS.getExtensionList ( DBObject.class );
   }
 
   public static List<Class> allClasses () {
