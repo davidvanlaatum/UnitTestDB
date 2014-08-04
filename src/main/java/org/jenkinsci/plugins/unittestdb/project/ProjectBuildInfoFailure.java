@@ -130,13 +130,17 @@ public class ProjectBuildInfoFailure extends Actionable implements Action {
 
     if ( build instanceof MatrixBuild ) {
       for ( MatrixRun r : ( (MatrixBuild) build ).getRuns () ) {
-        TestResult t = r.getTestResultAction ().findCorrespondingResult ( f
-                .getUnitTest ()
-                .getId () );
-        if ( t != null ) {
-          rt = r.getUrl () + r.getTestResultAction ().getTestResultPath (
-                  result );
-          break;
+        final AbstractTestResultAction testResultAction
+                = r.getTestResultAction ();
+        if ( testResultAction != null ) {
+          TestResult t = testResultAction.findCorrespondingResult ( f
+                  .getUnitTest ()
+                  .getId () );
+          if ( t != null ) {
+            rt = r.getUrl () + testResultAction.getTestResultPath (
+                    result );
+            break;
+          }
         }
       }
     }

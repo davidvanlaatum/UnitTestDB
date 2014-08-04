@@ -60,7 +60,13 @@ public class UnitTestRecorder {
     for ( Object i : build.getChangeSet ().getItems () ) {
       if ( i instanceof ChangeLogSet.Entry ) {
         ChangeLogSet.Entry change = (ChangeLogSet.Entry) i;
-        User user = User.findByUsername ( change.getAuthor ().getId (), em,
+        hudson.model.User u = change.getAuthor ();
+        if ( u.getProperty (
+                org.jenkinsci.plugins.unittestdb.UserProperty.class )
+                .ignoreUser () ) {
+          continue;
+        }
+        User user = User.findByUsername ( u.getId (), em,
                                           true );
         users.put ( user.getUsername (), user );
       } else if ( i != null ) {
