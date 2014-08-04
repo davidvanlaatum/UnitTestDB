@@ -3,6 +3,8 @@ package org.jenkinsci.plugins.unittestdb.email;
 import java.util.List;
 import hudson.Extension;
 import hudson.init.Initializer;
+import hudson.matrix.MatrixBuild;
+import hudson.matrix.MatrixRun;
 import hudson.model.*;
 import hudson.plugins.emailext.plugins.*;
 import net.sf.json.JSONObject;
@@ -48,6 +50,17 @@ public class BrokenTestsTrigger extends EmailTrigger {
     BuildInfo info = build.getAction ( BuildInfo.class );
     if ( info != null ) {
       rt = info.hasFailures ();
+    }
+    if ( !rt && build instanceof MatrixBuild ) {
+      for ( MatrixRun run : ( (MatrixBuild) build ).getRuns () ) {
+        info = run.getAction ( BuildInfo.class );
+        if ( info != null ) {
+          rt = info.hasFailures ();
+          if ( rt ) {
+            break;
+          }
+        }
+      }
     }
     return rt;
   }

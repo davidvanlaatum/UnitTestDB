@@ -7,6 +7,8 @@ import java.util.logging.Logger;
 import hudson.EnvVars;
 import hudson.Extension;
 import hudson.init.Initializer;
+import hudson.matrix.MatrixBuild;
+import hudson.matrix.MatrixRun;
 import hudson.model.Items;
 import hudson.plugins.emailext.ExtendedEmailPublisherContext;
 import hudson.plugins.emailext.plugins.RecipientProvider;
@@ -51,36 +53,53 @@ public class BrokenTestsRecipientProvider extends RecipientProvider {
       BuildInfo info = context.getBuild ().getAction ( BuildInfo.class );
       if ( info != null ) {
         for ( String u : info.getUsers () ) {
-          boolean found = false;
-          hudson.model.User user = JENKINS.getUser ( u );
-          if ( user != null ) {
-            hudson.tasks.Mailer.UserProperty email = user.getProperty (
-                    hudson.tasks.Mailer.UserProperty.class );
-            if ( email != null ) {
-              String address = email.getAddress ();
-              if ( address != null && !address.isEmpty () ) {
-                found = true;
-                try {
-                  InternetAddress a = new InternetAddress ( address );
-                  a.setPersonal ( user.getDisplayName () );
-                  to.add ( a );
-                  LOG.log ( Level.INFO, "Added {0} to list of recipients",
-                            address );
-                } catch ( AddressException | UnsupportedEncodingException ex ) {
-                  LOG.log ( Level.SEVERE,
-                            "Exception while adding email address for user " + u,
-                            ex );
-                }
-              }
-            }
-          }
-          if ( !found ) {
-            LOG.log ( Level.INFO, "No email address for user {0}", u );
-          }
+          addUserTo ( u, to, LOG );
         }
       } else {
         LOG.log ( Level.INFO, "No info from Unit Test Publisher" );
       }
+
+      if ( context.getBuild () instanceof MatrixBuild ) {
+        for ( MatrixRun run : ( (MatrixBuild) context.getBuild () ).getRuns () ) {
+          info = run.getAction ( BuildInfo.class );
+          if ( info != null ) {
+            for ( String u : info.getUsers () ) {
+              addUserTo ( u, to, LOG );
+            }
+          } else {
+            LOG.log ( Level.INFO, "No info from Unit Test Publisher" );
+          }
+        }
+      }
+    }
+  }
+
+  private void addUserTo ( String u, Set<InternetAddress> to, Logger LOG ) {
+    boolean found = false;
+    hudson.model.User user = JENKINS.getUser ( u );
+    if ( user != null ) {
+      hudson.tasks.Mailer.UserProperty email = user.getProperty (
+              hudson.tasks.Mailer.UserProperty.class );
+      if ( email != null ) {
+        String address = email.getAddress ();
+        if ( address != null && !address.isEmpty () ) {
+          found = true;
+          try {
+            InternetAddress a = new InternetAddress ( address );
+            a.setPersonal ( user.getDisplayName () );
+            to.add ( a );
+            LOG.log ( Level.INFO, "Added {0} to list of recipients",
+                      address );
+          } catch ( AddressException | UnsupportedEncodingException ex ) {
+            LOG.log ( Level.SEVERE,
+                      "Exception while adding email address for user " + u,
+                      ex );
+          }
+        }
+      }
+    }
+    if ( !found ) {
+      LOG.log ( Level.INFO, "No email address for user {0}", u );
     }
   }
 
