@@ -71,33 +71,46 @@ public class Reminder extends Builder {
 
         SortedMap<String, UserData> users = new TreeMap<> ();
         SortedMap<String, List<Failure>> unclaimed = new TreeMap<> ();
+        SortedMap<String, AbstractProject<?, ?>> projects = new TreeMap<> ();
+
+        for ( AbstractProject project : JENKINS.getAllItems (
+                AbstractProject.class ) ) {
+          projects.put ( project.getName (), project );
+        }
 
         for ( Failure failure : list ) {
-          LOG.log ( Level.FINE, "Failure for {0} in job {1}", new Object[]{
-            failure.getUnitTest ().getName (), failure.getJob ().getName () } );
-
-          boolean hasUsers = false;
-          for ( FailureUser user : failure.getUsers () ) {
-            if ( user.getState () != Not_Me ) {
-              UserData ud = users.get ( user.getUser ().getUsername () );
-              if ( ud == null ) {
-                ud = new UserData ( user.getUser ().getUsername (), LOG );
-                users.put ( user.getUser ().getUsername (), ud );
-              }
-              ud.add ( failure );
-              hasUsers = true;
-            }
-          }
-
-          if ( !hasUsers ) {
-            LOG.log ( Level.WARNING, "{0} in {1} is not claimed", new Object[]{
+          if ( projects.get ( failure.getJob ().getName () ) != null ) {
+            LOG.log ( Level.FINE, "Failure for {0} in job {1}", new Object[]{
               failure.getUnitTest ().getName (), failure.getJob ().getName () } );
-            List<Failure> fl = unclaimed.get ( failure.getJob ().getName () );
-            if ( fl == null ) {
-              fl = new ArrayList<> ();
-              unclaimed.put ( failure.getJob ().getName (), fl );
+
+            boolean hasUsers = false;
+            for ( FailureUser user : failure.getUsers () ) {
+              if ( user.getState () != Not_Me ) {
+                UserData ud = users.get ( user.getUser ().getUsername () );
+                if ( ud == null ) {
+                  ud = new UserData ( user.getUser ().getUsername (), LOG );
+                  users.put ( user.getUser ().getUsername (), ud );
+                }
+                ud.add ( failure );
+                hasUsers = true;
+              }
             }
-            fl.add ( failure );
+
+            if ( !hasUsers ) {
+              LOG.log ( Level.WARNING, "{0} in {1} is not claimed",
+                        new Object[]{
+                          failure.getUnitTest ().getName (), failure.getJob ()
+                          .getName () } );
+              List<Failure> fl = unclaimed.get ( failure.getJob ().getName () );
+              if ( fl == null ) {
+                fl = new ArrayList<> ();
+                unclaimed.put ( failure.getJob ().getName (), fl );
+              }
+              fl.add ( failure );
+            }
+          } else {
+            LOG.log ( Level.INFO, "No project for {0}:{1}", new Object[]{
+              failure.getJob ().getName (), failure.getUnitTest ().getName () } );
           }
         }
 
