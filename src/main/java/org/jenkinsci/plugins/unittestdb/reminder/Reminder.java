@@ -139,7 +139,7 @@ public class Reminder extends Builder {
     @Override
     public boolean isApplicable (
             Class<? extends AbstractProject> jobType ) {
-      return true;
+      return FreeStyleProject.class.isAssignableFrom ( jobType );
     }
 
   }

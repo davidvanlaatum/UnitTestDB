@@ -6,6 +6,7 @@ import com.google.common.collect.ImmutableList;
 import hudson.Extension;
 import hudson.Launcher;
 import hudson.init.Initializer;
+import hudson.matrix.MatrixProject;
 import hudson.model.*;
 import hudson.tasks.*;
 import net.sf.json.JSONObject;
@@ -34,9 +35,11 @@ public class UnitTestDBPublisher extends Recorder {
             "org.jenkinsci.plugins.unittestdb.ProjectBuildInfo",
             ProjectBuildInfo.class );
     Items.XSTREAM2.addCompatibilityAlias (
-            "org.jenkinsci.plugins.unittestdb.PBIUser", ProjectBuildInfoUser.class );
+            "org.jenkinsci.plugins.unittestdb.PBIUser",
+            ProjectBuildInfoUser.class );
     Items.XSTREAM2.addCompatibilityAlias (
-            "org.jenkinsci.plugins.unittestdb.PBIFailure", ProjectBuildInfoFailure.class );
+            "org.jenkinsci.plugins.unittestdb.PBIFailure",
+            ProjectBuildInfoFailure.class );
   }
 
   @DataBoundConstructor
@@ -78,8 +81,10 @@ public class UnitTestDBPublisher extends Recorder {
     }
 
     @Override
-    public boolean isApplicable ( Class jobType ) {
-      return true;
+    public boolean isApplicable (
+            Class<? extends AbstractProject> jobType ) {
+      return FreeStyleProject.class.isAssignableFrom ( jobType )
+                     || MatrixProject.class.isAssignableFrom ( jobType );
     }
 
   }
