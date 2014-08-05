@@ -23,121 +23,115 @@ import static java.util.Objects.requireNonNull;
 @ExportedBean
 public class ProjectBuildInfo extends Actionable implements Action {
 
-    private static final Logger LOG
-            = Logger.getLogger(ProjectBuildInfo.class.getName());
+  private static final Logger LOG
+          = Logger.getLogger ( ProjectBuildInfo.class.getName () );
 
-    protected AbstractProject<?, ?> project;
-    protected transient List<ProjectBuildInfoFailure> failures;
-    protected transient List<ProjectBuildInfoUnreliable> unreliable;
-    private static final Jenkins JENKINS = Jenkins.getInstance();
+  protected AbstractProject<?, ?> project;
+  private static final Jenkins JENKINS = Jenkins.getInstance ();
 
-    public ProjectBuildInfo(AbstractProject<?, ?> project) {
-        this.project = project;
+  public ProjectBuildInfo ( AbstractProject<?, ?> project ) {
+    this.project = project;
+  }
+
+  @Override
+  public String getDisplayName () {
+    return "Unit Test DB";
+  }
+
+  @Override
+  public String getIconFileName () {
+    return "clipboard.png";
+  }
+
+  @Override
+  public String getSearchUrl () {
+    return null;
+  }
+
+  @Override
+  public String getUrlName () {
+    return "unittestdb";
+  }
+
+  @Exported
+  public AbstractProject<?, ?> getProject () {
+    return project;
+  }
+
+  public Api getApi () {
+    return new Api ( this );
+  }
+
+  public boolean hasFailures () {
+    return !getFailures ().isEmpty ();
+  }
+
+  public boolean hasUnreliable () {
+    return !getUnreliable ().isEmpty ();
+  }
+
+  @Exported ( inline = true )
+  public List<ProjectBuildInfoFailure> getFailures () {
+    List<ProjectBuildInfoFailure> failures = new ArrayList<> ();
+    GlobalConfig config = requireNonNull ( JENKINS )
+            .getInjector ().getInstance ( GlobalConfig.class );
+    EntityManager em = null;
+    try {
+      em = config.getEntityManagerFactory ().createEntityManager ();
+      Job job = Job.findByName ( project.getDisplayName (), em, false );
+      for ( Failure f : Failure.findByJob ( job, em ).values () ) {
+        failures.add ( new ProjectBuildInfoFailure ( f, project, em ) );
+      }
+    } catch ( SQLException ex ) {
+      LOG.log ( Level.SEVERE, null, ex );
+    } finally {
+      if ( em != null ) {
+        em.close ();
+      }
     }
+    return failures;
+  }
 
-    @Override
-    public String getDisplayName() {
-        return "Unit Test DB";
+  public Action getFailure ( String id ) {
+    Integer failureId = Integer.valueOf ( id );
+    ProjectBuildInfoFailure rt = null;
+    GlobalConfig config = requireNonNull ( JENKINS )
+            .getInjector ().getInstance ( GlobalConfig.class );
+    EntityManager em = null;
+    try {
+      em = config.getEntityManagerFactory ().createEntityManager ();
+      rt = new ProjectBuildInfoFailure ( Failure.findByID ( failureId, em ),
+                                         project, em );
+    } catch ( SQLException ex ) {
+      LOG.log ( Level.SEVERE, null, ex );
+    } finally {
+      if ( em != null ) {
+        em.close ();
+      }
     }
+    return rt;
+  }
 
-    @Override
-    public String getIconFileName() {
-        return "clipboard.png";
+  public List<ProjectBuildInfoUnreliable> getUnreliable () {
+    List<ProjectBuildInfoUnreliable> unreliable = new ArrayList<> ();
+    GlobalConfig config = requireNonNull ( JENKINS )
+            .getInjector ().getInstance ( GlobalConfig.class );
+    EntityManager em = null;
+    try {
+      em = config.getEntityManagerFactory ().createEntityManager ();
+      Job job = Job.findByName ( project.getDisplayName (), em, false );
+      List<UnitTest> tests = UnitTest.findUnreliableForJob ( job, em );
+      for ( UnitTest test : tests ) {
+        unreliable.add ( new ProjectBuildInfoUnreliable ( test ) );
+      }
+    } catch ( SQLException ex ) {
+      LOG.log ( Level.SEVERE, null, ex );
+    } finally {
+      if ( em != null ) {
+        em.close ();
+      }
     }
-
-    @Override
-    public String getSearchUrl() {
-        return null;
-    }
-
-    @Override
-    public String getUrlName() {
-        return "unittestdb";
-    }
-
-    @Exported
-    public AbstractProject<?, ?> getProject() {
-        return project;
-    }
-
-    public Api getApi() {
-        return new Api(this);
-    }
-
-    public boolean hasFailures() {
-        return !getFailures().isEmpty();
-    }
-
-    public boolean hasUnreliable() {
-        return !getUnreliable().isEmpty();
-    }
-
-    @Exported(inline = true)
-    public List<ProjectBuildInfoFailure> getFailures() {
-        if (failures == null) {
-            failures = new ArrayList<>();
-            GlobalConfig config = requireNonNull(JENKINS)
-                    .getInjector().getInstance(GlobalConfig.class);
-            EntityManager em = null;
-            try {
-                em = config.getEntityManagerFactory().createEntityManager();
-                Job job = Job.findByName(project.getDisplayName(), em, false);
-                for (Failure f : Failure.findByJob(job, em).values()) {
-                    failures.add(new ProjectBuildInfoFailure(f, project, em));
-                }
-            } catch (SQLException ex) {
-                LOG.log(Level.SEVERE, null, ex);
-            } finally {
-                if (em != null) {
-                    em.close();
-                }
-            }
-        }
-        return failures;
-    }
-
-    public Action getFailure(String id) {
-        Integer failureId = Integer.valueOf(id);
-        ProjectBuildInfoFailure rt = null;
-        GlobalConfig config = requireNonNull(JENKINS)
-                .getInjector().getInstance(GlobalConfig.class);
-        EntityManager em = null;
-        try {
-            em = config.getEntityManagerFactory().createEntityManager();
-            rt = new ProjectBuildInfoFailure(Failure.findByID(failureId, em),
-                    project, em);
-        } catch (SQLException ex) {
-            LOG.log(Level.SEVERE, null, ex);
-        } finally {
-            if (em != null) {
-                em.close();
-            }
-        }
-        return rt;
-    }
-
-    public List<ProjectBuildInfoUnreliable> getUnreliable() {
-        if (unreliable == null) {
-            unreliable = new ArrayList<>();
-            GlobalConfig config = requireNonNull(JENKINS)
-                    .getInjector().getInstance(GlobalConfig.class);
-            EntityManager em = null;
-            try {
-                em = config.getEntityManagerFactory().createEntityManager();
-                Job job = Job.findByName(project.getDisplayName(), em, false);
-                List<UnitTest> tests = UnitTest.findUnreliableForJob(job, em);
-                for (UnitTest test : tests) {
-                    unreliable.add(new ProjectBuildInfoUnreliable(test));
-                }
-            } catch (SQLException ex) {
-                LOG.log(Level.SEVERE, null, ex);
-            } finally {
-                if (em != null) {
-                    em.close();
-                }
-            }
-        }
-        return unreliable;
-    }
+    return unreliable;
+  }
 
 }

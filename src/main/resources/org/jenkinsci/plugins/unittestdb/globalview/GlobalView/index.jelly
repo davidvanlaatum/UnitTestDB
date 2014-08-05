@@ -9,7 +9,8 @@
     <l:main-panel>
       <h1>Unit Test Failures</h1>
       <j:forEach items="${it.jobs}" var="job">
-        <j:if test="${job.hasFailures()}">
+        <j:set var="failures" value="${job.failures}" />
+        <j:if test="${!failures.isEmpty()}">
           <h2>
             <a href="${rootURL}/${job.project.url}" class="model-link inside unittestproject">${job.project.name}</a>
           </h2>
@@ -18,7 +19,8 @@
       </j:forEach>
       <h1>Unreliable Unit Tests</h1>
       <j:forEach items="${it.jobs}" var="job">
-        <j:if test="${job.hasUnreliable()}">
+        <j:set var="unreliable" value="${job.unreliable}" />
+        <j:if test="${!unreliable.isEmpty()}">
           <h2>
             <a href="${rootURL}/${job.project.url}" class="model-link inside unittestproject">${job.project.name}</a>
           </h2>

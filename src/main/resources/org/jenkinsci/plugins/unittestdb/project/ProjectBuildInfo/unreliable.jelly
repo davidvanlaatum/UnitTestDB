@@ -11,7 +11,7 @@
         <th>Rate</th>
       </tr>
     </thead>
-    <j:forEach items="${it.unreliable}" var="failure">
+    <j:forEach items="${unreliable}" var="failure">
       <tr>
         <td class="name">${failure.name}</td>
         <td class="runs">${failure.runs}</td>

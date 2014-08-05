@@ -15,7 +15,7 @@
         <th>Actions</th>
       </tr>
     </thead>
-    <j:forEach items="${it.failures}" var="failure">
+    <j:forEach items="${failures}" var="failure">
       <tr>
         <td class="name">
           <j:if test="${failure.result==null}">${failure.name}</j:if>
