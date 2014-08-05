@@ -29,7 +29,7 @@ import static java.util.Objects.requireNonNull;
     @NamedQuery(name = "UnitTest.findByJobAndName", query
             = "SELECT u FROM UnitTest u WHERE u.job.jobId = :job AND u.name = :name"),
     @NamedQuery(name = "UnitTest.findUnreliableForJob", query
-            = "SELECT u FROM UnitTest u WHERE u.job.jobId = :job AND failure_rate >= :rate")
+            = "SELECT u FROM UnitTest u WHERE u.job.jobId = :job AND failure_rate >= :rate AND runs >= :runs")
 })
 public class UnitTest extends DBObject implements Serializable {
 
@@ -238,6 +238,7 @@ public class UnitTest extends DBObject implements Serializable {
         Query q = em.createNamedQuery("UnitTest.findUnreliableForJob");
         q.setParameter("job", job.getJobId());
         q.setParameter("rate", 20);
+        q.setParameter("runs", 10);
         try {
             rt = q.getResultList();
         } catch (NoResultException ex) {
