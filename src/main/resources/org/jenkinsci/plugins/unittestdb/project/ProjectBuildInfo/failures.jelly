@@ -8,7 +8,6 @@
         <th>Unit Test</th>
         <th>State</th>
         <th>Duration</th>
-        <th>Node</th>
         <th>From</th>
         <th>To</th>
         <th colspan="2">Users</th>
@@ -25,7 +24,6 @@
         </td>
         <td class="state">${failure.testState}</td>
         <td class="duration">${failure.duration} sec</td>
-        <td class="node">${failure.nodestr}</td>
         <td class="firstbuild">
           <t:buildLink job="${failure.firstBuild.project}" number="${failure.firstBuild.number}"/>
         </td>
