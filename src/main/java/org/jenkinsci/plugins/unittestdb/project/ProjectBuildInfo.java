@@ -1,17 +1,16 @@
 package org.jenkinsci.plugins.unittestdb.project;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import hudson.model.*;
 import javax.persistence.EntityManager;
 import jenkins.model.Jenkins;
 import org.jenkinsci.plugins.unittestdb.GlobalConfig;
+import org.jenkinsci.plugins.unittestdb.db.*;
 import org.jenkinsci.plugins.unittestdb.db.Failure;
 import org.jenkinsci.plugins.unittestdb.db.Job;
-import org.jenkinsci.plugins.unittestdb.db.UnitTest;
 import org.kohsuke.stapler.export.Exported;
 import org.kohsuke.stapler.export.ExportedBean;
 import static java.util.Objects.requireNonNull;
@@ -72,6 +71,7 @@ public class ProjectBuildInfo extends Actionable implements Action {
 
   @Exported ( inline = true )
   public List<ProjectBuildInfoFailure> getFailures () {
+    long begin = System.currentTimeMillis ();
     List<ProjectBuildInfoFailure> failures = new ArrayList<> ();
     GlobalConfig config = requireNonNull ( JENKINS )
             .getInjector ().getInstance ( GlobalConfig.class );
@@ -89,6 +89,7 @@ public class ProjectBuildInfo extends Actionable implements Action {
         em.close ();
       }
     }
+    LOG.log ( Level.INFO, "{0}", System.currentTimeMillis () - begin );
     return failures;
   }
 
@@ -113,6 +114,7 @@ public class ProjectBuildInfo extends Actionable implements Action {
   }
 
   public List<ProjectBuildInfoUnreliable> getUnreliable () {
+    long begin = System.currentTimeMillis ();
     List<ProjectBuildInfoUnreliable> unreliable = new ArrayList<> ();
     GlobalConfig config = requireNonNull ( JENKINS )
             .getInjector ().getInstance ( GlobalConfig.class );
@@ -131,6 +133,7 @@ public class ProjectBuildInfo extends Actionable implements Action {
         em.close ();
       }
     }
+    LOG.log ( Level.INFO, "{0}", System.currentTimeMillis () - begin );
     return unreliable;
   }
 
