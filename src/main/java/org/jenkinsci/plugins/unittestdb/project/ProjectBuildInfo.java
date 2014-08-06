@@ -89,7 +89,8 @@ public class ProjectBuildInfo extends Actionable implements Action {
         em.close ();
       }
     }
-    LOG.log ( Level.INFO, "{0}", System.currentTimeMillis () - begin );
+    LOG.log ( Level.INFO, "{0} {1}", new Object[]{ project.getName (), System
+                                                   .currentTimeMillis () - begin } );
     return failures;
   }
 
