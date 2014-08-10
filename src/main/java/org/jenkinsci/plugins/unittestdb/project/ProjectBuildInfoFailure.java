@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import hudson.Functions;
 import hudson.matrix.MatrixBuild;
 import hudson.matrix.MatrixRun;
 import hudson.model.*;
@@ -14,6 +15,7 @@ import hudson.tasks.test.AggregatedTestResultAction;
 import hudson.tasks.test.TestObject;
 import hudson.tasks.test.TestResult;
 import javax.persistence.EntityManager;
+import javax.persistence.Query;
 import javax.servlet.ServletException;
 import jenkins.model.Jenkins;
 import org.jenkinsci.plugins.unittestdb.GlobalConfig;
@@ -35,8 +37,11 @@ import static org.jenkinsci.plugins.unittestdb.db.FailureUserState.Maybe;
 public class ProjectBuildInfoFailure extends Actionable implements Action {
 
   private static final Jenkins JENKINS = Jenkins.getInstance ();
+  private static final Logger LOG
+          = Logger.getLogger ( ProjectBuildInfoFailure.class.getName () );
 
   protected Integer failureId;
+  protected Integer unitTestId;
   protected String name;
   protected TestResult result;
   protected FailureState state;
@@ -47,11 +52,16 @@ public class ProjectBuildInfoFailure extends Actionable implements Action {
   protected Integer lastBuildId;
   protected String url;
   protected Double duration;
+  protected String errorDetails;
+  protected String errorStack;
   protected UnitTestState testState;
+  protected AbstractProject<?, ?> project;
 
   public ProjectBuildInfoFailure ( Failure failure,
                                    AbstractProject<?, ?> project,
                                    EntityManager em ) {
+    this.project = project;
+    unitTestId = failure.getUnitTest ().getUnitTestId ();
     failureId = failure.getFailureId ();
     name = failure.getUnitTest ().getName ();
     state = failure.getState ();
@@ -70,11 +80,17 @@ public class ProjectBuildInfoFailure extends Actionable implements Action {
     BuildUnitTest but = BuildUnitTest.findByBuildAndId ( failure
             .getLastBuild (), failure.getUnitTest ().getUnitTestId (), em );
     if ( but != null ) {
+      errorDetails = but.getErrorDetails ();
+      errorStack = but.getErrorStack ();
       duration = but.getDuration ();
       testState = but.getState ();
     } else {
       LOG.log ( Level.WARNING, "failed to get info about unit test in build" );
     }
+  }
+
+  public Api getApi () {
+    return new Api ( this );
   }
 
   public static TestResult findResult ( Object o, String id, int depth ) {
@@ -153,6 +169,26 @@ public class ProjectBuildInfoFailure extends Actionable implements Action {
     return rt;
   }
 
+  /**
+   * @return the errorDetails
+   */
+  @Exported
+  public String getErrorDetails () {
+    return errorDetails;
+  }
+
+  /**
+   * @return the errorStack
+   */
+  @Exported
+  public String getErrorStack () {
+    return errorStack;
+  }
+
+  public AbstractProject<?, ?> getProject () {
+    return project;
+  }
+
   @Exported
   public String getUrl () {
     return url;
@@ -168,6 +204,7 @@ public class ProjectBuildInfoFailure extends Actionable implements Action {
     return firstBuild;
   }
 
+  @Exported
   public Integer getFirstBuildId () {
     return firstBuildId;
   }
@@ -177,6 +214,7 @@ public class ProjectBuildInfoFailure extends Actionable implements Action {
     return lastBuild;
   }
 
+  @Exported
   public Integer getLastBuildId () {
     return lastBuildId;
   }
@@ -227,7 +265,7 @@ public class ProjectBuildInfoFailure extends Actionable implements Action {
 
   @Override
   public String getDisplayName () {
-    return null;
+    return name;
   }
 
   @Override
@@ -318,7 +356,42 @@ public class ProjectBuildInfoFailure extends Actionable implements Action {
 
     return rt;
   }
-  private static final Logger LOG
-          = Logger.getLogger ( ProjectBuildInfoFailure.class.getName () );
+
+  @Override
+  public ContextMenu doContextMenu ( StaplerRequest request,
+                                     StaplerResponse response ) throws Exception {
+    ContextMenu menu = super.doContextMenu ( request, response );
+
+    menu.add ( "gone", JENKINS.getRootUrl () + Functions.getResourcePath ()
+                               + "/images/16x16/document_delete.png",
+               "Mark as Gone",
+               true, true );
+
+    return menu;
+  }
+
+  @Exported ( visibility = -1 )
+  public List<ProjectBuildInfoRun> getRuns () throws SQLException {
+    List<ProjectBuildInfoRun> runs = new ArrayList<> ();
+    GlobalConfig config = JENKINS.getInjector ().getInstance (
+            GlobalConfig.class );
+    EntityManager em = null;
+    try {
+      em = config.getEntityManagerFactory ().createEntityManager ();
+      Query q = em.createNamedQuery ( "BuildUnitTest.findByUnitTestId" );
+      q.setParameter ( "unittestid", this.unitTestId );
+      q.setMaxResults ( 50 );
+      @SuppressWarnings ( "unchecked" )
+      List<BuildUnitTest> dbruns = q.getResultList ();
+      for ( BuildUnitTest test : dbruns ) {
+        runs.add ( new ProjectBuildInfoRun ( project, test ) );
+      }
+    } finally {
+      if ( em != null ) {
+        em.close ();
+      }
+    }
+    return runs;
+  }
 
 }

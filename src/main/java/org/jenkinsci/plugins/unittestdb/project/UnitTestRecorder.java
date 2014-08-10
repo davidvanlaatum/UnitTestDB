@@ -118,8 +118,8 @@ public class UnitTestRecorder {
       bt.setJob ( job );
       bt.setUnitTest ( t );
       bt.setDuration ( Double.valueOf ( test.getDuration () ) );
-      bt.setErrordetails ( test.getErrorDetails () );
-      bt.setErrorstack ( test.getErrorStackTrace () );
+      bt.setErrorDetails ( test.getErrorDetails () );
+      bt.setErrorStack ( test.getErrorStackTrace () );
       if ( test.getBuildResult () == Result.UNSTABLE ) {
         bt.setState ( UnitTestState.Failed );
       } else if ( test.getSkipCount () > 0 ) {

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout"
+         xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+  <l:layout title="Unit Test DB">
+    <l:header>
+      <link rel="stylesheet" href="${resURL}/plugin/UnitTestsDB/css/tests.css" type="text/css"/>​
+    </l:header>
+    <st:include it="${it.project}" page="sidepanel.jelly"/>
+    <l:main-panel>
+      <div style="float: right">
+        <table class="pane bigtable">
+          <tr>
+            <th colspan="2">Users</th>
+          </tr>
+          <j:forEach items="${it.users}" var="user">
+            <tr>
+              <td>${user.user}</td>
+              <td>
+                <a href="user/${user.name}" class="model-link inside">${user.state}</a>
+              </td>
+            </tr>
+          </j:forEach>
+        </table>
+        <table class="pane bigtable">
+          <thead>
+            <tr>
+              <th>Build</th>
+              <th>Duration</th>
+              <th>State</th>
+            </tr>
+          </thead>
+          <tbody>
+            <j:forEach items="${it.runs}" var="run">
+              <tr>
+                <td style="padding-right: 16px">
+                  <t:buildLink job="${it.project}" number="${run.jenkinsBuildId}"/>
+                </td>
+                <td>${run.duration} Sec</td>
+                <td>${run.testState}</td>
+              </tr>
+            </j:forEach>
+          </tbody>
+        </table>
+      </div>
+      <h1>${it.name}</h1>
+      <span>${it.errorDetails}</span>
+      <span style="white-space: pre-wrap;">${it.errorStack}</span>
+    </l:main-panel>
+  </l:layout>
+</j:jelly>

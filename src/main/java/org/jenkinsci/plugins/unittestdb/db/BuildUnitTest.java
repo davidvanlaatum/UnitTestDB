@@ -28,7 +28,10 @@ import static java.util.Objects.requireNonNull;
   @NamedQuery ( name = "BuildUnitTest.findByExecutor", query
                 = "SELECT b FROM BuildUnitTest b WHERE b.executor = :executor" ),
   @NamedQuery ( name = "BuildUnitTest.findByBuildAndId", query
-                = "SELECT b FROM BuildUnitTest b WHERE b.unitTest.unitTestId = :id AND b.build.buildId = :build" ) } )
+                = "SELECT b FROM BuildUnitTest b WHERE b.unitTest.unitTestId = :id AND b.build.buildId = :build" ),
+  @NamedQuery ( name = "BuildUnitTest.findByUnitTestId",
+                query
+                = "SELECT b FROM BuildUnitTest b WHERE b.unitTest.unitTestId = :unittestid ORDER BY b.build DESC" ) } )
 public class BuildUnitTest extends DBObject implements Serializable {
 
   private static final Logger LOG
@@ -96,19 +99,19 @@ public class BuildUnitTest extends DBObject implements Serializable {
     this.duration = duration;
   }
 
-  public String getErrordetails () {
+  public String getErrorDetails () {
     return errordetails;
   }
 
-  public void setErrordetails ( String errordetails ) {
+  public void setErrorDetails ( String errordetails ) {
     this.errordetails = errordetails;
   }
 
-  public String getErrorstack () {
+  public String getErrorStack () {
     return errorstack;
   }
 
-  public void setErrorstack ( String errorstack ) {
+  public void setErrorStack ( String errorstack ) {
     this.errorstack = errorstack;
   }
 

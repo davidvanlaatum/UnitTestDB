@@ -2,6 +2,7 @@ package org.jenkinsci.plugins.unittestdb.project;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import hudson.Functions;
 import hudson.model.Action;
 import hudson.model.Actionable;
 import javax.persistence.EntityManager;
@@ -114,6 +115,28 @@ public class ProjectBuildInfoUser extends Actionable implements Action {
           SQLException, ServletException, IOException {
     doUpdateTo ( Might_be_Me );
     rsp.forwardToPreviousPage ( req );
+  }
+
+  @Override
+  public ContextMenu doContextMenu ( StaplerRequest request,
+                                     StaplerResponse response ) throws Exception {
+    ContextMenu menu = super.doContextMenu ( request, response );
+
+    menu.add ( "maybe", JENKINS.getRootUrl () + Functions.getResourcePath ()
+                                + "/images/16x16/document_add.png", "Maybe",
+               true );
+    menu.add ( "wasme", JENKINS.getRootUrl () + Functions.getResourcePath ()
+                                + "/images/16x16/document_add.png", "Was Me",
+               true );
+    menu.add ( "notme", JENKINS.getRootUrl () + Functions.getResourcePath ()
+                                + "/images/16x16/document_add.png", "Not Me",
+               true );
+    menu.add ( "mightbeme", JENKINS.getRootUrl () + Functions.getResourcePath ()
+                                    + "/images/16x16/document_add.png",
+               "Might Be Me",
+               true );
+
+    return menu;
   }
 
 }
