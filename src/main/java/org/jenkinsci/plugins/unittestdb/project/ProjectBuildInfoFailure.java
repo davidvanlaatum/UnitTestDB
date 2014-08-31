@@ -9,7 +9,11 @@ import java.util.logging.Logger;
 import hudson.Functions;
 import hudson.matrix.MatrixBuild;
 import hudson.matrix.MatrixRun;
-import hudson.model.*;
+import hudson.model.AbstractBuild;
+import hudson.model.AbstractProject;
+import hudson.model.Action;
+import hudson.model.Actionable;
+import hudson.model.Api;
 import hudson.tasks.test.AbstractTestResultAction;
 import hudson.tasks.test.AggregatedTestResultAction;
 import hudson.tasks.test.TestObject;
@@ -19,8 +23,11 @@ import javax.persistence.Query;
 import javax.servlet.ServletException;
 import jenkins.model.Jenkins;
 import org.jenkinsci.plugins.unittestdb.GlobalConfig;
-import org.jenkinsci.plugins.unittestdb.db.*;
+import org.jenkinsci.plugins.unittestdb.db.BuildUnitTest;
 import org.jenkinsci.plugins.unittestdb.db.Failure;
+import org.jenkinsci.plugins.unittestdb.db.FailureState;
+import org.jenkinsci.plugins.unittestdb.db.FailureUser;
+import org.jenkinsci.plugins.unittestdb.db.UnitTestState;
 import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 import org.kohsuke.stapler.export.Exported;
@@ -147,7 +154,7 @@ public class ProjectBuildInfoFailure extends Actionable implements Action {
     if ( build instanceof MatrixBuild ) {
       for ( MatrixRun r : ( (MatrixBuild) build ).getRuns () ) {
         final AbstractTestResultAction testResultAction
-                = r.getTestResultAction ();
+                = r.getAction ( AbstractTestResultAction.class );
         if ( testResultAction != null ) {
           TestResult t = testResultAction.findCorrespondingResult ( f
                   .getUnitTest ()

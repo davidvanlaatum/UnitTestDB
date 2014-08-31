@@ -1,25 +1,36 @@
 package org.jenkinsci.plugins.unittestdb.project;
 
 import java.sql.SQLException;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.SortedMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import com.google.inject.Inject;
 import hudson.Launcher;
-import hudson.model.*;
+import hudson.model.AbstractBuild;
+import hudson.model.BuildListener;
+import hudson.model.Result;
 import hudson.scm.ChangeLogSet;
-import hudson.tasks.test.*;
+import hudson.tasks.test.AbstractTestResultAction;
+import hudson.tasks.test.TabulatedResult;
+import hudson.tasks.test.TestResult;
 import javax.persistence.EntityManager;
 import javax.persistence.LockModeType;
 import jenkins.model.Jenkins;
 import org.jenkinsci.plugins.unittestdb.GlobalConfig;
 import org.jenkinsci.plugins.unittestdb.JobLogger;
 import org.jenkinsci.plugins.unittestdb.build.BuildInfo;
-import org.jenkinsci.plugins.unittestdb.db.*;
 import org.jenkinsci.plugins.unittestdb.db.Build;
+import org.jenkinsci.plugins.unittestdb.db.BuildUnitTest;
 import org.jenkinsci.plugins.unittestdb.db.Failure;
+import org.jenkinsci.plugins.unittestdb.db.FailureState;
+import org.jenkinsci.plugins.unittestdb.db.FailureUser;
+import org.jenkinsci.plugins.unittestdb.db.FailureUserState;
 import org.jenkinsci.plugins.unittestdb.db.Job;
 import org.jenkinsci.plugins.unittestdb.db.Node;
+import org.jenkinsci.plugins.unittestdb.db.UnitTest;
+import org.jenkinsci.plugins.unittestdb.db.UnitTestState;
 import org.jenkinsci.plugins.unittestdb.db.User;
 import static java.util.Objects.requireNonNull;
 
@@ -77,7 +88,8 @@ public class UnitTestRecorder {
   }
 
   protected void discoverUnitTests () {
-    AbstractTestResultAction tests = build.getTestResultAction ();
+    AbstractTestResultAction tests = build.getAction (
+            AbstractTestResultAction.class );
     if ( tests != null ) {
       if ( tests.getResult () instanceof hudson.tasks.junit.TestResult ) {
         hudson.tasks.junit.TestResult unittests
