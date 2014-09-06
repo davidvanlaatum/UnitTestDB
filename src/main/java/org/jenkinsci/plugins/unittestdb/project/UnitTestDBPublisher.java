@@ -7,8 +7,16 @@ import hudson.Extension;
 import hudson.Launcher;
 import hudson.init.Initializer;
 import hudson.matrix.MatrixProject;
-import hudson.model.*;
-import hudson.tasks.*;
+import hudson.model.AbstractBuild;
+import hudson.model.AbstractProject;
+import hudson.model.Action;
+import hudson.model.BuildListener;
+import hudson.model.FreeStyleProject;
+import hudson.model.Items;
+import hudson.tasks.BuildStepDescriptor;
+import hudson.tasks.BuildStepMonitor;
+import hudson.tasks.Publisher;
+import hudson.tasks.Recorder;
 import net.sf.json.JSONObject;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
@@ -83,6 +91,10 @@ public class UnitTestDBPublisher extends Recorder {
     @Override
     public boolean isApplicable (
             Class<? extends AbstractProject> jobType ) {
+      if ( jobType.getName ().equals (
+              "org.jenkinsci.plugins.DistributedTests.DistributedProject" ) ) {
+        return true;
+      }
       return FreeStyleProject.class.isAssignableFrom ( jobType )
                      || MatrixProject.class.isAssignableFrom ( jobType );
     }
