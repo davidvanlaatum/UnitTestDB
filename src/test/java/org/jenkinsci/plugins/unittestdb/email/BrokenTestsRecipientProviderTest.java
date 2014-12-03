@@ -6,6 +6,7 @@ import java.io.*;
 import java.util.*;
 import com.google.common.collect.ImmutableList;
 import hudson.EnvVars;
+import hudson.Launcher;
 import hudson.console.ConsoleNote;
 import hudson.model.*;
 import hudson.plugins.emailext.ExtendedEmailPublisher;
@@ -24,145 +25,162 @@ import static org.junit.Assert.*;
 /**
  * @author David van Laatum
  */
-@RunWith ( PowerMockRunner.class )
-@PrepareForTest ( { Jenkins.class } )
+@RunWith(PowerMockRunner.class)
+@PrepareForTest({Jenkins.class})
 public class BrokenTestsRecipientProviderTest {
 
-  /**
-   * Test of addRecipients method, of class BrokenTestsRecipientProvider.
-   *
-   * @throws java.lang.Exception
-   */
-  @Test
-  public void testAddRecipients () throws Exception {
-    final String TESTUSER = "testuser";
-    final String TESTEMAIL = "test@test.com";
-    final String TESTFULLNAME = "A Test User";
-    final ByteArrayOutputStream out = new ByteArrayOutputStream ();
+    /**
+     * Test of addRecipients method, of class BrokenTestsRecipientProvider.
+     *
+     * @throws java.lang.Exception
+     */
+    @Test
+    public void testAddRecipients() throws Exception {
+        final String TESTUSER = "testuser";
+        final String TESTEMAIL = "test@test.com";
+        final String TESTFULLNAME = "A Test User";
+        final ByteArrayOutputStream out = new ByteArrayOutputStream();
 
-    TaskListener listener = new AbstractTaskListener () {
-      PrintStream log = new PrintStream ( out );
+        BuildListener listener = new BuildListener() {
+            PrintStream log = new PrintStream(out);
 
-      @Override
-      public void annotate ( ConsoleNote ann ) throws IOException {
-        throw new UnsupportedOperationException ( "Not supported yet." );
-      }
+            @Override
+            public void started(List<Cause> causes) {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
 
-      @Override
-      public PrintWriter error ( String msg ) {
-        throw new UnsupportedOperationException ( "Not supported yet." );
-      }
+            @Override
+            public void finished(Result result) {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
 
-      @Override
-      public PrintWriter error ( String format, Object... args ) {
-        throw new UnsupportedOperationException ( "Not supported yet." );
-      }
+            @Override
+            public PrintStream getLogger() {
+                return log;
+            }
 
-      @Override
-      public PrintWriter fatalError ( String msg ) {
-        throw new UnsupportedOperationException ( "Not supported yet." );
-      }
+            @Override
+            public void annotate(ConsoleNote ann) throws IOException {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
 
-      @Override
-      public PrintWriter fatalError ( String format, Object... args ) {
-        throw new UnsupportedOperationException ( "Not supported yet." );
-      }
+            @Override
+            public void hyperlink(String url, String text) throws IOException {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
 
-      @Override
-      public PrintStream getLogger () {
-        return log;
-      }
-    };
+            @Override
+            public PrintWriter error(String msg) {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
 
-    Jenkins j = PowerMockito.mock ( Jenkins.class );
-    PowerMockito.mockStatic ( Jenkins.class );
-    PowerMockito.when ( Jenkins.getInstance () ).thenReturn ( j );
+            @Override
+            public PrintWriter error(String format, Object... args) {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
 
-    AbstractBuild build = PowerMockito.mock ( AbstractBuild.class );
-    ExtendedEmailPublisher extemail = new ExtendedEmailPublisher ();
-    ExtendedEmailPublisherContext context = new ExtendedEmailPublisherContext (
-            extemail, build, listener );
-    EnvVars vars = new EnvVars ();
-    Set<InternetAddress> to = new HashSet<> ();
-    Set<InternetAddress> cc = new HashSet<> ();
-    Set<InternetAddress> bcc = new HashSet<> ();
+            @Override
+            public PrintWriter fatalError(String msg) {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
 
-    BrokenTestsRecipientProvider obj = new BrokenTestsRecipientProvider ();
+            @Override
+            public PrintWriter fatalError(String format, Object... args) {
+                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            }
+        };
 
-    obj.addRecipients ( context, vars, to, cc, bcc );
+        Jenkins j = PowerMockito.mock(Jenkins.class);
+        PowerMockito.mockStatic(Jenkins.class);
+        PowerMockito.when(Jenkins.getInstance()).thenReturn(j);
 
-    assertTrue ( to.isEmpty () );
-    assertTrue ( cc.isEmpty () );
-    assertTrue ( bcc.isEmpty () );
-    assertEquals ( "INFO: No info from Unit Test Publisher\n", out.toString () );
+        Launcher launcher = PowerMockito.mock(Launcher.class);
 
-    out.reset ();
+        AbstractBuild build = PowerMockito.mock(AbstractBuild.class);
+        ExtendedEmailPublisher extemail = new ExtendedEmailPublisher();
+        ExtendedEmailPublisherContext context = new ExtendedEmailPublisherContext(
+                extemail, build, launcher, listener);
+        EnvVars vars = new EnvVars();
+        Set<InternetAddress> to = new HashSet<>();
+        Set<InternetAddress> cc = new HashSet<>();
+        Set<InternetAddress> bcc = new HashSet<>();
 
-    BuildInfo buildInfo = new BuildInfo ( build );
+        BrokenTestsRecipientProvider obj = new BrokenTestsRecipientProvider();
 
-    PowerMockito.when ( build.getAction ( BuildInfo.class ) )
-            .thenReturn ( buildInfo );
+        obj.addRecipients(context, vars, to, cc, bcc);
 
-    obj.addRecipients ( context, vars, to, cc, bcc );
+        assertTrue(to.isEmpty());
+        assertTrue(cc.isEmpty());
+        assertTrue(bcc.isEmpty());
+        assertEquals("INFO: No info from Unit Test Publisher\n", out.toString());
 
-    assertTrue ( to.isEmpty () );
-    assertTrue ( cc.isEmpty () );
-    assertTrue ( bcc.isEmpty () );
-    assertEquals ( "", out.toString () );
+        out.reset();
 
-    org.jenkinsci.plugins.unittestdb.db.User u
-            = new org.jenkinsci.plugins.unittestdb.db.User ();
-    u.setUsername ( TESTUSER );
-    org.jenkinsci.plugins.unittestdb.db.Failure f
-            = new org.jenkinsci.plugins.unittestdb.db.Failure ();
-    f.setUsers ( ImmutableList.of (
-            new org.jenkinsci.plugins.unittestdb.db.FailureUser () ) );
-    f.setUnitTest ( new UnitTest () );
-    f.getUsers ().get ( 0 ).setUser ( u );
-    f.setFirstBuild ( new org.jenkinsci.plugins.unittestdb.db.Build () );
-    f.setLastBuild ( new org.jenkinsci.plugins.unittestdb.db.Build () );
+        BuildInfo buildInfo = new BuildInfo(build);
 
-    buildInfo.addFailure ( f );
+        PowerMockito.when(build.getAction(BuildInfo.class))
+                .thenReturn(buildInfo);
 
-    obj.addRecipients ( context, vars, to, cc, bcc );
+        obj.addRecipients(context, vars, to, cc, bcc);
 
-    assertTrue ( to.isEmpty () );
-    assertTrue ( cc.isEmpty () );
-    assertTrue ( bcc.isEmpty () );
-    assertEquals ( "INFO: No email address for user " + TESTUSER + "\n", out
-                   .toString () );
+        assertTrue(to.isEmpty());
+        assertTrue(cc.isEmpty());
+        assertTrue(bcc.isEmpty());
+        assertEquals("", out.toString());
 
-    out.reset ();
+        org.jenkinsci.plugins.unittestdb.db.User u
+                = new org.jenkinsci.plugins.unittestdb.db.User();
+        u.setUsername(TESTUSER);
+        org.jenkinsci.plugins.unittestdb.db.Failure f
+                = new org.jenkinsci.plugins.unittestdb.db.Failure();
+        f.setUsers(ImmutableList.of(
+                new org.jenkinsci.plugins.unittestdb.db.FailureUser()));
+        f.setUnitTest(new UnitTest());
+        f.getUsers().get(0).setUser(u);
+        f.setFirstBuild(new org.jenkinsci.plugins.unittestdb.db.Build());
+        f.setLastBuild(new org.jenkinsci.plugins.unittestdb.db.Build());
 
-    User juser = PowerMockito.mock ( User.class );
-    PowerMockito.when ( j.getUser ( TESTUSER ) ).thenReturn ( juser );
-    PowerMockito.when ( juser.getDisplayName () ).thenReturn ( TESTFULLNAME );
+        buildInfo.addFailure(f);
 
-    obj.addRecipients ( context, vars, to, cc, bcc );
+        obj.addRecipients(context, vars, to, cc, bcc);
 
-    assertTrue ( to.isEmpty () );
-    assertTrue ( cc.isEmpty () );
-    assertTrue ( bcc.isEmpty () );
-    assertEquals ( "INFO: No email address for user " + TESTUSER + "\n", out
-                   .toString () );
+        assertTrue(to.isEmpty());
+        assertTrue(cc.isEmpty());
+        assertTrue(bcc.isEmpty());
+        assertEquals("INFO: No email address for user " + TESTUSER + "\n", out
+                .toString());
 
-    out.reset ();
+        out.reset();
 
-    PowerMockito.when ( juser.getProperty (
-            hudson.tasks.Mailer.UserProperty.class ) ).thenReturn (
-                    new hudson.tasks.Mailer.UserProperty ( TESTEMAIL ) );
+        User juser = PowerMockito.mock(User.class);
+        PowerMockito.when(j.getUser(TESTUSER)).thenReturn(juser);
+        PowerMockito.when(juser.getDisplayName()).thenReturn(TESTFULLNAME);
 
-    obj.addRecipients ( context, vars, to, cc, bcc );
+        obj.addRecipients(context, vars, to, cc, bcc);
 
-    assertFalse ( to.isEmpty () );
-    assertTrue ( cc.isEmpty () );
-    assertTrue ( bcc.isEmpty () );
-    assertEquals ( "INFO: Added " + TESTEMAIL + " to list of recipients\n",
-                   out.toString () );
-    assertEquals ( 1, to.size () );
+        assertTrue(to.isEmpty());
+        assertTrue(cc.isEmpty());
+        assertTrue(bcc.isEmpty());
+        assertEquals("INFO: No email address for user " + TESTUSER + "\n", out
+                .toString());
 
-    assertEquals ( TESTEMAIL, to.iterator ().next ().getAddress () );
-    assertEquals ( TESTFULLNAME, to.iterator ().next ().getPersonal () );
-  }
+        out.reset();
+
+        PowerMockito.when(juser.getProperty(
+                hudson.tasks.Mailer.UserProperty.class)).thenReturn(
+                        new hudson.tasks.Mailer.UserProperty(TESTEMAIL));
+
+        obj.addRecipients(context, vars, to, cc, bcc);
+
+        assertFalse(to.isEmpty());
+        assertTrue(cc.isEmpty());
+        assertTrue(bcc.isEmpty());
+        assertEquals("INFO: Added " + TESTEMAIL + " to list of recipients\n",
+                out.toString());
+        assertEquals(1, to.size());
+
+        assertEquals(TESTEMAIL, to.iterator().next().getAddress());
+        assertEquals(TESTFULLNAME, to.iterator().next().getPersonal());
+    }
 
 }
