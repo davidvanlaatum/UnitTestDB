@@ -2,3 +2,5 @@
 /lib/
 /target
 /work
+.idea
+UnitTestsDB.iml
