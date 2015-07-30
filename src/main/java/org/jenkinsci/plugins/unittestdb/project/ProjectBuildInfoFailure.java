@@ -379,7 +379,7 @@ public class ProjectBuildInfoFailure extends Actionable implements Action {
 
   @Exported
   public Integer getAge() {
-    return lastBuildId - firstBuildId;
+    return lastBuildId - firstBuildId + 1;
   }
 
   @Exported ( visibility = -1 )
