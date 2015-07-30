@@ -377,6 +377,11 @@ public class ProjectBuildInfoFailure extends Actionable implements Action {
     return menu;
   }
 
+  @Exported
+  public Integer getAge() {
+    return lastBuildId - firstBuildId;
+  }
+
   @Exported ( visibility = -1 )
   public List<ProjectBuildInfoRun> getRuns () throws SQLException {
     List<ProjectBuildInfoRun> runs = new ArrayList<> ();

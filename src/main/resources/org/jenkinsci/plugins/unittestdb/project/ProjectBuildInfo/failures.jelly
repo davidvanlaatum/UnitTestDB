@@ -10,6 +10,7 @@
         <th>Duration</th>
         <th>From</th>
         <th>To</th>
+        <th>Age</th>
         <th colspan="2">Users</th>
         <th>Actions</th>
       </tr>
@@ -31,6 +32,9 @@
         </td>
         <td class="lastbuild">
           <t:buildLink job="${failure.lastBuild.project}" number="${failure.lastBuild.number}"/>
+        </td>
+        <td class="age">
+          ${failure.age}
         </td>
         <td class="user">
           <ul>
