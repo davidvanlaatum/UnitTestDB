@@ -28,10 +28,16 @@
         </td>
         <td class="duration">${failure.duration} sec</td>
         <td class="firstbuild">
-          <t:buildLink job="${failure.firstBuild.project}" number="${failure.firstBuild.number}"/>
+          <j:if test="${failure.firstBuild!=null}">
+            <t:buildLink job="${failure.firstBuild.project}" number="${failure.firstBuild.number}"/>
+          </j:if>
+          <j:if test="${failure.firstBuild==null}">${failure.firstBuildId}</j:if>
         </td>
         <td class="lastbuild">
+          <j:if test="${failure.lastBuild!=null}">
           <t:buildLink job="${failure.lastBuild.project}" number="${failure.lastBuild.number}"/>
+          </j:if>
+          <j:if test="${failure.lastBuild==null}">${failure.lastBuildId}</j:if>
         </td>
         <td class="age">
           ${failure.age}
