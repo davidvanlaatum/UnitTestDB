@@ -1,20 +1,27 @@
 package org.jenkinsci.plugins.unittestdb.project;
 
+import com.google.common.collect.Lists;
+import hudson.Launcher;
+import hudson.matrix.Axis;
+import hudson.matrix.AxisList;
+import hudson.matrix.MatrixBuild;
+import hudson.matrix.MatrixProject;
+import hudson.model.*;
+import hudson.tasks.junit.JUnitResultArchiver;
+import org.jenkinsci.plugins.unittestdb.GlobalConfig;
+import org.jenkinsci.plugins.unittestdb.TestBase;
 import org.jenkinsci.plugins.unittestdb.build.BuildInfo;
-import org.jenkinsci.plugins.unittestdb.project.UnitTestDBPublisher;
+import org.junit.Rule;
+import org.junit.Test;
+import org.jvnet.hudson.test.FakeChangeLogSCM;
+import org.jvnet.hudson.test.JenkinsRule;
+import org.jvnet.hudson.test.TestBuilder;
+
+import javax.persistence.EntityManager;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
-import com.google.common.collect.Lists;
-import hudson.Launcher;
-import hudson.matrix.*;
-import hudson.model.*;
-import hudson.tasks.junit.JUnitResultArchiver;
-import javax.persistence.EntityManager;
-import org.jenkinsci.plugins.unittestdb.GlobalConfig;
-import org.jenkinsci.plugins.unittestdb.TestBase;
-import org.junit.*;
-import org.jvnet.hudson.test.*;
+
 import static java.util.Objects.requireNonNull;
 import static org.junit.Assert.*;
 
@@ -167,7 +174,7 @@ public class UnitTestDBPublisherTest extends TestBase {
     }
 
     j.createOnlineSlave ().setNodeName ( "slave0" );
-    MatrixProject project = j.createMatrixProject ( PROJECTNAME );
+    MatrixProject project = j.createProject(MatrixProject.class, PROJECTNAME);
 
     final FakeChangeLogSCM fakeSCM = new FakeChangeLogSCM ();
 

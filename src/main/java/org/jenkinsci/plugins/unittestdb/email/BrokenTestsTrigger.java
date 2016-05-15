@@ -1,16 +1,24 @@
 package org.jenkinsci.plugins.unittestdb.email;
 
-import java.util.List;
 import hudson.Extension;
 import hudson.init.Initializer;
 import hudson.matrix.MatrixBuild;
 import hudson.matrix.MatrixRun;
-import hudson.model.*;
-import hudson.plugins.emailext.plugins.*;
+import hudson.model.AbstractBuild;
+import hudson.model.Descriptor;
+import hudson.model.Items;
+import hudson.model.TaskListener;
+import hudson.plugins.emailext.plugins.EmailTrigger;
+import hudson.plugins.emailext.plugins.EmailTriggerDescriptor;
+import hudson.plugins.emailext.plugins.RecipientProvider;
 import net.sf.json.JSONObject;
 import org.jenkinsci.plugins.unittestdb.build.BuildInfo;
 import org.kohsuke.stapler.DataBoundConstructor;
 import org.kohsuke.stapler.StaplerRequest;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import static hudson.init.InitMilestone.PLUGINS_STARTED;
 
 /**
@@ -83,6 +91,10 @@ public class BrokenTestsTrigger extends EmailTrigger {
       return DISPLAYNAME;
     }
 
+    @Override
+    public EmailTrigger createDefault() {
+      return new BrokenTestsTrigger(new ArrayList<RecipientProvider>(), null, null, null, null, null, 0, null);
+    }
   }
 
 }

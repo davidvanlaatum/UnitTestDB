@@ -1,13 +1,18 @@
 package org.jenkinsci.plugins.unittestdb.build;
 
-import java.util.ArrayList;
-import java.util.List;
 import com.google.common.collect.ImmutableList;
 import hudson.init.Initializer;
-import hudson.model.*;
-import org.jenkinsci.plugins.unittestdb.db.*;
+import hudson.model.Action;
+import hudson.model.Actionable;
+import hudson.model.Run;
 import org.jenkinsci.plugins.unittestdb.db.Failure;
+import org.jenkinsci.plugins.unittestdb.db.FailureUser;
+import org.jenkinsci.plugins.unittestdb.db.FailureUserState;
 import org.kohsuke.stapler.export.ExportedBean;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import static hudson.init.InitMilestone.PLUGINS_STARTED;
 import static java.util.Objects.requireNonNull;
 
@@ -36,9 +41,9 @@ public class BuildInfo extends Actionable implements Action {
 
   private final List<String> users = new ArrayList<> ();
   private final List<BuildInfoFailure> failures = new ArrayList<> ();
-  private final AbstractBuild<?, ?> build;
+  private final Run build;
 
-  public BuildInfo ( AbstractBuild<?, ?> build ) {
+  public BuildInfo(Run build) {
     this.build = build;
   }
 
@@ -87,7 +92,7 @@ public class BuildInfo extends Actionable implements Action {
                                           firstBuild, lastBuild ) );
   }
 
-  public AbstractBuild<?, ?> getBuild () {
+  public Run getBuild() {
     return build;
   }
 

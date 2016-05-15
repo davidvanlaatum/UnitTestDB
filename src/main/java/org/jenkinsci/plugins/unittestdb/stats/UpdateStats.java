@@ -1,24 +1,30 @@
 package org.jenkinsci.plugins.unittestdb.stats;
 
-import java.io.IOException;
-import java.sql.SQLException;
-import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import com.google.inject.Inject;
 import hudson.Extension;
 import hudson.Launcher;
-import hudson.model.*;
+import hudson.model.AbstractBuild;
+import hudson.model.AbstractProject;
+import hudson.model.BuildListener;
+import hudson.model.FreeStyleProject;
 import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.Builder;
-import javax.persistence.EntityManager;
 import jenkins.model.Jenkins;
 import org.jenkinsci.plugins.unittestdb.GlobalConfig;
 import org.jenkinsci.plugins.unittestdb.JobLogger;
 import org.jenkinsci.plugins.unittestdb.db.*;
-import org.jenkinsci.plugins.unittestdb.db.Build;
-import org.jenkinsci.plugins.unittestdb.db.Job;
 import org.kohsuke.stapler.DataBoundConstructor;
+
+import javax.persistence.EntityManager;
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.List;
+import java.util.ListIterator;
+import java.util.SortedMap;
+import java.util.TreeMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import static java.util.Objects.requireNonNull;
 
 /**
