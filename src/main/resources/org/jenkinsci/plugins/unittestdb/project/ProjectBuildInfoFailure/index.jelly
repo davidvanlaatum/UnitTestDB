@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout"
-         xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+<?jelly escape-by-default='true'?>
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:l="/lib/layout"
+         xmlns:t="/lib/hudson">
   <l:layout title="Unit Test DB">
     <l:header>
       <link rel="stylesheet" href="${resURL}/plugin/UnitTestsDB/css/tests.css" type="text/css"/>​

@@ -1,37 +1,33 @@
 package org.jenkinsci.plugins.unittestdb.project;
 
+import hudson.Functions;
+import hudson.matrix.MatrixBuild;
+import hudson.matrix.MatrixRun;
+import hudson.model.*;
+import hudson.model.Job;
+import hudson.tasks.test.AbstractTestResultAction;
+import hudson.tasks.test.AggregatedTestResultAction;
+import hudson.tasks.test.TestObject;
+import hudson.tasks.test.TestResult;
+import jenkins.model.Jenkins;
+import org.jenkinsci.plugins.unittestdb.GlobalConfig;
+import org.jenkinsci.plugins.unittestdb.db.*;
+import org.jenkinsci.plugins.unittestdb.db.Failure;
+import org.kohsuke.stapler.StaplerRequest;
+import org.kohsuke.stapler.StaplerResponse;
+import org.kohsuke.stapler.export.Exported;
+import org.kohsuke.stapler.export.ExportedBean;
+
+import javax.persistence.EntityManager;
+import javax.persistence.Query;
+import javax.servlet.ServletException;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import hudson.Functions;
-import hudson.matrix.MatrixBuild;
-import hudson.matrix.MatrixRun;
-import hudson.model.AbstractBuild;
-import hudson.model.AbstractProject;
-import hudson.model.Action;
-import hudson.model.Actionable;
-import hudson.model.Api;
-import hudson.tasks.test.AbstractTestResultAction;
-import hudson.tasks.test.AggregatedTestResultAction;
-import hudson.tasks.test.TestObject;
-import hudson.tasks.test.TestResult;
-import javax.persistence.EntityManager;
-import javax.persistence.Query;
-import javax.servlet.ServletException;
-import jenkins.model.Jenkins;
-import org.jenkinsci.plugins.unittestdb.GlobalConfig;
-import org.jenkinsci.plugins.unittestdb.db.BuildUnitTest;
-import org.jenkinsci.plugins.unittestdb.db.Failure;
-import org.jenkinsci.plugins.unittestdb.db.FailureState;
-import org.jenkinsci.plugins.unittestdb.db.FailureUser;
-import org.jenkinsci.plugins.unittestdb.db.UnitTestState;
-import org.kohsuke.stapler.StaplerRequest;
-import org.kohsuke.stapler.StaplerResponse;
-import org.kohsuke.stapler.export.Exported;
-import org.kohsuke.stapler.export.ExportedBean;
+
 import static java.util.Objects.requireNonNull;
 import static org.jenkinsci.plugins.unittestdb.db.FailureState.Gone;
 import static org.jenkinsci.plugins.unittestdb.db.FailureUserState.Maybe;
@@ -53,20 +49,20 @@ public class ProjectBuildInfoFailure extends Actionable implements Action {
   protected TestResult result;
   protected FailureState state;
   protected List<ProjectBuildInfoUser> users;
-  protected AbstractBuild<?, ?> firstBuild;
+  protected Run<?, ?> firstBuild;
   protected Integer firstBuildId;
-  protected AbstractBuild<?, ?> lastBuild;
+  protected Run<?, ?> lastBuild;
   protected Integer lastBuildId;
   protected String url;
   protected Double duration;
   protected String errorDetails;
   protected String errorStack;
   protected UnitTestState testState;
-  protected AbstractProject<?, ?> project;
+  protected Job<?, ?> project;
 
-  public ProjectBuildInfoFailure ( Failure failure,
-                                   AbstractProject<?, ?> project,
-                                   EntityManager em ) {
+  public ProjectBuildInfoFailure (Failure failure,
+                                  Job<?, ?> project,
+                                  EntityManager em ) {
     this.project = project;
     unitTestId = failure.getUnitTest ().getUnitTestId ();
     failureId = failure.getFailureId ();
@@ -147,8 +143,8 @@ public class ProjectBuildInfoFailure extends Actionable implements Action {
     return rt;
   }
 
-  public static String findUrl ( Failure f, AbstractBuild<?, ?> build,
-                                 TestResult result ) {
+  public static String findUrl(Failure f, Run<?, ?> build,
+                               TestResult result ) {
     String rt = null;
 
     if ( build instanceof MatrixBuild ) {
@@ -192,7 +188,7 @@ public class ProjectBuildInfoFailure extends Actionable implements Action {
     return errorStack;
   }
 
-  public AbstractProject<?, ?> getProject () {
+  public Job<?, ?> getProject() {
     return project;
   }
 
@@ -207,7 +203,7 @@ public class ProjectBuildInfoFailure extends Actionable implements Action {
   }
 
   @Exported
-  public AbstractBuild<?, ?> getFirstBuild () {
+  public Run<?, ?> getFirstBuild() {
     return firstBuild;
   }
 
@@ -217,7 +213,7 @@ public class ProjectBuildInfoFailure extends Actionable implements Action {
   }
 
   @Exported
-  public AbstractBuild<?, ?> getLastBuild () {
+  public Run<?, ?> getLastBuild() {
     return lastBuild;
   }
 

@@ -1,7 +1,7 @@
 package org.jenkinsci.plugins.unittestdb.project;
 
-import hudson.model.AbstractProject;
 import hudson.model.Api;
+import hudson.model.Job;
 import org.jenkinsci.plugins.unittestdb.db.BuildUnitTest;
 import org.jenkinsci.plugins.unittestdb.db.UnitTestState;
 import org.kohsuke.stapler.export.Exported;
@@ -11,12 +11,12 @@ import org.kohsuke.stapler.export.Exported;
  */
 public class ProjectBuildInfoRun {
 
-  protected AbstractProject<?, ?> project;
+  protected Job<?, ?> project;
   protected UnitTestState testState;
   protected Double duration;
   protected Integer jenkinsBuildId;
 
-  public ProjectBuildInfoRun ( AbstractProject<?, ?> project, BuildUnitTest run ) {
+  public ProjectBuildInfoRun(Job<?, ?> project, BuildUnitTest run) {
     this.project = project;
     this.testState = run.getState ();
     this.duration = run.getDuration ();
@@ -45,7 +45,7 @@ public class ProjectBuildInfoRun {
   /**
    * @return the project
    */
-  public AbstractProject<?, ?> getProject () {
+  public Job<?, ?> getProject() {
     return project;
   }
 

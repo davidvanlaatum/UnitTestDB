@@ -1,18 +1,22 @@
 package org.jenkinsci.plugins.unittestdb.globalview;
 
-import java.sql.SQLException;
-import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import hudson.Extension;
 import hudson.Util;
 import hudson.model.*;
-import javax.persistence.EntityManager;
 import jenkins.model.Jenkins;
 import org.jenkinsci.plugins.unittestdb.GlobalConfig;
 import org.jenkinsci.plugins.unittestdb.db.Job;
 import org.jenkinsci.plugins.unittestdb.project.ProjectBuildInfo;
 import org.kohsuke.stapler.export.Exported;
+
+import javax.persistence.EntityManager;
+import java.sql.SQLException;
+import java.util.Collection;
+import java.util.List;
+import java.util.SortedMap;
+import java.util.TreeMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * @author David van Laatum
@@ -56,15 +60,14 @@ public class GlobalView extends Actionable implements RootAction {
     EntityManager em = null;
     try {
       em = config.getEntityManagerFactory ().createEntityManager ();
-      List<TopLevelItem> projects = Util.createSubList ( JENKINS.getAllItems (
-              AbstractProject.class ), TopLevelItem.class );
+      List<TopLevelItem> projects = Util.createSubList(JENKINS.getAllItems(), TopLevelItem.class);
       for ( Job job : Job.getAll ( em ) ) {
-        AbstractProject<?, ?> project = null;
+        hudson.model.Job<?, ?> project = null;
 
         for ( TopLevelItem item : projects ) {
           if ( item instanceof AbstractProject ) {
             if ( job.getName ().equals ( item.getName () ) ) {
-              project = (AbstractProject<?, ?>) item;
+              project = (hudson.model.Job<?, ?>) item;
               break;
             }
           }

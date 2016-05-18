@@ -1,18 +1,23 @@
 package org.jenkinsci.plugins.unittestdb.project;
 
-import java.sql.SQLException;
-import java.util.*;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-import hudson.model.*;
-import javax.persistence.EntityManager;
+import hudson.model.Action;
+import hudson.model.Actionable;
+import hudson.model.Api;
 import jenkins.model.Jenkins;
 import org.jenkinsci.plugins.unittestdb.GlobalConfig;
-import org.jenkinsci.plugins.unittestdb.db.*;
 import org.jenkinsci.plugins.unittestdb.db.Failure;
 import org.jenkinsci.plugins.unittestdb.db.Job;
+import org.jenkinsci.plugins.unittestdb.db.UnitTest;
 import org.kohsuke.stapler.export.Exported;
 import org.kohsuke.stapler.export.ExportedBean;
+
+import javax.persistence.EntityManager;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -25,10 +30,10 @@ public class ProjectBuildInfo extends Actionable implements Action {
   private static final Logger LOG
           = Logger.getLogger ( ProjectBuildInfo.class.getName () );
 
-  protected AbstractProject<?, ?> project;
+  protected hudson.model.Job<?, ?> project;
   private static final Jenkins JENKINS = Jenkins.getInstance ();
 
-  public ProjectBuildInfo ( AbstractProject<?, ?> project ) {
+  public ProjectBuildInfo(hudson.model.Job<?, ?> project) {
     this.project = project;
   }
 
@@ -53,7 +58,7 @@ public class ProjectBuildInfo extends Actionable implements Action {
   }
 
   @Exported
-  public AbstractProject<?, ?> getProject () {
+  public hudson.model.Job<?, ?> getProject() {
     return project;
   }
 
