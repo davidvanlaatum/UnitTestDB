@@ -13,7 +13,9 @@
         <j:set var="failures" value="${job.failures}" />
         <j:if test="${!failures.isEmpty()}">
           <h2>
-            <a href="${rootURL}/${job.project.url}" class="model-link inside unittestproject">${job.project.name}</a>
+            <a href="${rootURL}/${job.project.url}" class="model-link inside unittestproject">
+              ${job.project.fullDisplayName}
+            </a>
           </h2>
           <st:include it="${job}" page="failures.jelly"/>
         </j:if>
@@ -23,7 +25,9 @@
         <j:set var="unreliable" value="${job.unreliable}" />
         <j:if test="${!unreliable.isEmpty()}">
           <h2>
-            <a href="${rootURL}/${job.project.url}" class="model-link inside unittestproject">${job.project.name}</a>
+            <a href="${rootURL}/${job.project.url}" class="model-link inside unittestproject">
+              ${job.project.fullDisplayName}
+            </a>
           </h2>
           <st:include it="${job}" page="unreliable.jelly"/>
         </j:if>

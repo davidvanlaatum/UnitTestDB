@@ -2,7 +2,10 @@ package org.jenkinsci.plugins.unittestdb.globalview;
 
 import hudson.Extension;
 import hudson.Util;
-import hudson.model.*;
+import hudson.model.Actionable;
+import hudson.model.Api;
+import hudson.model.RootAction;
+import hudson.model.TopLevelItem;
 import jenkins.model.Jenkins;
 import org.jenkinsci.plugins.unittestdb.GlobalConfig;
 import org.jenkinsci.plugins.unittestdb.db.Job;
@@ -65,8 +68,8 @@ public class GlobalView extends Actionable implements RootAction {
         hudson.model.Job<?, ?> project = null;
 
         for ( TopLevelItem item : projects ) {
-          if ( item instanceof AbstractProject ) {
-            if ( job.getName ().equals ( item.getName () ) ) {
+          if (item instanceof hudson.model.Job) {
+            if (job.getName().equals(item.getFullName())) {
               project = (hudson.model.Job<?, ?>) item;
               break;
             }

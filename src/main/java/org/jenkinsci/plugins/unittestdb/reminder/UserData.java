@@ -1,5 +1,19 @@
 package org.jenkinsci.plugins.unittestdb.reminder;
 
+import com.google.common.collect.ImmutableList;
+import hudson.model.Item;
+import hudson.model.User;
+import jenkins.model.Jenkins;
+import org.apache.commons.jelly.JellyContext;
+import org.apache.commons.jelly.JellyException;
+import org.apache.commons.jelly.Script;
+import org.apache.commons.jelly.XMLOutput;
+import org.jenkinsci.plugins.unittestdb.db.Failure;
+import org.jenkinsci.plugins.unittestdb.db.Job;
+import org.xml.sax.InputSource;
+
+import javax.mail.*;
+import javax.mail.internet.*;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,17 +23,6 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import com.google.common.collect.ImmutableList;
-import hudson.model.User;
-import javax.mail.*;
-import javax.mail.internet.*;
-import jenkins.model.Jenkins;
-import org.apache.commons.jelly.JellyContext;
-import org.apache.commons.jelly.JellyException;
-import org.apache.commons.jelly.Script;
-import org.apache.commons.jelly.XMLOutput;
-import org.jenkinsci.plugins.unittestdb.db.Failure;
-import org.xml.sax.InputSource;
 
 /**
  *
@@ -27,6 +30,7 @@ import org.xml.sax.InputSource;
  */
 public class UserData {
 
+  private static final Jenkins JENKINS = Jenkins.getInstance();
   private final Logger LOG
           = Logger.getLogger ( UserData.class.getName () );
 
@@ -71,27 +75,33 @@ public class UserData {
   void setUnclaimed ( SortedMap<String, List<Failure>> unclaimed ) {
     for ( List<Failure> fl : unclaimed.values () ) {
       for ( Failure f : fl ) {
-        EMailJob job = this.unclaimed.get ( f.getJob ().getName () );
-        if ( job == null ) {
-          job = new EMailJob ( f.getJob () );
-          this.unclaimed.put ( job.getName (), job );
+        EMailJob job = getJob(f.getJob(), this.unclaimed);
+        if (job != null) {
+          job.add(f);
         }
-        job.add ( f );
       }
     }
   }
 
-  public void add ( Failure f ) {
-    LOG.log ( Level.INFO, "Adding failure {0}:{1} for user {2}", new Object[]{
-      f.getJob ().getName (), f.getUnitTest ().getName (), username } );
-    EMailJob job = tests.get ( f
-            .getJob ().getName () );
-    if ( job == null ) {
-      job = new EMailJob ( f.getJob () );
-      tests.put ( f.getJob ().getName (), job );
-      LOG.log ( Level.INFO, "Created job {0}", f.getJob ().getName () );
+  protected EMailJob getJob(Job job, SortedMap<String, EMailJob> existing) {
+    EMailJob rt = existing.get(job.getName());
+    if (rt == null) {
+      Item item = JENKINS.getItemByFullName(job.getName());
+      if (item instanceof hudson.model.Job) {
+        rt = new EMailJob((hudson.model.Job<?, ?>) item);
+        existing.put(job.getName(), rt);
+        LOG.log(Level.INFO, "Created job {0}", job.getName());
+      }
     }
-    job.add ( f );
+    return rt;
+  }
+
+  public void add ( Failure f ) {
+    LOG.log(Level.INFO, "Adding failure {0}:{1} for user {2}", new Object[]{f.getJob().getName(), f.getUnitTest().getName(), username});
+    EMailJob job = getJob(f.getJob(), tests);
+    if (job != null) {
+      job.add(f);
+    }
   }
 
   private JellyContext createContext () {
@@ -103,8 +113,7 @@ public class UserData {
 
   private Script compileScript ( JellyContext context ) throws JellyException,
                                                                IOException {
-    try ( InputStream file = getClass ().getResourceAsStream (
-            "reminderemail.jelly" ) ) {
+    try (InputStream file = getClass().getResourceAsStream("reminderemail.jelly")) {
       return context.compileScript ( new InputSource ( file ) );
     }
   }

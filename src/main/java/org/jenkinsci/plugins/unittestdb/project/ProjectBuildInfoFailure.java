@@ -100,38 +100,34 @@ public class ProjectBuildInfoFailure extends Actionable implements Action {
     TestResult rt = null;
     if ( depth > 10 || o == null ) {
       // do nothing
-    } else if ( o instanceof TestObject ) {
-      rt = ( (TestObject) o ).findCorrespondingResult ( id );
-    } else if ( o instanceof List ) {
-      for ( Object l : (List) o ) {
-        rt = findResult ( l, id, depth + 1 );
-        if ( rt != null ) {
-          break;
+    } else if (o instanceof Run) {
+      rt = findResult(((Run) o).getAction(AbstractTestResultAction.class), id, depth + 1);
+      if (rt == null) {
+        rt = findResult(((Run) o).getAction(AggregatedTestResultAction.class), id, depth + 1);
         }
-      }
-    } else if ( o instanceof AggregatedTestResultAction.ChildReport ) {
-      rt = findResult ( ( (AggregatedTestResultAction.ChildReport) o ).result,
-                        id, depth + 1 );
-    } else if ( o instanceof AbstractBuild ) {
-      rt = findResult ( ( (AbstractBuild) o ).getTestResultAction (), id,
-                        depth + 1 );
-      if ( rt == null ) {
-        rt = findResult ( ( (AbstractBuild) o )
-                .getAggregatedTestResultAction (), id, depth + 1 );
-      }
-      if ( rt == null ) {
-        if ( o instanceof MatrixBuild ) {
-          for ( MatrixRun r : ( (MatrixBuild) o ).getRuns () ) {
-            rt = findResult ( r.getTestResultAction (), id, depth + 1 );
-            if ( rt != null ) {
+      if (rt == null) {
+        if (o instanceof MatrixBuild) {
+          for (MatrixRun r : ((MatrixBuild) o).getRuns()) {
+            rt = findResult(r, id, depth + 1);
+            if (rt != null) {
               break;
             }
           }
         }
+        }
+    } else if (o instanceof TestObject) {
+      rt = ((TestObject) o).findCorrespondingResult(id);
+    } else if (o instanceof List) {
+      for (Object l : (List) o) {
+        rt = findResult(l, id, depth + 1);
+        if (rt != null) {
+          break;
+        }
       }
+    } else if (o instanceof AggregatedTestResultAction.ChildReport) {
+      rt = findResult(((AggregatedTestResultAction.ChildReport) o).result, id, depth + 1);
     } else if ( o instanceof AbstractTestResultAction ) {
-      rt = findResult ( ( (AbstractTestResultAction) o ).getResult (), id,
-                        depth + 1 );
+      rt = findResult(((AbstractTestResultAction) o).getResult(), id, depth + 1);
     } else {
       Class c = o.getClass ().getSuperclass ();
       LOG.log ( Level.WARNING, "Unhandled type {0}", c.getName () );

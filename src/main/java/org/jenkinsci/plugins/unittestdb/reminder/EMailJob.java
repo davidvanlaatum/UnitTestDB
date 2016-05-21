@@ -1,10 +1,11 @@
 package org.jenkinsci.plugins.unittestdb.reminder;
 
+import hudson.model.Job;
+import jenkins.model.Jenkins;
+import org.jenkinsci.plugins.unittestdb.db.Failure;
+
 import java.util.ArrayList;
 import java.util.List;
-import hudson.model.AbstractProject;
-import org.jenkinsci.plugins.unittestdb.db.Failure;
-import org.jenkinsci.plugins.unittestdb.db.Job;
 
 /**
  *
@@ -12,11 +13,12 @@ import org.jenkinsci.plugins.unittestdb.db.Job;
  */
 public class EMailJob {
 
-  protected AbstractProject<?, ?> project;
+  private static final Jenkins JENKINS = Jenkins.getInstance();
+  private final Job<?, ?> project;
   protected List<EMailTest> tests = new ArrayList<> ();
 
-  public EMailJob ( Job job ) {
-    project = AbstractProject.findNearest ( job.getName () );
+  public EMailJob(Job<?, ?> project) {
+    this.project = project;
   }
 
   public void add ( Failure f ) {
@@ -31,7 +33,7 @@ public class EMailJob {
     return tests;
   }
 
-  public AbstractProject<?, ?> getProject () {
+  public Job<?, ?> getProject() {
     return project;
   }
 

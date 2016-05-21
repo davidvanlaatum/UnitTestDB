@@ -83,7 +83,7 @@ public class ProjectBuildInfo extends Actionable implements Action {
     EntityManager em = null;
     try {
       em = config.getEntityManagerFactory ().createEntityManager ();
-      Job job = Job.findByName ( project.getDisplayName (), em, false );
+      Job job = Job.findByName(project.getFullName(), em, false);
       for ( Failure f : Failure.findByJob ( job, em ).values () ) {
         failures.add ( new ProjectBuildInfoFailure ( f, project, em ) );
       }
@@ -127,7 +127,7 @@ public class ProjectBuildInfo extends Actionable implements Action {
     EntityManager em = null;
     try {
       em = config.getEntityManagerFactory ().createEntityManager ();
-      Job job = Job.findByName ( project.getDisplayName (), em, false );
+      Job job = Job.findByName(project.getFullName(), em, false);
       List<UnitTest> tests = UnitTest.findUnreliableForJob ( job, em );
       for ( UnitTest test : tests ) {
         unreliable.add ( new ProjectBuildInfoUnreliable ( test ) );

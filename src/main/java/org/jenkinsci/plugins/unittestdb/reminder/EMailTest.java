@@ -1,15 +1,16 @@
 package org.jenkinsci.plugins.unittestdb.reminder;
 
-import java.util.ArrayList;
-import java.util.List;
-import hudson.model.AbstractBuild;
-import hudson.model.AbstractProject;
+import hudson.model.Job;
+import hudson.model.Run;
 import hudson.model.User;
 import hudson.tasks.test.TestResult;
 import jenkins.model.Jenkins;
 import org.jenkinsci.plugins.unittestdb.db.Failure;
 import org.jenkinsci.plugins.unittestdb.db.FailureUser;
 import org.jenkinsci.plugins.unittestdb.project.ProjectBuildInfoFailure;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  *
@@ -20,16 +21,15 @@ public class EMailTest {
   private static final Jenkins JENKINS = Jenkins.getInstance ();
 
   protected String name;
-  protected AbstractBuild<?, ?> firstBuild;
-  protected AbstractBuild<?, ?> lastBuild;
+  protected Run<?, ?> firstBuild;
+  protected Run<?, ?> lastBuild;
   protected List<EMailUser> users = new ArrayList<> ();
   protected String url;
   protected TestResult result;
 
-  public EMailTest ( Failure f, AbstractProject<?, ?> project ) {
+  public EMailTest(Failure f, Job<?, ?> project) {
     name = f.getUnitTest ().getName ();
-    firstBuild = project
-            .getBuildByNumber ( f.getFirstBuild ().getJenkinsId () );
+    firstBuild = project.getBuildByNumber(f.getFirstBuild().getJenkinsId());
     lastBuild = project.getBuildByNumber ( f.getLastBuild ().getJenkinsId () );
     for ( FailureUser u : f.getUsers () ) {
       User user = JENKINS.getUser ( u.getUser ().getUsername () );
@@ -45,11 +45,11 @@ public class EMailTest {
     return name;
   }
 
-  public AbstractBuild<?, ?> getFirstBuild () {
+  public Run<?, ?> getFirstBuild() {
     return firstBuild;
   }
 
-  public AbstractBuild<?, ?> getLastBuild () {
+  public Run<?, ?> getLastBuild() {
     return lastBuild;
   }
 

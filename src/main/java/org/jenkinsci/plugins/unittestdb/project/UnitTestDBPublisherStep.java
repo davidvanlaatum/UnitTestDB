@@ -33,6 +33,10 @@ public class UnitTestDBPublisherStep extends AbstractStepImpl {
 
         @Override
         protected UnitTestRecorder run() throws Exception {
+            if (build.getParent().getAction(ProjectBuildInfo.class) == null) {
+                build.getParent().addAction(new ProjectBuildInfo(build.getParent()));
+                build.getParent().save();
+            }
             UnitTestRecorder recorder = new UnitTestRecorder(build, launcher, listener);
             recorder.record();
             return recorder;
