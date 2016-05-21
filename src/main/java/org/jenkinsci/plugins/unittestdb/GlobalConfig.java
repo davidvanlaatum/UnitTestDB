@@ -6,6 +6,7 @@ import jenkins.model.GlobalConfiguration;
 import jenkins.model.Jenkins;
 import liquibase.Contexts;
 import liquibase.Liquibase;
+import liquibase.changelog.DatabaseChangeLog;
 import liquibase.database.DatabaseFactory;
 import liquibase.database.jvm.JdbcConnection;
 import liquibase.exception.LiquibaseException;
@@ -18,6 +19,7 @@ import org.kohsuke.stapler.StaplerRequest;
 
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
+import java.net.URL;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.logging.Level;
@@ -90,17 +92,23 @@ public class GlobalConfig extends GlobalConfiguration {
     @Override
     public final synchronized void load() {
         super.load();
-        checkDB();
+        try {
+            checkDB();
+        } catch (Exception e) {
+            LOG.log(Level.SEVERE, null, e);
+        }
     }
 
     protected void checkDB() {
         if (database != null) {
             try (Connection conn = database.getDataSource().getConnection()) {
                 liquibase.database.Database db = DatabaseFactory.getInstance().findCorrectDatabaseImplementation(new JdbcConnection(conn));
-                Liquibase liquibase = new Liquibase("unittests-schema.xml", new ClassLoaderResourceAccessor(), db);
+                URL changeLogFile = getClass().getResource("/unittests-schema.xml");
+                requireNonNull(changeLogFile, "Failed to find changelog");
+                DatabaseChangeLog changeLog = new DatabaseChangeLog(changeLogFile.toString());
+                Liquibase liquibase = new Liquibase(changeLog, new ClassLoaderResourceAccessor(), db);
                 liquibase.update((Contexts) null);
             } catch (LiquibaseException | SQLException ex) {
-                LOG.log(Level.SEVERE, null, ex);
                 throw new IllegalStateException("Liquibase update failed", ex);
             }
         } else {
