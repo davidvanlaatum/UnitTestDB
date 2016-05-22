@@ -1,12 +1,8 @@
 package org.jenkinsci.plugins.unittestdb.project;
 
-import java.io.IOException;
-import java.sql.SQLException;
 import hudson.Functions;
 import hudson.model.Action;
 import hudson.model.Actionable;
-import javax.persistence.EntityManager;
-import javax.servlet.ServletException;
 import jenkins.model.Jenkins;
 import org.jenkinsci.plugins.unittestdb.GlobalConfig;
 import org.jenkinsci.plugins.unittestdb.db.FailureUser;
@@ -15,6 +11,13 @@ import org.kohsuke.stapler.StaplerRequest;
 import org.kohsuke.stapler.StaplerResponse;
 import org.kohsuke.stapler.export.Exported;
 import org.kohsuke.stapler.export.ExportedBean;
+
+import javax.persistence.EntityManager;
+import javax.servlet.ServletException;
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.Objects;
+
 import static org.jenkinsci.plugins.unittestdb.db.FailureUserState.*;
 
 /**
@@ -85,6 +88,15 @@ public class ProjectBuildInfoUser extends Actionable implements Action {
       em.getTransaction ().begin ();
       FailureUser fu = FailureUser.findByID ( id, em );
       fu.setState ( state );
+      if (state == Was_Me) {
+        for (FailureUser user : fu.getFailure().getUsers()) {
+          if (!Objects.equals(user.getFailureUserId(), this.id)) {
+            if (user.getState() == Maybe) {
+              user.setState(Unlikely);
+            }
+          }
+        }
+      }
       em.getTransaction ().commit ();
     } finally {
       if ( em != null ) {
@@ -117,24 +129,27 @@ public class ProjectBuildInfoUser extends Actionable implements Action {
     rsp.forwardToPreviousPage ( req );
   }
 
+  public void doUnlikely(StaplerRequest req, StaplerResponse rsp) throws
+      SQLException, ServletException, IOException {
+    doUpdateTo(Unlikely);
+    rsp.forwardToPreviousPage(req);
+  }
+
   @Override
   public ContextMenu doContextMenu ( StaplerRequest request,
                                      StaplerResponse response ) throws Exception {
     ContextMenu menu = super.doContextMenu ( request, response );
 
     menu.add ( "maybe", JENKINS.getRootUrl () + Functions.getResourcePath ()
-                                + "/images/16x16/document_add.png", "Maybe",
-               true );
+        + "/images/16x16/document_add.png", "Maybe", true);
     menu.add ( "wasme", JENKINS.getRootUrl () + Functions.getResourcePath ()
-                                + "/images/16x16/document_add.png", "Was Me",
-               true );
+        + "/images/16x16/document_add.png", "Was Me", true);
     menu.add ( "notme", JENKINS.getRootUrl () + Functions.getResourcePath ()
-                                + "/images/16x16/document_add.png", "Not Me",
-               true );
+        + "/images/16x16/document_add.png", "Not Me", true);
+    menu.add("unlikely", JENKINS.getRootUrl() + Functions.getResourcePath()
+        + "/images/16x16/document_add.png", "Unlikely", true);
     menu.add ( "mightbeme", JENKINS.getRootUrl () + Functions.getResourcePath ()
-                                    + "/images/16x16/document_add.png",
-               "Might Be Me",
-               true );
+        + "/images/16x16/document_add.png", "Might Be Me", true);
 
     return menu;
   }

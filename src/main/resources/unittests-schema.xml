@@ -238,4 +238,8 @@
       <column name="statechanges" type="INT"/>
     </addColumn>
   </changeSet>
+  <changeSet id="unlikely" author="david">
+    <modifyDataType tableName="failure_users" columnName="state"
+                    newDataType="ENUM('Maybe', 'Not Me', 'Was Me', 'Might be Me', 'Unlikely')"/>
+  </changeSet>
 </databaseChangeLog>

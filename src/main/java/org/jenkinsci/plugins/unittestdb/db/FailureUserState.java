@@ -11,7 +11,8 @@ public enum FailureUserState {
   Maybe ( "Maybe" ),
   Not_Me ( "Not Me" ),
   Was_Me ( "Was Me" ),
-  Might_be_Me ( "Might be Me" );
+  Might_be_Me("Might be Me"),
+  Unlikely("Unlikely");
 
   FailureUserState ( String value ) {
     try {

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?jelly escape-by-default='true'?>
-<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:i="jelly:fmt" xmlns:l="/lib/layout"
-         xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+<j:jelly xmlns:j="jelly:core" xmlns:l="/lib/layout"
+         xmlns:t="/lib/hudson">
   <table class="unittests pane bigtable sortable">
     <thead>
       <tr>
@@ -45,7 +45,16 @@
         <td class="user">
           <ul>
             <j:forEach items="${failure.users}" var="user">
-              <li>${user.user}</li>
+              <j:if test="${h.hasPermission(org.jenkinsci.plugins.unittestdb.GlobalConfig.CLAIM)}">
+                <li>
+                  <a href="${rootURL}/${it.project.url}${it.urlName}/failure/${failure.failureId}/user/${user.user.id}"
+                     onclick="return false;" class="model-link inside">${user.user}
+                  </a>
+                </li>
+              </j:if>
+              <j:if test="${!h.hasPermission(org.jenkinsci.plugins.unittestdb.GlobalConfig.CLAIM)}">
+                <li>${user.user}</li>
+              </j:if>
             </j:forEach>
           </ul>
         </td>
@@ -57,7 +66,11 @@
           </ul>
         </td>
         <td class="actions">
-          <a href="${rootURL}/${it.project.url}${it.urlName}/failure/${failure.failureId}/user/me" class="model-link inside">Claim</a>
+          <l:hasPermission permission="${org.jenkinsci.plugins.unittestdb.GlobalConfig.CLAIM}">
+            <a href="${rootURL}/${it.project.url}${it.urlName}/failure/${failure.failureId}/user/me"
+               onclick="return false;" class="model-link inside">Claim
+            </a>
+          </l:hasPermission>
         </td>
       </tr>
     </j:forEach>

@@ -2,11 +2,13 @@ package org.jenkinsci.plugins.unittestdb;
 
 import com.google.inject.Inject;
 import hudson.Extension;
+import hudson.security.Permission;
+import hudson.security.PermissionGroup;
+import hudson.security.PermissionScope;
 import jenkins.model.GlobalConfiguration;
 import jenkins.model.Jenkins;
 import liquibase.Contexts;
 import liquibase.Liquibase;
-import liquibase.changelog.DatabaseChangeLog;
 import liquibase.database.DatabaseFactory;
 import liquibase.database.jvm.JdbcConnection;
 import liquibase.exception.LiquibaseException;
@@ -19,10 +21,13 @@ import org.kohsuke.stapler.StaplerRequest;
 
 import javax.persistence.EntityManagerFactory;
 import javax.sql.DataSource;
-import java.net.URL;
+import java.io.IOException;
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -103,10 +108,21 @@ public class GlobalConfig extends GlobalConfiguration {
         if (database != null) {
             try (Connection conn = database.getDataSource().getConnection()) {
                 liquibase.database.Database db = DatabaseFactory.getInstance().findCorrectDatabaseImplementation(new JdbcConnection(conn));
-                URL changeLogFile = getClass().getResource("/unittests-schema.xml");
-                requireNonNull(changeLogFile, "Failed to find changelog");
-                DatabaseChangeLog changeLog = new DatabaseChangeLog(changeLogFile.toString());
-                Liquibase liquibase = new Liquibase(changeLog, new ClassLoaderResourceAccessor(), db);
+                Liquibase liquibase = new Liquibase("/unittests-schema.xml", new ClassLoaderResourceAccessor() {
+                    @Override
+                    public Set<InputStream> getResourcesAsStream(String path) throws IOException {
+                        Set<InputStream> resourcesAsStream = super.getResourcesAsStream(path);
+                        if (resourcesAsStream.size() > 1) {
+                            Iterator<InputStream> iterator = resourcesAsStream.iterator();
+                            iterator.next();
+                            while (iterator.hasNext()) {
+                                iterator.next().close();
+                                iterator.remove();
+                            }
+                        }
+                        return resourcesAsStream;
+                    }
+                }, db);
                 liquibase.update((Contexts) null);
             } catch (LiquibaseException | SQLException ex) {
                 throw new IllegalStateException("Liquibase update failed", ex);
@@ -115,4 +131,8 @@ public class GlobalConfig extends GlobalConfiguration {
             LOG.log(Level.INFO, "No database config skipping");
         }
     }
+
+    public static final PermissionGroup PERMISSIONS = new PermissionGroup(GlobalConfig.class, Messages._Permission_Group_Description());
+    public static final Permission CLAIM = new Permission(PERMISSIONS, "Claim", Messages._Permission_Claim_Description(), Permission.WRITE, PermissionScope.ITEM);
+
 }
