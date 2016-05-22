@@ -1,14 +1,16 @@
 package org.jenkinsci.plugins.unittestdb.db;
 
+import com.google.common.base.Strings;
+import hudson.Extension;
+
+import javax.persistence.*;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 import java.io.Serializable;
 import java.util.List;
 import java.util.SortedMap;
 import java.util.TreeMap;
-import com.google.common.base.Strings;
-import hudson.Extension;
-import javax.persistence.*;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
+
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -29,7 +31,7 @@ import static java.util.Objects.requireNonNull;
   @NamedQuery ( name = "UnitTest.findByJobAndName", query
                 = "SELECT u FROM UnitTest u WHERE u.job.jobId = :job AND u.name = :name" ),
   @NamedQuery ( name = "UnitTest.findUnreliableForJob", query
-                = "SELECT u FROM UnitTest u WHERE u.job.jobId = :job AND failure_rate >= :rate AND runs >= :runs" )
+      = "SELECT u FROM UnitTest u WHERE u.job.jobId = :job AND u.failureRate >= :rate AND u.runs >= :runs")
 } )
 public class UnitTest extends DBObject implements Serializable {
 
@@ -37,11 +39,9 @@ public class UnitTest extends DBObject implements Serializable {
   private static final Object lock = new Object ();
   @Id
   @GeneratedValue ( strategy = GenerationType.IDENTITY )
-  @Basic ( optional = false )
-  @Column ( name = "unit_test_id" )
+  @Column(name = "unit_test_id", nullable = false)
   private Integer unitTestId;
-  @Basic ( optional = false )
-  @Column ( name = "name" )
+  @Column(name = "name", nullable = false)
   private String name;
   @Column ( name = "id" )
   protected String id;
@@ -182,13 +182,13 @@ public class UnitTest extends DBObject implements Serializable {
     if ( Strings.isNullOrEmpty ( name ) ) {
       throw new IllegalArgumentException ( "Name is null or empty" );
     }
-    Query q = em.createNamedQuery ( "UnitTest.findByJobAndName" );
+    TypedQuery<UnitTest> q = em.createNamedQuery("UnitTest.findByJobAndName", UnitTest.class);
     q.setParameter ( "job", job.getJobId () );
     q.setParameter ( "name", name );
     q.setMaxResults ( 1 );
     UnitTest rt = null;
     try {
-      rt = (UnitTest) q.getSingleResult ();
+      rt = q.getSingleResult();
     } catch ( NoResultException ex ) {
       if ( create ) {
         synchronized ( lock ) {
@@ -218,14 +218,15 @@ public class UnitTest extends DBObject implements Serializable {
                                                         EntityManager em ) {
     requireNonNull ( em, "No EntityManager passed in" );
     requireNonNull ( job, "No job passwd in" );
-    Query q = em.createNamedQuery ( "UnitTest.findByJob" );
+    TypedQuery<UnitTest> q = em.createNamedQuery("UnitTest.findByJob", UnitTest.class);
     q.setParameter ( "job", job.getJobId () );
     SortedMap<String, UnitTest> rt = new TreeMap<> ();
     try {
-      for ( UnitTest u : (List<UnitTest>) q.getResultList () ) {
+      for (UnitTest u : q.getResultList()) {
         rt.put ( u.getName (), u );
       }
     } catch ( NoResultException ex ) {
+      // ignore
     }
 
     return rt;
@@ -235,13 +236,14 @@ public class UnitTest extends DBObject implements Serializable {
     List<UnitTest> rt = null;
     requireNonNull ( em, "No EntityManager passed in" );
     requireNonNull ( job, "No job passwd in" );
-    Query q = em.createNamedQuery ( "UnitTest.findUnreliableForJob" );
+    TypedQuery<UnitTest> q = em.createNamedQuery("UnitTest.findUnreliableForJob", UnitTest.class);
     q.setParameter ( "job", job.getJobId () );
-    q.setParameter ( "rate", 20 );
+    q.setParameter("rate", 20.0);
     q.setParameter ( "runs", 10 );
     try {
       rt = q.getResultList ();
     } catch ( NoResultException ex ) {
+      // ignore
     }
     return rt;
   }

@@ -1,15 +1,17 @@
 package org.jenkinsci.plugins.unittestdb.db;
 
+import com.google.common.base.Strings;
+import hudson.Extension;
+
+import javax.persistence.*;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import com.google.common.base.Strings;
-import hudson.Extension;
-import javax.persistence.*;
-import javax.xml.bind.annotation.XmlRootElement;
-import javax.xml.bind.annotation.XmlTransient;
+
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -21,14 +23,10 @@ import static java.util.Objects.requireNonNull;
 @Table ( name = "jobs" )
 @XmlRootElement
 @NamedQueries ( {
-  @NamedQuery ( name = "Job.findAll", query
-                = "SELECT j FROM Job j" ),
-  @NamedQuery ( name = "Job.findByJobId", query
-                = "SELECT j FROM Job j WHERE j.jobId = :jobId" ),
-  @NamedQuery ( name = "Job.findByName", query
-                = "SELECT j FROM Job j WHERE j.name = :name" ),
-  @NamedQuery ( name = "Job.findByLastrun", query
-                = "SELECT j FROM Job j WHERE j.lastrun = :lastrun" ) } )
+    @NamedQuery(name = "Job.findAll", query = "SELECT j FROM Job j"),
+    @NamedQuery(name = "Job.findByJobId", query = "SELECT j FROM Job j WHERE j.jobId = :jobId"),
+    @NamedQuery(name = "Job.findByName", query = "SELECT j FROM Job j WHERE j.name = :name"),
+    @NamedQuery(name = "Job.findByLastrun", query = "SELECT j FROM Job j WHERE j.lastrun = :lastrun")})
 public class Job extends DBObject implements Serializable {
 
   private static final Logger LOG = Logger.getLogger ( Job.class.getName () );
@@ -215,10 +213,9 @@ public class Job extends DBObject implements Serializable {
     return rt;
   }
 
-  @SuppressWarnings ( "unchecked" )
   public static List<Job> getAll ( EntityManager em ) {
     requireNonNull ( em, "No EntityManager passed in" );
-    Query q = em.createNamedQuery ( "Job.findAll" );
+    TypedQuery<Job> q = em.createNamedQuery("Job.findAll", Job.class);
     List<Job> rt = null;
     try {
       rt = q.getResultList ();

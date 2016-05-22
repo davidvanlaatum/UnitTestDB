@@ -27,47 +27,46 @@ import java.util.logging.Logger;
 @Extension
 public class GlobalView extends Actionable implements RootAction {
 
-  private static final Jenkins JENKINS = Jenkins.getInstance ();
+  private static final Jenkins JENKINS = Jenkins.getInstance();
   private static final Logger LOG
-          = Logger.getLogger ( GlobalView.class.getName () );
+      = Logger.getLogger(GlobalView.class.getName());
 
   @Override
-  public String getDisplayName () {
+  public String getDisplayName() {
     return "Unit Test DB";
   }
 
   @Override
-  public String getIconFileName () {
+  public String getIconFileName() {
     return "clipboard.png";
   }
 
   @Override
-  public String getSearchUrl () {
+  public String getSearchUrl() {
     return null;
   }
 
   @Override
-  public String getUrlName () {
+  public String getUrlName() {
     return "unittestdb";
   }
 
-  public Api getApi () {
-    return new Api ( this );
+  public Api getApi() {
+    return new Api(this);
   }
 
-  @Exported ( inline = true )
-  public Collection<ProjectBuildInfo> getJobs () {
-    SortedMap<String, ProjectBuildInfo> jobs = new TreeMap<> ();
-    GlobalConfig config = JENKINS.getInjector ().getInstance (
-            GlobalConfig.class );
+  @Exported(inline = true)
+  public Collection<ProjectBuildInfo> getJobs() {
+    SortedMap<String, ProjectBuildInfo> jobs = new TreeMap<>();
+    GlobalConfig config = JENKINS.getInjector().getInstance(GlobalConfig.class);
     EntityManager em = null;
     try {
-      em = config.getEntityManagerFactory ().createEntityManager ();
+      em = config.getEntityManagerFactory().createEntityManager();
       List<TopLevelItem> projects = Util.createSubList(JENKINS.getAllItems(), TopLevelItem.class);
-      for ( Job job : Job.getAll ( em ) ) {
+      for (Job job : Job.getAll(em)) {
         hudson.model.Job<?, ?> project = null;
 
-        for ( TopLevelItem item : projects ) {
+        for (TopLevelItem item : projects) {
           if (item instanceof hudson.model.Job) {
             if (job.getName().equals(item.getFullName())) {
               project = (hudson.model.Job<?, ?>) item;
@@ -76,20 +75,23 @@ public class GlobalView extends Actionable implements RootAction {
           }
         }
 
-        if ( project != null ) {
-          ProjectBuildInfo info = new ProjectBuildInfo ( project );
-          jobs.put ( job.getName (), info );
+        if (project != null) {
+          ProjectBuildInfo info = new ProjectBuildInfo(project);
+          jobs.put(job.getName(), info);
+          LOG.log(Level.INFO, "Found {0}", job.getName());
+        } else {
+          LOG.log(Level.INFO, "Failed to find match for {0}", job.getName());
         }
       }
-    } catch ( SQLException ex ) {
-      LOG.log ( Level.SEVERE, null, ex );
+    } catch (SQLException ex) {
+      LOG.log(Level.SEVERE, null, ex);
     } finally {
-      if ( em != null ) {
-        em.close ();
+      if (em != null) {
+        em.close();
       }
     }
 
-    return jobs.values ();
+    return jobs.values();
   }
 
 }

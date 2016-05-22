@@ -22,6 +22,7 @@ import javax.sql.DataSource;
 import java.net.URL;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -79,12 +80,11 @@ public class GlobalConfig extends GlobalConfiguration {
         if (fac == null) {
             JENKINS.getInjector().injectMembers(this);
             requireNonNull(ps, "Persistence Service is null");
-            Database db = requireNonNull(getDatabase(),
-                    "No database configured");
+            Database db = requireNonNull(getDatabase(), "No database configured");
             DataSource ds = requireNonNull(db.getDataSource(), "No Datasource");
-            fac = requireNonNull(ps
-                            .createEntityManagerFactory(ds, DBObject.allClasses()),
-                    "No EntityManagerFactory");
+            List<Class> classes = DBObject.allClasses();
+            LOG.log(Level.INFO, "Found DB classes {0}", classes);
+            fac = requireNonNull(ps.createEntityManagerFactory(ds, classes), "No EntityManagerFactory");
         }
         return fac;
     }
