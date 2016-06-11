@@ -1,22 +1,27 @@
 package org.jenkinsci.plugins.unittestdb.email;
 
+import hudson.console.ConsoleNote;
+import hudson.model.FreeStyleBuild;
+import hudson.model.FreeStyleProject;
+import hudson.model.TaskListener;
+import hudson.util.AbstractTaskListener;
 import org.jenkinsci.plugins.unittestdb.build.BuildInfo;
-import org.jenkinsci.plugins.unittestdb.email.BrokenTestsTrigger;
+import org.jenkinsci.plugins.unittestdb.db.Build;
+import org.jenkinsci.plugins.unittestdb.db.Failure;
+import org.jenkinsci.plugins.unittestdb.db.FailureUser;
+import org.jenkinsci.plugins.unittestdb.db.UnitTest;
+import org.jenkinsci.plugins.unittestdb.db.User;
+import org.junit.Rule;
+import org.junit.Test;
+import org.jvnet.hudson.test.JenkinsRule;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Objects;
-import hudson.console.ConsoleNote;
-import hudson.model.FreeStyleBuild;
-import hudson.model.FreeStyleProject;
-import hudson.model.TaskListener;
-import hudson.util.AbstractTaskListener;
-import org.jenkinsci.plugins.unittestdb.db.*;
-import org.junit.Rule;
-import org.junit.Test;
-import org.jvnet.hudson.test.JenkinsRule;
+
 import static org.junit.Assert.*;
 
 /**
@@ -29,7 +34,7 @@ public class BrokenTestsTriggerTest {
   }
 
   @Rule
-  public JenkinsRule j = new JenkinsRule ();
+  public final JenkinsRule j = new JenkinsRule ();
 
   /**
    * Test of trigger method, of class BrokenTestsTrigger.
