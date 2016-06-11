@@ -1,12 +1,11 @@
 package org.jenkinsci.plugins.unittestdb.project;
 
-import com.google.common.collect.Lists;
 import hudson.Launcher;
-import hudson.matrix.Axis;
-import hudson.matrix.AxisList;
-import hudson.matrix.MatrixBuild;
-import hudson.matrix.MatrixProject;
-import hudson.model.*;
+import hudson.model.AbstractBuild;
+import hudson.model.BuildListener;
+import hudson.model.FreeStyleBuild;
+import hudson.model.FreeStyleProject;
+import hudson.model.Result;
 import hudson.tasks.junit.JUnitResultArchiver;
 import org.jenkinsci.plugins.unittestdb.GlobalConfig;
 import org.jenkinsci.plugins.unittestdb.TestBase;
@@ -144,7 +143,7 @@ public class UnitTestDBPublisherTest extends TestBase {
     assertFalse ( info.hasFailures () );
     assertTrue ( info.getUsers ().isEmpty () );
   }
-
+/*
   @Test
   public void testMatrix () throws Exception {
     final String UNITTESTUSER = "unittestuser2";
@@ -230,5 +229,5 @@ public class UnitTestDBPublisherTest extends TestBase {
             findByUsername ( UNITTESTUSER, em, false );
 
     assertNotNull ( "No User", user );
-  }
+  }*/
 }
