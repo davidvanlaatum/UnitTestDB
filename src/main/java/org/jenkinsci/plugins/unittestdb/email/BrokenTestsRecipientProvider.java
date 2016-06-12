@@ -17,7 +17,6 @@ import org.kohsuke.stapler.DataBoundConstructor;
 import javax.annotation.Nonnull;
 import javax.mail.internet.AddressException;
 import javax.mail.internet.InternetAddress;
-import java.io.UnsupportedEncodingException;
 import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -86,10 +85,9 @@ public class BrokenTestsRecipientProvider extends RecipientProvider {
           found = true;
           try {
             InternetAddress a = new InternetAddress ( address );
-            a.setPersonal ( user.getDisplayName () );
             to.add ( a );
             LOG.log ( Level.INFO, "Added {0} to list of recipients", address );
-          } catch ( AddressException | UnsupportedEncodingException ex ) {
+          } catch ( AddressException ex ) {
             LOG.log ( Level.SEVERE, "Exception while adding email address for user " + u, ex );
           }
         }
