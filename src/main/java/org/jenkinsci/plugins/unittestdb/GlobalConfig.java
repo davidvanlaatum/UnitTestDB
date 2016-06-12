@@ -108,11 +108,11 @@ public class GlobalConfig extends GlobalConfiguration {
         if (database != null) {
             try (Connection conn = database.getDataSource().getConnection()) {
                 liquibase.database.Database db = DatabaseFactory.getInstance().findCorrectDatabaseImplementation(new JdbcConnection(conn));
-                Liquibase liquibase = new Liquibase("/unittests-schema.xml", new ClassLoaderResourceAccessor() {
+                Liquibase liquibase = new Liquibase ( "unittests-schema.xml", new ClassLoaderResourceAccessor () {
                     @Override
                     public Set<InputStream> getResourcesAsStream(String path) throws IOException {
                         Set<InputStream> resourcesAsStream = super.getResourcesAsStream(path);
-                        if (resourcesAsStream.size() > 1) {
+                        if ( resourcesAsStream != null && resourcesAsStream.size () > 1 ) {
                             Iterator<InputStream> iterator = resourcesAsStream.iterator();
                             iterator.next();
                             while (iterator.hasNext()) {
